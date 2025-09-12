@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
 
-import TechStack from "../models/techstack.model.js";
-import User from "../models/user.model.js";
-import Category from "../models/category.model.js";
+import TechStack from "../models/techstack.model.ts";
+import User from "../models/user.model.ts";
+import Category from "../models/category.model.ts";
 
 import type { AuthenticatedRequest } from "../middlewares/protectRoute.ts";
 
