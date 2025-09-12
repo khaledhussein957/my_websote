@@ -1,7 +1,7 @@
 import express from "express";
 
 import { authMiddleware } from "../middlewares/protectRoute.ts";
-import upload from "../middlewares/upload.ts";
+import { uploadProfile } from "../middlewares/upload.ts";
 import {
   validateUpdateUser,
   validateChangePassword,
@@ -18,7 +18,7 @@ const router = express.Router();
 router.put(
   "/update-account",
   authMiddleware,
-  upload.single("image"),
+  uploadProfile.single("image"),
   validateUpdateUser,
   updateAccount
 );
