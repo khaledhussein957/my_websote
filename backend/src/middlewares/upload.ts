@@ -2,20 +2,32 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadPath = "src/uploads/profile-pictures/";
-        // Check if the folder exists, if not, create it
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
+// ✅ Generic function to create multer storage with dynamic folder
+const createStorage = (folder: string) =>
+  multer.diskStorage({
+    destination: (req, file, cb) => {
+      const uploadPath = path.join("src", "uploads", folder);
+      if (!fs.existsSync(uploadPath)) {
+        fs.mkdirSync(uploadPath, { recursive: true });
+      }
+      cb(null, uploadPath);
     },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
+    filename: (req, file, cb) => {
+      cb(null, `${Date.now()}${path.extname(file.originalname)}`);
     },
+  });
+
+// ✅ Profile picture uploader
+export const uploadProfile = multer({
+  storage: createStorage("profile-pictures"),
 });
 
-const upload = multer({ storage });
+// ✅ Tech stack icon uploader
+export const uploadTechStackIcon = multer({
+  storage: createStorage("techstack-icons"),
+});
 
-export default upload;
+// ✅ Project image uploader
+export const uploadProjectImage = multer({
+  storage: createStorage("projects"),
+});

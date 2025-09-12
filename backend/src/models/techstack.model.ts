@@ -5,6 +5,7 @@ export interface ITechStack extends Document {
   name: string;
   icon?: string; // optional URL for icon (S3)
   category?: Types.ObjectId[]; // e.g., "frontend", "backend", "database", "tool"
+  proficiency: number; // 1-10 scale
 }
 
 const techStackSchema = new Schema<ITechStack>(
@@ -13,6 +14,7 @@ const techStackSchema = new Schema<ITechStack>(
     name: { type: String, required: true, unique: true },
     icon: { type: String },
     category: { type: Schema.Types.ObjectId, ref: "Category" },
+    proficiency: { type: Number, min: 1, max: 10, default: 5 }, // 1-10 scale
   },
   { timestamps: true }
 );
