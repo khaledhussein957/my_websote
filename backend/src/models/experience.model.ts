@@ -1,12 +1,13 @@
-import { Schema, Document, model } from "mongoose";
+import { Schema, Document, model, Types } from "mongoose";
 
 export interface IExperience extends Document {
   user: Types.ObjectId;
+  title: string;
+  description?: string;
   company: string;
-  position: string;
   startYear: string;
   endYear: string;
-  uri: string;
+  location: string;
 
   createdAt: Date;
   updatedAt: Date;
@@ -15,11 +16,14 @@ export interface IExperience extends Document {
 const experienceSchema: Schema<IExperience> = new Schema(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    company: {
+    title: {
       type: String,
       required: true,
     },
-    position: {
+    description: {
+      type: String,
+    },
+    company: {
       type: String,
       required: true,
     },
@@ -29,7 +33,7 @@ const experienceSchema: Schema<IExperience> = new Schema(
     endYear: {
       type: String,
     },
-    uri: {
+    location: {
       type: String,
     },
   },
