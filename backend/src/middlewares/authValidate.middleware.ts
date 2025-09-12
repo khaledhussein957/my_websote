@@ -1,5 +1,5 @@
 import { type NextFunction, type Request, type Response } from "express";
-import { registerAccount, loginAccount } from "../validations/auth.validate.ts";
+import { registerAccount, loginAccount } from "../validations/auth.validator.ts";
 
 export const registerAccountValidate = async (req: Request, res: Response, next: NextFunction) => {
     const { error } = registerAccount.validate(req.body);
