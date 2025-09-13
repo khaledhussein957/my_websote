@@ -212,6 +212,12 @@ export const deleteTechStack = async (
     if (!userId)
       return res.status(401).json({ message: "Unauthorized", status: "error" });
 
+    const user = await User.findById(userId);
+    if (!user)
+      return res
+        .status(404)
+        .json({ message: "User not found", status: "error" });
+
     const { id } = req.params;
     if (!id)
       return res
