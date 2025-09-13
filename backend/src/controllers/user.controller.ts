@@ -211,21 +211,38 @@ export const deleteAccount = async (
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (user.imageKey) {
+    // for aws
+
+    // if (user.imageKey) {
+    //   try {
+    //     await s3
+    //       .deleteObject({
+    //         Bucket: ENV.AWS_S3_BUCKET_NAME,
+    //         Key: user.imageKey,
+    //       })
+    //       .promise();
+    //     console.log(`🗑️ Old profile image deleted: ${user.imageKey}`);
+    //   } catch (err) {
+    //     console.error("❌ Failed to delete old profile image:", err);
+    //     return res.status(500).json({
+    //       message: "Failed to remove old profile image. Upload aborted.",
+    //       status: "error",
+    //     });
+    //   }
+    // }
+
+    // for cloudinary
+
+    if (user.image) {
+      // Delete old image from Cloudinary
+      const publicId = user.image.split("/").pop()?.split(".")[0];
       try {
-        await s3
-          .deleteObject({
-            Bucket: ENV.AWS_S3_BUCKET_NAME,
-            Key: user.imageKey,
-          })
-          .promise();
-        console.log(`🗑️ Old profile image deleted: ${user.imageKey}`);
-      } catch (err) {
-        console.error("❌ Failed to delete old profile image:", err);
-        return res.status(500).json({
-          message: "Failed to remove old profile image. Upload aborted.",
-          status: "error",
-        });
+        if (publicId) {
+          await cloudinary.uploader.destroy(`profile-pictures/${publicId}`);
+          console.log(`🗑️ Old profile image deleted: ${publicId}`);
+        }
+      } catch (error) {
+        console.error("❌ Failed to delete old profile image:", error);
       }
     }
 

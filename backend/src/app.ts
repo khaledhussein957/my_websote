@@ -7,6 +7,7 @@ import educationRoutes from "../src/routes/education.route.ts";
 import experienceRoutes from "../src/routes/experience.route.ts";
 import categoryRoutes from "./routes/category.route.ts";
 import techStackRoutes from "./routes/techstack.route.ts";
+import projectRoutes from "./routes/project.route.ts";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use("/api/educations", educationRoutes);
 app.use("/api/experiences", experienceRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/techstacks", techStackRoutes);
+app.use("/api/projects", projectRoutes);
 
 
 export default app;
