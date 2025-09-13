@@ -31,3 +31,8 @@ export const uploadTechStackIcon = multer({
 export const uploadProjectImage = multer({
   storage: createStorage("projects"),
 });
+
+// ✅ Blog image uploader
+export const uploadBlogImage = multer({
+  storage: createStorage("blogs"),
+});
