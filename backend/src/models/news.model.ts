@@ -1,12 +1,12 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
 export interface INews extends Document {
   user: Types.ObjectId;
   title: string;
   description: string;
-  image?: string; // optional news image URL
-  author?: string; // optional author name
-  publishedAt: Date;
+  image?: string;
+  slug?: string;
+  eventAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,10 +17,10 @@ const newsSchema: Schema<INews> = new Schema(
     title: { type: String, required: true, trim: true },
     description: { type: String, required: true },
     image: { type: String },
-    author: { type: String },
-    publishedAt: { type: Date, default: Date.now },
+    slug: { type: String },
+    eventAt: { type: Date, required: true },
   },
-  { timestamps: true } // adds createdAt and updatedAt automatically
+  { timestamps: true }
 );
 
 const News: Model<INews> = mongoose.model<INews>("News", newsSchema);
