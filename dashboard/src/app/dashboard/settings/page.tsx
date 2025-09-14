@@ -1,16 +1,24 @@
 'use client'
 
-import { useState } from 'react'
-import { useAppSelector } from '@/lib/hooks'
+import { useState, useEffect } from 'react'
+import { useAppSelector, useAppDispatch } from '@/lib/hooks'
+import { updateProfile, changePassword, clearError, clearSuccess } from '@/lib/slices/userSlice'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Sun, Moon, Monitor, Save, Key, User } from 'lucide-react'
+import { Sun, Moon, Monitor, Save, Key, User, AlertCircle, CheckCircle } from 'lucide-react'
 
 export default function SettingsPage() {
+  const dispatch = useAppDispatch()
   const { user } = useAppSelector((state) => state.auth)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isPasswordLoading, setIsPasswordLoading] = useState(false)
+  const { 
+    currentUser, 
+    isUpdating, 
+    isChangingPassword, 
+    error, 
+    success 
+  } = useAppSelector((state) => state.user)
+  
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system')
   
   // Profile form state
@@ -22,57 +30,86 @@ export default function SettingsPage() {
     about_me: user?.about_me || '',
   })
   
+  // Image upload state
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  
   // Password form state
   const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
+    oldPassword: '',
     newPassword: '',
-    confirmPassword: '',
+    comfirmPassword: '',
   })
+  
+  // Update profile data when user changes
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        title: user.title || '',
+        about_me: user.about_me || '',
+      })
+    }
+  }, [user])
+  
+  // Clear messages after 5 seconds
+  useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        dispatch(clearError())
+        dispatch(clearSuccess())
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [error, success, dispatch])
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setSelectedImage(file)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+    dispatch(clearError())
+    dispatch(clearSuccess())
     
-    try {
-      // await api.put('/users/profile', profileData)
-      console.log('Profile updated:', profileData)
-      // You might want to refetch user data here
-    } catch (error) {
-      console.error('Failed to update profile:', error)
-    } finally {
-      setIsLoading(false)
-    }
+    dispatch(updateProfile({
+      ...profileData,
+      image: selectedImage || undefined,
+    }))
   }
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('New passwords do not match')
+    if (passwordData.newPassword !== passwordData.comfirmPassword) {
+      dispatch(clearError())
+      dispatch(clearSuccess())
+      // You could dispatch a custom error action here
       return
     }
     
-    setIsPasswordLoading(true)
+    dispatch(clearError())
+    dispatch(clearSuccess())
     
-    try {
-      // await api.put('/users/password', {
-      //   currentPassword: passwordData.currentPassword,
-      //   newPassword: passwordData.newPassword,
-      // })
-      
-      // Reset form
+    dispatch(changePassword(passwordData))
+    
+    // Reset form on success
+    if (!error) {
       setPasswordData({
-        currentPassword: '',
+        oldPassword: '',
         newPassword: '',
-        confirmPassword: '',
+        comfirmPassword: '',
       })
-      
-      alert('Password updated successfully')
-    } catch (error) {
-      console.error('Failed to update password:', error)
-      alert('Failed to update password')
-    } finally {
-      setIsPasswordLoading(false)
     }
   }
 
@@ -109,6 +146,29 @@ export default function SettingsPage() {
         </p>
       </div>
 
+      {/* Error and Success Messages */}
+      {error && (
+        <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800">
+          <div className="flex">
+            <AlertCircle className="h-5 w-5 text-red-400 mr-2 mt-0.5" />
+            <div className="text-sm text-red-700 dark:text-red-400">
+              {error}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {success && (
+        <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-4 border border-green-200 dark:border-green-800">
+          <div className="flex">
+            <CheckCircle className="h-5 w-5 text-green-400 mr-2 mt-0.5" />
+            <div className="text-sm text-green-700 dark:text-green-400">
+              {success}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-6 md:grid-cols-2">
         {/* Profile Settings */}
         <Card>
@@ -120,6 +180,35 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleProfileSubmit} className="space-y-4">
+              {/* Profile Image Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Profile Picture
+                </label>
+                <div className="flex items-center space-x-4">
+                  <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
+                    {imagePreview ? (
+                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    ) : user?.image ? (
+                      <img src={user.image} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        <User className="w-8 h-8" />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900 dark:file:text-indigo-300"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">JPG, PNG or GIF. Max size 5MB.</p>
+                  </div>
+                </div>
+              </div>
+              
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Name
@@ -190,9 +279,9 @@ export default function SettingsPage() {
                 />
               </div>
               
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isUpdating}>
                 <Save className="h-4 w-4 mr-2" />
-                {isLoading ? 'Saving...' : 'Save Changes'}
+                {isUpdating ? 'Saving...' : 'Save Changes'}
               </Button>
             </form>
           </CardContent>
@@ -209,14 +298,14 @@ export default function SettingsPage() {
           <CardContent>
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
               <div>
-                <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label htmlFor="oldPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Current Password
                 </label>
                 <Input
-                  id="currentPassword"
-                  name="currentPassword"
+                  id="oldPassword"
+                  name="oldPassword"
                   type="password"
-                  value={passwordData.currentPassword}
+                  value={passwordData.oldPassword}
                   onChange={handlePasswordChange}
                   required
                 />
@@ -237,22 +326,22 @@ export default function SettingsPage() {
               </div>
               
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label htmlFor="comfirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Confirm New Password
                 </label>
                 <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
+                  id="comfirmPassword"
+                  name="comfirmPassword"
                   type="password"
-                  value={passwordData.confirmPassword}
+                  value={passwordData.comfirmPassword}
                   onChange={handlePasswordChange}
                   required
                 />
               </div>
               
-              <Button type="submit" disabled={isPasswordLoading}>
+              <Button type="submit" disabled={isChangingPassword}>
                 <Key className="h-4 w-4 mr-2" />
-                {isPasswordLoading ? 'Updating...' : 'Update Password'}
+                {isChangingPassword ? 'Updating...' : 'Update Password'}
               </Button>
             </form>
           </CardContent>

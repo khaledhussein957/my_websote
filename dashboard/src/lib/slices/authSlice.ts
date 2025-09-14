@@ -20,7 +20,9 @@ export const loginUser = createAsyncThunk(
       const response = await api.post('/auth/login', credentials)
       const { user, token } = response.data
 
+      console.log('Login response:', { user, token })
       storage.setItem('token', token)
+      console.log('Token stored, verifying:', storage.getItem('token'))
       setAuthHeader(token)
 
       return { user, token }
@@ -36,12 +38,12 @@ export const registerUser = createAsyncThunk(
   async (userData: { name: string; email: string; phone: string; password: string }, { rejectWithValue }) => {
     try {
       const response = await api.post('/auth/register', userData)
-      const { newUser, token } = response.data
+      const { user, token } = response.data
 
       storage.setItem('token', token)
       setAuthHeader(token)
 
-      return { user: newUser, token }
+      return { user, token }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Registration failed'
       return rejectWithValue(errorMessage)
@@ -132,11 +134,22 @@ const authSlice = createSlice({
         state.isAuthenticated = false
         state.error = action.payload as string
       })
+      .addCase(registerUser.pending, (state) => {
+        state.isLoading = true
+        state.error = null
+      })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isLoading = false
         state.user = action.payload.user
         state.token = action.payload.token
         state.isAuthenticated = true
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.isLoading = false
+        state.user = null
+        state.token = null
+        state.isAuthenticated = false
+        state.error = action.payload as string
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.isLoading = false

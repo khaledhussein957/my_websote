@@ -19,7 +19,11 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (!hasInitialized.current) {
       hasInitialized.current = true
       dispatch(initializeAuth())
-      dispatch(checkAuth())
+      // Only check auth if we have a token from initialization
+      const token = localStorage.getItem('token')
+      if (token) {
+        dispatch(checkAuth())
+      }
     }
   }, [dispatch])
 

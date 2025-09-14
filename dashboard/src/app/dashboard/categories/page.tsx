@@ -2,26 +2,26 @@
 
 import { useState, useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks'
-import { fetchTechStacks, deleteTechStack, clearError, clearSuccess } from '@/lib/slices/techstackSlice'
+import { fetchCategories, deleteCategory, clearError, clearSuccess } from '@/lib/slices/categorySlice'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Search, Plus, Edit, Trash2, AlertCircle, CheckCircle, Code } from 'lucide-react'
+import { Search, Plus, Edit, Trash2, AlertCircle, CheckCircle, Tag } from 'lucide-react'
 import { formatDateTime } from '@/lib/utils'
-import TechStackForm from '@/components/techstack/TechStackForm'
-import { TechStack } from '@/lib/slices/techstackSlice'
+import CategoryForm from '@/components/categories/CategoryForm'
+import { Category } from '@/lib/slices/categorySlice'
 
-export default function TechStackPage() {
+export default function CategoriesPage() {
   const dispatch = useAppDispatch()
-  const { techStacks, isLoading, isDeleting, error, success } = useAppSelector((state) => state.techstack)
+  const { categories, isLoading, isDeleting, error, success } = useAppSelector((state) => state.category)
   
   const [searchTerm, setSearchTerm] = useState('')
   const [showForm, setShowForm] = useState(false)
-  const [editingTechStack, setEditingTechStack] = useState<TechStack | null>(null)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
 
   useEffect(() => {
-    dispatch(fetchTechStacks())
+    dispatch(fetchCategories())
   }, [dispatch])
 
   // Clear messages after 5 seconds
@@ -35,45 +35,37 @@ export default function TechStackPage() {
     }
   }, [error, success, dispatch])
 
-  const filteredTechStacks = techStacks.filter(techStack => {
-    const matchesSearch = techStack.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         techStack.category.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCategories = categories.filter(category => {
+    const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         category.description.toLowerCase().includes(searchTerm.toLowerCase())
     
     return matchesSearch
   })
 
-  const getProficiencyBadge = (proficiency: number) => {
-    if (proficiency <= 2) return <Badge variant="outline">Beginner</Badge>
-    if (proficiency <= 4) return <Badge variant="secondary">Novice</Badge>
-    if (proficiency <= 6) return <Badge variant="default">Intermediate</Badge>
-    if (proficiency <= 8) return <Badge variant="default">Advanced</Badge>
-    return <Badge variant="default">Expert</Badge>
-  }
-
-  const handleCreateTechStack = () => {
-    setEditingTechStack(null)
+  const handleCreateCategory = () => {
+    setEditingCategory(null)
     setShowForm(true)
   }
 
-  const handleEditTechStack = (techStack: TechStack) => {
-    setEditingTechStack(techStack)
+  const handleEditCategory = (category: Category) => {
+    setEditingCategory(category)
     setShowForm(true)
   }
 
-  const handleDeleteTechStack = async (techStackId: string) => {
-    if (confirm('Are you sure you want to delete this tech stack?')) {
-      dispatch(deleteTechStack(techStackId))
+  const handleDeleteCategory = async (categoryId: string) => {
+    if (confirm('Are you sure you want to delete this category?')) {
+      dispatch(deleteCategory(categoryId))
     }
   }
 
   const handleFormClose = () => {
     setShowForm(false)
-    setEditingTechStack(null)
+    setEditingCategory(null)
   }
 
   const handleFormSuccess = () => {
     setShowForm(false)
-    setEditingTechStack(null)
+    setEditingCategory(null)
   }
 
   return (
@@ -81,15 +73,15 @@ export default function TechStackPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Tech Stack Management
+            Category Management
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Manage your technology stack and skills
+            Create and manage content categories
           </p>
         </div>
-        <Button onClick={handleCreateTechStack}>
+        <Button onClick={handleCreateCategory}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Tech Stack
+          Add Category
         </Button>
       </div>
 
@@ -118,12 +110,12 @@ export default function TechStackPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Tech Stacks</CardTitle>
+          <CardTitle>Categories</CardTitle>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="Search tech stacks..."
+                placeholder="Search categories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -137,53 +129,47 @@ export default function TechStackPage() {
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
                   <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Name</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Icon</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Category</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Proficiency</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Slug</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Description</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Created</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredTechStacks.map((techStack) => (
-                  <tr key={techStack._id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
+                {filteredCategories.map((category) => (
+                  <tr key={category._id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
                     <td className="py-3 px-4">
                       <div className="flex items-center">
-                        <Code className="h-4 w-4 text-gray-400 mr-2" />
-                        <div className="font-medium text-gray-900 dark:text-white">{techStack.name}</div>
+                        <Tag className="h-4 w-4 text-gray-400 mr-2" />
+                        <div className="font-medium text-gray-900 dark:text-white">{category.name}</div>
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      {techStack.icon ? (
-                        <img src={techStack.icon} alt={techStack.name} className="w-8 h-8 object-cover rounded" />
-                      ) : (
-                        <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center">
-                          <Code className="h-4 w-4 text-gray-400" />
-                        </div>
-                      )}
+                      <Badge variant="outline" className="font-mono text-xs">
+                        {category.slug}
+                      </Badge>
                     </td>
                     <td className="py-3 px-4">
-                      <Badge variant="outline">{techStack.category}</Badge>
-                    </td>
-                    <td className="py-3 px-4">
-                      {getProficiencyBadge(techStack.proficiency)}
+                      <div className="text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">
+                        {category.description}
+                      </div>
                     </td>
                     <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
-                      {formatDateTime(techStack.createdAt)}
+                      {formatDateTime(category.createdAt)}
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleEditTechStack(techStack)}
+                          onClick={() => handleEditCategory(category)}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDeleteTechStack(techStack._id)}
+                          onClick={() => handleDeleteCategory(category._id)}
                           disabled={isDeleting}
                         >
                           <Trash2 className="h-4 w-4 text-red-600" />
@@ -197,21 +183,21 @@ export default function TechStackPage() {
             {isLoading ? (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                 <div className="animate-spin rounded-full h-8 w-8 border-4 border-t-transparent border-gray-900 dark:border-white mx-auto mb-4"></div>
-                Loading tech stacks...
+                Loading categories...
               </div>
-            ) : filteredTechStacks.length === 0 ? (
+            ) : filteredCategories.length === 0 ? (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                {searchTerm ? 'No tech stacks found matching your search' : 'No tech stacks found'}
+                {searchTerm ? 'No categories found matching your search' : 'No categories found'}
               </div>
             ) : null}
           </div>
         </CardContent>
       </Card>
 
-      {/* TechStack Form Modal */}
+      {/* Category Form Modal */}
       {showForm && (
-        <TechStackForm
-          techStack={editingTechStack}
+        <CategoryForm
+          category={editingCategory}
           onClose={handleFormClose}
           onSuccess={handleFormSuccess}
         />
