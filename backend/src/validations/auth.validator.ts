@@ -61,3 +61,51 @@ export const loginAccount = Joi.object({
     }),
   password: Joi.string().required(),
 });
+
+export const forgotPasswordAccount = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+export const resetPasswordAccount = Joi.object({
+  code: Joi.string().required(),
+  password: Joi.string()
+    .min(8)
+    .required()
+    .custom((value, helpers) => {
+      const upperCount = (value.match(/[A-Z]/g) || []).length;
+      const lowerCount = (value.match(/[a-z]/g) || []).length;
+      const digitCount = (value.match(/\d/g) || []).length;
+      const symbolCount = (value.match(/[^A-Za-z0-9]/g) || []).length;
+
+      if (upperCount < 2) {
+        return helpers.error("any.custom", {
+          message: "Password must contain at least 2 uppercase letters",
+        });
+      }
+      if (lowerCount < 2) {
+        return helpers.error("any.custom", {
+          message: "Password must contain at least 2 lowercase letters",
+        });
+      }
+      if (digitCount < 2) {
+        return helpers.error("any.custom", {
+          message: "Password must contain at least 2 digits",
+        });
+      }
+      if (symbolCount < 2) {
+        return helpers.error("any.custom", {
+          message: "Password must contain at least 2 special characters",
+        });
+      }
+      return value;
+    })
+    .messages({
+      "string.empty": "New password is required",
+      "string.min": "New password must be at least 8 characters",
+      "any.custom": "{{#message}}",
+    }),
+  confirmPassword: Joi.string().required().valid(Joi.ref("password")).messages({
+    "any.only": "Confirm password does not match",
+    "string.empty": "Confirm password is required",
+  }),
+});

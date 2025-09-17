@@ -1,78 +1,98 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useAppDispatch, useAppSelector } from '@/lib/hooks'
-import { fetchProjects, deleteProject, clearError, clearSuccess } from '@/lib/slices/projectSlice'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Search, Plus, Edit, Trash2, Eye, AlertCircle, CheckCircle, FolderOpen, ExternalLink, Github } from 'lucide-react'
-import { formatDateTime } from '@/lib/utils'
-import ProjectForm from '@/components/projects/ProjectForm'
-import { Project } from '@/lib/slices/projectSlice'
+import { useState, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import {
+  fetchProjects,
+  deleteProject,
+  clearError,
+  clearSuccess,
+} from "@/lib/slices/projectSlice";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Search,
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  AlertCircle,
+  CheckCircle,
+  FolderOpen,
+  ExternalLink,
+  Github,
+  Star,
+} from "lucide-react";
+import { formatDate, formatDateTime } from "@/lib/utils";
+import ProjectForm from "@/components/projects/ProjectForm";
+import { Project } from "@/lib/slices/projectSlice";
 
 export default function ProjectsPage() {
-  const dispatch = useAppDispatch()
-  const { projects, isLoading, isDeleting, error, success } = useAppSelector((state) => state.project)
-  
-  const [searchTerm, setSearchTerm] = useState('')
-  const [showForm, setShowForm] = useState(false)
-  const [editingProject, setEditingProject] = useState<Project | null>(null)
+  const dispatch = useAppDispatch();
+  const { projects, isLoading, isDeleting, error, success } = useAppSelector(
+    (state) => state.project
+  );
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   useEffect(() => {
-    dispatch(fetchProjects())
-  }, [dispatch])
+    dispatch(fetchProjects());
+  }, [dispatch]);
 
   // Clear messages after 5 seconds
   useEffect(() => {
     if (error || success) {
       const timer = setTimeout(() => {
-        dispatch(clearError())
-        dispatch(clearSuccess())
-      }, 5000)
-      return () => clearTimeout(timer)
+        dispatch(clearError());
+        dispatch(clearSuccess());
+      }, 5000);
+      return () => clearTimeout(timer);
     }
-  }, [error, success, dispatch])
+  }, [error, success, dispatch]);
 
-  const filteredProjects = projects.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.user.name.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    return matchesSearch
-  })
+  const filteredProjects = projects.filter((project) => {
+    const matchesSearch =
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.user.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return matchesSearch;
+  });
 
   const handleCreateProject = () => {
-    setEditingProject(null)
-    setShowForm(true)
-  }
+    setEditingProject(null);
+    setShowForm(true);
+  };
 
   const handleEditProject = (project: Project) => {
-    setEditingProject(project)
-    setShowForm(true)
-  }
+    setEditingProject(project);
+    setShowForm(true);
+  };
 
   const handleDeleteProject = async (projectId: string) => {
-    if (confirm('Are you sure you want to delete this project?')) {
-      dispatch(deleteProject(projectId))
+    if (confirm("Are you sure you want to delete this project?")) {
+      dispatch(deleteProject(projectId));
     }
-  }
+  };
 
   const handleViewProject = (project: Project) => {
-    console.log('View project:', project)
+    console.log("View project:", project);
     // TODO: Implement view functionality - could open in a modal or navigate to detail page
-  }
+  };
 
   const handleFormClose = () => {
-    setShowForm(false)
-    setEditingProject(null)
-  }
+    setShowForm(false);
+    setEditingProject(null);
+  };
 
   const handleFormSuccess = () => {
-    setShowForm(false)
-    setEditingProject(null)
-  }
+    setShowForm(false);
+    setEditingProject(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -102,7 +122,7 @@ export default function ProjectsPage() {
           </div>
         </div>
       )}
-      
+
       {success && (
         <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-4 border border-green-200 dark:border-green-800">
           <div className="flex">
@@ -134,23 +154,39 @@ export default function ProjectsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Project</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Tech Stack</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Links</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Created</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Actions</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Project
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Tech Stack
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Links
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Featured
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Created
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {filteredProjects.map((project) => (
-                  <tr key={project._id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <tr
+                    key={project._id}
+                    className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
                     <td className="py-3 px-4">
                       <div className="flex items-start space-x-3">
                         {project.image ? (
-                          <img 
-                            src={project.image} 
-                            alt={project.title} 
-                            className="w-12 h-12 object-cover rounded-lg" 
+                          <img
+                            src={project.image}
+                            alt={project.title}
+                            className="w-12 h-12 object-cover rounded-lg"
                           />
                         ) : (
                           <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
@@ -158,20 +194,26 @@ export default function ProjectsPage() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-gray-900 dark:text-white">{project.title}</div>
+                          <div className="font-medium text-gray-900 dark:text-white">
+                            {project.title}
+                          </div>
                           <div className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-xs">
                             {project.description}
                           </div>
                           <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                            by {project.user.name}
+                            by {project.user?.name}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex flex-wrap gap-1">
-                        {project.techStack.slice(0, 3).map(tech => (
-                          <Badge key={tech._id} variant="outline" className="text-xs">
+                        {project.techStack.slice(0, 3).map((tech) => (
+                          <Badge
+                            key={tech._id}
+                            variant="outline"
+                            className="text-xs"
+                          >
                             {tech.name}
                           </Badge>
                         ))}
@@ -185,9 +227,9 @@ export default function ProjectsPage() {
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">
                         {project.githubUrl && (
-                          <a 
-                            href={project.githubUrl} 
-                            target="_blank" 
+                          <a
+                            href={project.githubUrl}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                           >
@@ -195,9 +237,9 @@ export default function ProjectsPage() {
                           </a>
                         )}
                         {project.liveDemoUrl && (
-                          <a 
-                            href={project.liveDemoUrl} 
-                            target="_blank" 
+                          <a
+                            href={project.liveDemoUrl}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                           >
@@ -206,8 +248,30 @@ export default function ProjectsPage() {
                         )}
                       </div>
                     </td>
+                    <td className="py-3 px-4">
+                      {project.isFeatured ? (
+                        <Button
+                          size="sm"
+                          disabled
+                          onClick={(e) => e.preventDefault()}
+                          className="bg-blue-100 text-blue-800 cursor-default"
+                        >
+                          <Star className="h-4 w-4 mr-1" />
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled
+                          onClick={(e) => e.preventDefault()}
+                          className="cursor-default"
+                        >
+                          <Star className="h-4 w-4 mr-1" />
+                        </Button>
+                      )}
+                    </td>
                     <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
-                      {formatDateTime(project.createdAt)}
+                      {formatDate(project.createdAt)}
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">
@@ -246,7 +310,9 @@ export default function ProjectsPage() {
               </div>
             ) : filteredProjects.length === 0 ? (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                {searchTerm ? 'No projects found matching your search' : 'No projects found'}
+                {searchTerm
+                  ? "No projects found matching your search"
+                  : "No projects found"}
               </div>
             ) : null}
           </div>
@@ -262,5 +328,5 @@ export default function ProjectsPage() {
         />
       )}
     </div>
-  )
+  );
 }

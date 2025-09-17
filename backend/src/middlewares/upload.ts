@@ -36,3 +36,8 @@ export const uploadProjectImage = multer({
 export const uploadBlogImage = multer({
   storage: createStorage("blogs"),
 });
+
+// ✅ Testimonial image uploader
+export const uploadTestimonialImage = multer({
+  storage: createStorage("testimonials"),
+});

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks'
-import { checkAuth, initializeAuth } from '@/lib/slices/authSlice'
+import { checkAuth } from '@/lib/slices/authSlice'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -18,18 +18,13 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   useEffect(() => {
     if (!hasInitialized.current) {
       hasInitialized.current = true
-      dispatch(initializeAuth())
-      // Only check auth if we have a token from initialization
-      const token = localStorage.getItem('token')
-      if (token) {
-        dispatch(checkAuth())
-      }
+      dispatch(checkAuth())
     }
   }, [dispatch])
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.replace('/login') // ✅ replace() avoids history stack issues
+      router.replace('/login')
     }
   }, [isAuthenticated, isLoading, router])
 

@@ -1,6 +1,9 @@
 import { type Request, type Response } from "express";
+
 import type { AuthenticatedRequest } from "../middlewares/protectRoute.ts";
+
 import Category from "../models/category.model.ts";
+import Notification from "../models/notification.model.ts";
 
 export const getCategories = async (req: Request, res: Response) => {
     try {
@@ -35,6 +38,15 @@ export const addCategory = async (req: AuthenticatedRequest, res: Response) => {
         });
 
         const savedCategory = await newCategory.save();
+
+        await Notification.create({
+            userId: userId,
+            title: "New Category Added",
+            message: `Category "${name}" has been added successfully.`,
+            type: "success",
+            isRead: false,
+        });
+
         return res.status(201).json({ message: "Category added successfully", status: "success", data: savedCategory });
         
     } catch (error) {
@@ -69,6 +81,18 @@ export const updateCategory = async (req: AuthenticatedRequest, res: Response) =
         if (description) {
             category.description = description || category.description;
         }
+
+        const updatedCategory = await category.save();
+
+        await Notification.create({
+            userId: userId,
+            title: "Category Updated",
+            message: `Category "${category.name}" has been updated successfully.`,
+            type: "info",
+            isRead: false,
+        });
+
+        return res.status(200).json({ message: "Category updated successfully", status: "success", data: updatedCategory });
         
     } catch (error) {
         console.log("❌ Error in updateCategory:", error);
@@ -92,7 +116,17 @@ export const deleteCategory = async (req: AuthenticatedRequest, res: Response) =
             return res.status(403).json({ message: "Forbidden: You don't have permission to delete this category", status: "error" });
         }
 
-        await Category.findByIdAndDelete(categoryId);
+        const deletedCategory = await Category.findByIdAndDelete(categoryId);
+        if (!deletedCategory) return res.status(500).json({ message: "Failed to delete category", status: "error" });
+
+        await Notification.create({
+            userId: userId,
+            title: "Category Deleted",
+            message: `Category "${category.name}" has been deleted successfully.`,
+            type: "warning",
+            isRead: false,
+        });
+
         return res.status(200).json({ message: "Category deleted successfully", status: "success" });        
     } catch (error) {
         console.log("❌ Error in deleteCategory:", error);

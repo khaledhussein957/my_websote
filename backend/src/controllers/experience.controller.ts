@@ -1,6 +1,9 @@
 import { type Request, type Response } from "express";
+
 import type { AuthenticatedRequest } from "../middlewares/protectRoute.ts";
+
 import Experience from "../models/experience.model.ts";
+import Notification from "../models/notification.model.ts";
 
 export const createExperience = async (
   req: AuthenticatedRequest,
@@ -30,6 +33,15 @@ export const createExperience = async (
         });
 
         await newExperience.save();
+
+        await Notification.create({
+            userId,
+            title: "New Experience Added",
+            message: `You have successfully added a new experience: ${title} at ${company}.`,
+            type: "success",
+            isRead: false,
+        });
+
         return res.status(201).json({message:"Experience created successfully",status:"success",data:newExperience});        
     } catch (error) {
         console.log("❌ Error in createExperience:", error);
@@ -83,6 +95,15 @@ export const updateExperience = async (
         if(description) experience.description = description || experience.description;
 
         await experience.save();
+
+        await Notification.create({
+            userId,
+            title: "Experience Updated",
+            message: `You have successfully updated your experience: ${experience.title} at ${experience.company}.`,
+            type: "info",
+            isRead: false,
+        });
+
         return res.status(200).json({message:"Experience updated successfully",status:"success",data:experience});        
     } catch (error) {
         console.log("❌ Error in updateExperience:", error);
@@ -110,7 +131,17 @@ export const deleteExperience = async (
             return res.status(403).json({message:"Forbidden: You can only delete your own experiences",status:"error"});
         }
 
-        await Experience.findByIdAndDelete(experienceId);
+        const deletdExperience = await Experience.findByIdAndDelete(experienceId);
+        if (!deletdExperience) return res.status(404).json({message:"Experience not found",status:"error"});
+
+        await Notification.create({
+            userId,
+            title: "Experience Deleted",
+            message: `You have successfully deleted your experience: ${experience.title} at ${experience.company}.`,
+            type: "warning",
+            isRead: false,
+        });
+
         return res.status(200).json({message:"Experience deleted successfully",status:"success"});
     } catch (error) {
         console.log("❌ Error in deleteExperience:", error);

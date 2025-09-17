@@ -1,11 +1,10 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  Users,
   FolderOpen,
   Code,
   Newspaper,
@@ -14,33 +13,39 @@ import {
   Folder,
   BookOpen,
   Briefcase,
-} from 'lucide-react'
-import { useAppDispatch, useAppSelector } from '@/lib/hooks'
-import { logoutUser } from '@/lib/slices/authSlice'
+  Stars,
+} from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { logoutUser } from "@/lib/slices/authSlice";
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Educations', href: '/dashboard/educations', icon: BookOpen },
-  { name: 'Experiences', href: '/dashboard/experiences', icon: Briefcase },
-  { name: 'Projects', href: '/dashboard/projects', icon: FolderOpen },
-  { name: 'Category', href: '/dashboard/categories', icon: Folder },
-  { name: 'Tech Stack', href: '/dashboard/techstack', icon: Code },
-  { name: 'News', href: '/dashboard/news', icon: Newspaper },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
-]
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Educations", href: "/dashboard/educations", icon: BookOpen },
+  { name: "Experiences", href: "/dashboard/experiences", icon: Briefcase },
+  { name: "Projects", href: "/dashboard/projects", icon: FolderOpen },
+  { name: "Category", href: "/dashboard/categories", icon: Folder },
+  { name: "Tech Stack", href: "/dashboard/techstack", icon: Code },
+  { name: "News", href: "/dashboard/news", icon: Newspaper },
+  { name: "Testimonials", href: "/dashboard/testimonials", icon: Stars },
+  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+];
 
-function Sidebar() {
-  const pathname = usePathname()
-  const dispatch = useAppDispatch()
-  const { user } = useAppSelector((state) => state.auth)
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+function Sidebar({ onClose }: SidebarProps) {
+  const pathname = usePathname();
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
 
   const handleLogout = () => {
     try {
-      dispatch(logoutUser())
+      dispatch(logoutUser());
     } catch (error) {
-      console.error('Logout error:', error)
+      console.error("Logout error:", error);
     }
-  }
+  };
 
   return (
     <div className="flex h-full w-64 flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700">
@@ -49,41 +54,52 @@ function Sidebar() {
           Admin Dashboard
         </h1>
       </div>
-      
+
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navigation.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = pathname === item.href;
           return (
             <Link
               key={item.name}
               href={item.href}
+              onClick={onClose}
               className={cn(
-                'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
                 isActive
-                  ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                  ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
+                  : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
               )}
             >
               <item.icon
                 className={cn(
-                  'mr-3 h-5 w-5 flex-shrink-0',
+                  "mr-3 h-5 w-5 flex-shrink-0",
                   isActive
-                    ? 'text-gray-900 dark:text-white'
-                    : 'text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300'
+                    ? "text-gray-900 dark:text-white"
+                    : "text-gray-400 group-hover:text-gray-500 dark:group-hover:text-gray-300"
                 )}
               />
               {item.name}
             </Link>
-          )
+          );
         })}
       </nav>
-      
+
       <div className="border-t border-gray-200 dark:border-gray-700 p-3">
         <div className="flex items-center px-3 py-2 text-sm text-gray-600 dark:text-gray-300">
           <div className="flex-shrink-0">
             <div className="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {user?.name?.charAt(0).toUpperCase()}
+                {user?.image ? (
+                  <img
+                    src={user.image}
+                    alt={user.name || "User Avatar"}
+                    className="h-8 w-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="h-8 w-8 flex items-center justify-center rounded-full bg-gray-200 text-gray-600">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </span>
             </div>
           </div>
@@ -105,8 +121,7 @@ function Sidebar() {
         </button>
       </div>
     </div>
-  )
+  );
 }
 
-export default Sidebar
- 
+export default Sidebar;

@@ -2,13 +2,14 @@ import { type Request, type Response } from "express";
 import bcryptjs from "bcryptjs";
 
 import User from "../models/user.model.ts";
+import Notification from "../models/notification.model.ts";
 
 import type { AuthenticatedRequest } from "../middlewares/protectRoute.ts";
 
 // import uploadImages from "../utils/s3Uploader.ts";
 import { validatePhoneNumber } from "../utils/phoneValidate.ts";
 
-import ENV from "../config/ENV.ts";
+// import ENV from "../config/ENV.ts";
 import cloudinary from "../config/cloudinary.ts";
 // import s3 from "../config/Aws.ts";
 
@@ -122,13 +123,21 @@ export const updateAccount = async (
     }
 
     // ✅ Update user fields
-    if (name) user.name = name;
-    if (email) user.email = email;
-    if (phone) user.phone = phone;
-    if (title) user.title = title;
-    if (about_me) user.about_me = about_me;
+    if (name) user.name = name || user.name;
+    if (email) user.email = email || user.email;
+    if (phone) user.phone = phone || user.phone;
+    if (title) user.title = title || user.title;
+    if (about_me) user.about_me = about_me || user.about_me;
 
     await user.save();
+
+    await Notification.create({
+      userId: user._id,
+      title: "Account Updated",
+      message: "Your account details have been updated successfully.",
+      type: "success",
+      isRead: false,
+    });
 
     return res.status(200).json({
       message: "Account updated successfully",
@@ -187,6 +196,14 @@ export const changePassword = async (
     user.password = hashedPassword;
 
     await user.save();
+
+    await Notification.create({
+      userId: user._id,
+      title: "Password Changed",
+      message: "Your account password has been changed successfully.",
+      type: "success",
+      isRead: false,
+    });
 
     return res.status(200).json({
       message: "Password changed successfully",

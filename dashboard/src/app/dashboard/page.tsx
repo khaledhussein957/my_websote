@@ -1,97 +1,118 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useAppSelector } from '@/lib/hooks'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, FolderOpen, Newspaper, Code, TrendingUp, Activity } from 'lucide-react'
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { fetchDashboardStats } from "../../lib/slices/dashboardSlice";
+import { fetchCategories } from "../../lib/slices/categorySlice";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  FolderOpen,
+  Newspaper,
+  TrendingUp,
+  Activity,
+  Star,
+} from "lucide-react";
+import {
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 
-interface DashboardStats {
-  totalUsers: number
-  totalProjects: number
-  totalNews: number
-  totalTechStacks: number
-  newUsersThisMonth: number
-  newProjectsThisMonth: number
-  newNewsThisMonth: number
-}
+const COLORS = [
+  "#3b82f6",
+  "#22c55e",
+  "#eab308",
+  "#ec4899",
+  "#f97316",
+  "#8b5cf6",
+];
 
 export default function DashboardPage() {
-  const { user } = useAppSelector((state) => state.auth)
-  const [stats, setStats] = useState<DashboardStats>({
-    totalUsers: 0,
-    totalProjects: 0,
-    totalNews: 0,
-    totalTechStacks: 0,
-    newUsersThisMonth: 0,
-    newProjectsThisMonth: 0,
-    newNewsThisMonth: 0,
-  })
-  const [isLoading, setIsLoading] = useState(true)
+  const dispatch = useAppDispatch();
+  const { stats, loading, error } = useAppSelector((state) => state.dashboard);
+  const { user } = useAppSelector((state) => state.auth);
+  const { categories } = useAppSelector((state) => state.category);
 
   useEffect(() => {
-    // Simulate loading dashboard data
-    const loadDashboardData = async () => {
-      try {
-        // In a real app, you would fetch this from your API
-        // const response = await api.get('/dashboard/stats')
-        // setStats(response.data)
-        
-        // Mock data for now
-        setTimeout(() => {
-          setStats({
-            totalUsers: 150,
-            totalProjects: 45,
-            totalNews: 12,
-            totalTechStacks: 25,
-            newUsersThisMonth: 8,
-            newProjectsThisMonth: 3,
-            newNewsThisMonth: 2,
-          })
-          setIsLoading(false)
-        }, 1000)
-      } catch (error) {
-        console.error('Failed to load dashboard data:', error)
-        setIsLoading(false)
-      }
-    }
+    dispatch(fetchDashboardStats());
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
-    loadDashboardData()
-  }, [])
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Loading Dashboard...</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader>
+                <CardTitle className="bg-gray-200 h-4 w-24 rounded"></CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gray-200 h-8 w-16 rounded"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <p className="text-red-500">{error}</p>;
+  }
+
+  if (!stats) return null;
 
   const statCards = [
     {
-      title: 'Total Users',
-      value: stats.totalUsers,
-      change: stats.newUsersThisMonth,
-      changeLabel: 'new this month',
-      icon: Users,
-      color: 'bg-blue-500',
-    },
-    {
-      title: 'Total Projects',
+      title: "Total Projects",
       value: stats.totalProjects,
       change: stats.newProjectsThisMonth,
-      changeLabel: 'new this month',
+      changeLabel: "new this month",
       icon: FolderOpen,
-      color: 'bg-green-500',
+      color: "bg-green-500",
     },
     {
-      title: 'Total News',
+      title: "Total News",
       value: stats.totalNews,
       change: stats.newNewsThisMonth,
-      changeLabel: 'new this month',
+      changeLabel: "new this month",
       icon: Newspaper,
-      color: 'bg-yellow-500',
+      color: "bg-yellow-500",
     },
     {
-      title: 'Tech Stacks',
-      value: stats.totalTechStacks,
-      change: 0,
-      changeLabel: 'total',
-      icon: Code,
-      color: 'bg-purple-500',
+      title: "Total Testimonials",
+      value: stats.totalTestimonials,
+      change: stats.newTestimonialsThisMonth,
+      changeLabel: "new this month",
+      icon: Star,
+      color: "bg-pink-500",
     },
-  ]
+    stats.totalVisitsThisMonth !== undefined && {
+      title: "Total Visits",
+      value: stats.totalVisitsThisMonth,
+      change: 0,
+      changeLabel: "this month",
+      icon: Activity,
+      color: "bg-red-500",
+    },
+  ].filter(Boolean);
+
+  // transform categories -> pie chart data
+  const categoryData =
+    categories?.map((cat: any) => ({
+      category: cat.name,
+      count: 1, // 👈 replace later with real project count per category
+    })) || [];
 
   return (
     <div className="space-y-6">
@@ -100,13 +121,14 @@ export default function DashboardPage() {
           Dashboard Overview
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Welcome back, {user?.name}! Here's what's happening with your portfolio.
+          Welcome back, <strong>{user?.name}!</strong> Here&apos;s what&apos;s
+          happening with your portfolio.
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat) => (
+        {statCards.map((stat: any) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -119,7 +141,8 @@ export default function DashboardPage() {
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
               <p className="text-xs text-muted-foreground">
-                {stat.change > 0 ? '+' : ''}{stat.change} {stat.changeLabel}
+                {stat.change > 0 ? "+" : ""}
+                {stat.change} {stat.changeLabel}
               </p>
             </CardContent>
           </Card>
@@ -128,7 +151,7 @@ export default function DashboardPage() {
 
       {/* Charts and Recent Activity */}
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Chart Placeholder */}
+        {/* Analytics Chart */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -137,13 +160,48 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-              <div className="text-center">
-                <Activity className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                <p>Chart will be implemented here</p>
-                <p className="text-sm">Using Recharts or similar library</p>
-              </div>
-            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={stats.monthlyTrends}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="users"
+                  stroke="#3b82f6"
+                  name="Users"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="projects"
+                  stroke="#22c55e"
+                  name="Projects"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="news"
+                  stroke="#eab308"
+                  name="News"
+                />
+                {stats.monthlyTrends[0]?.testimonials !== undefined && (
+                  <Line
+                    type="monotone"
+                    dataKey="testimonials"
+                    stroke="#ec4899"
+                    name="Testimonials"
+                  />
+                )}
+                {stats.monthlyTrends[0]?.visits !== undefined && (
+                  <Line
+                    type="monotone"
+                    dataKey="visits"
+                    stroke="#f43f5e"
+                    name="Visits"
+                  />
+                )}
+              </LineChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
@@ -157,57 +215,68 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">New user registered</p>
-                  <p className="text-xs text-muted-foreground">John Doe joined the platform</p>
-                  <p className="text-xs text-muted-foreground">2 hours ago</p>
+              {stats.recentActivity.map((act) => (
+                <div key={act.id} className="flex items-start space-x-3">
+                  <div
+                    className={`w-2 h-2 rounded-full mt-2 ${
+                      act.type === "user"
+                        ? "bg-green-500"
+                        : act.type === "project"
+                        ? "bg-blue-500"
+                        : act.type === "news"
+                        ? "bg-yellow-500"
+                        : "bg-pink-500"
+                    }`}
+                  ></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{act.message}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {act.timeAgo}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Project submitted</p>
-                  <p className="text-xs text-muted-foreground">E-commerce website project</p>
-                  <p className="text-xs text-muted-foreground">4 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">News article published</p>
-                  <p className="text-xs text-muted-foreground">Technology trends update</p>
-                  <p className="text-xs text-muted-foreground">1 day ago</p>
-                </div>
-              </div>
+              ))}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="p-4 text-left border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-              <div className="font-medium">Approve Pending Projects</div>
-              <div className="text-sm text-muted-foreground">3 projects waiting for approval</div>
-            </button>
-            <button className="p-4 text-left border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-              <div className="font-medium">Create New News Post</div>
-              <div className="text-sm text-muted-foreground">Share latest updates</div>
-            </button>
-            <button className="p-4 text-left border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-              <div className="font-medium">Manage Tech Stack</div>
-              <div className="text-sm text-muted-foreground">Add or update technologies</div>
-            </button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* bie chart for categories */}
+      <div className="grid gap-6 md:grid-cols-1">
+        {/* 📊 Pie chart for categories */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <FolderOpen className="h-5 w-5 mr-2" />
+              Categories
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={categoryData}
+                  dataKey="count"
+                  nameKey="category"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label
+                >
+                  {categoryData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Legend />
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  )
+  );
 }

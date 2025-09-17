@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import TechStack from "../models/techstack.model.ts";
 import User from "../models/user.model.ts";
 import Category from "../models/category.model.ts";
+import Notification from "../models/notification.model.ts";
 
 import type { AuthenticatedRequest } from "../middlewares/protectRoute.ts";
 
@@ -10,7 +11,16 @@ import cloudinary from "../config/cloudinary.ts";
 
 export const getTechStacks = async (req: Request, res: Response) => {
   try {
-    const techStacks = await TechStack.find().sort({ proficiency: -1 });
+    const techStacks = await TechStack.find()
+      .populate("category", "name")
+      .sort({ proficiency: -1 });
+
+    if (!techStacks) {
+      return res
+        .status(404)
+        .json({ message: "No techStacks found", status: "error" });
+    }
+    
     res.status(200).json({ data: techStacks, status: "success" });
   } catch (error) {
     console.log("❌ Error in getTechStacks:", error);
@@ -42,12 +52,10 @@ export const createTechStack = async (
     // Check if techStack with the same name already exists
     const existingTechStack = await TechStack.findOne({ name });
     if (existingTechStack) {
-      return res
-        .status(409)
-        .json({
-          message: "TechStack with this name already exists",
-          status: "error",
-        });
+      return res.status(409).json({
+        message: "TechStack with this name already exists",
+        status: "error",
+      });
     }
 
     // check if category is exists
@@ -60,12 +68,10 @@ export const createTechStack = async (
 
     // check if proficiency is between 1 and 10
     if (proficiency < 1 || proficiency > 10) {
-      return res
-        .status(400)
-        .json({
-          message: "Proficiency must be between 1 and 5",
-          status: "error",
-        });
+      return res.status(400).json({
+        message: "Proficiency must be between 1 and 5",
+        status: "error",
+      });
     }
 
     let iconUrl;
@@ -91,6 +97,14 @@ export const createTechStack = async (
       icon: iconUrl,
       category,
       proficiency,
+    });
+
+    await Notification.create({
+      userId: user._id,
+      title: "New Tech Stack Added",
+      message: `You have successfully added a new tech stack: ${name}.`,
+      type: "success",
+      isRead: false,
     });
 
     await newTechStack.save();
@@ -142,12 +156,10 @@ export const updateTechStack = async (
     if (name) techStack.name = name || techStack.name;
     if (proficiency) {
       if (proficiency < 1 || proficiency > 10) {
-        return res
-          .status(400)
-          .json({
-            message: "Proficiency must be between 1 and 10",
-            status: "error",
-          });
+        return res.status(400).json({
+          message: "Proficiency must be between 1 and 10",
+          status: "error",
+        });
       }
       techStack.proficiency = proficiency;
     }
@@ -196,6 +208,15 @@ export const updateTechStack = async (
     }
 
     await techStack.save();
+
+    await Notification.create({
+      userId: user._id,
+      title: "Tech Stack Updated",
+      message: `Your tech stack "${techStack.name}" has been updated successfully.`,
+      type: "info",
+      isRead: false,
+    });
+
     res.status(200).json({ data: techStack, status: "success" });
   } catch (error) {
     console.log("❌ Error in updateTechStack:", error);
@@ -257,7 +278,17 @@ export const deleteTechStack = async (
       }
     }
 
-    await TechStack.findByIdAndDelete(id);
+    const deletedTechStach = await TechStack.findByIdAndDelete(id);
+    if (!deletedTechStach) return res.status(404).json({ message: "TechStack not found", status: "error" });
+
+    await Notification.create({
+      userId: user._id,
+      title: "Tech Stack Deleted",
+      message: `Your tech stack "${techStack.name}" has been deleted successfully.`,
+      type: "warning",
+      isRead: false,
+    });
+    
     res
       .status(200)
       .json({ message: "TechStack deleted successfully", status: "success" });

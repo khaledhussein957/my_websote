@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import Project from "../models/project.model.ts";
 import User from "../models/user.model.ts";
 import TechStack from "../models/techStack.model.ts";
+import Notification from "../models/notification.model.ts";
 
 import cloudinary from "../config/cloudinary.ts";
 
@@ -43,12 +44,10 @@ export const createProject = async (
 
     const { title, description, githubUrl, liveDemoUrl, techStack } = req.body;
     if (!title || !description || !techStack || techStack.length === 0) {
-      return res
-        .status(400)
-        .json({
-          message: "Title, description, and techStack are required",
-          status: "error",
-        });
+      return res.status(400).json({
+        message: "Title, description, and techStack are required",
+        status: "error",
+      });
     }
 
     const user = await User.findById(userId);
@@ -61,12 +60,10 @@ export const createProject = async (
     for (const techId of techStack) {
       const tech = await TechStack.findById(techId);
       if (!tech) {
-        return res
-          .status(400)
-          .json({
-            message: `Invalid techStack ID: ${techId}`,
-            status: "error",
-          });
+        return res.status(400).json({
+          message: `Invalid techStack ID: ${techId}`,
+          status: "error",
+        });
       }
     }
 
@@ -97,13 +94,20 @@ export const createProject = async (
     });
 
     await newProject.save();
-    res
-      .status(201)
-      .json({
-        data: newProject,
-        status: "success",
-        message: "Project created successfully",
-      });
+
+    await Notification.create({
+      userId: user._id,
+      title: "New Project Created",
+      message: `Your project "${newProject.title}" has been created successfully.`,
+      type: "success",
+      isRead: false,
+    });
+
+    res.status(201).json({
+      data: newProject,
+      status: "success",
+      message: "Project created successfully",
+    });
   } catch (error) {
     console.log("❌ Error in createProject:", error);
     res.status(500).json({ message: "Server Error", status: "error" });
@@ -155,12 +159,10 @@ export const updateProject = async (
       for (const techId of techStack) {
         const tech = await TechStack.findById(techId);
         if (!tech) {
-          return res
-            .status(400)
-            .json({
-              message: `Invalid techStack ID: ${techId}`,
-              status: "error",
-            });
+          return res.status(400).json({
+            message: `Invalid techStack ID: ${techId}`,
+            status: "error",
+          });
         }
       }
       project.techStack = techStack;
@@ -170,17 +172,17 @@ export const updateProject = async (
       // Delete old image from Cloudinary if exists
       if (project.image) {
         try {
-            const publicId = project.image.split("/").pop()?.split(".")[0];
-            if (!publicId) return;
-            await cloudinary.uploader.destroy(`projects/${publicId}`);
-            console.log(
-              `🗑️ successfully deleted the old project image: ${publicId}`
-            ); 
+          const publicId = project.image.split("/").pop()?.split(".")[0];
+          if (!publicId) return;
+          await cloudinary.uploader.destroy(`projects/${publicId}`);
+          console.log(
+            `🗑️ successfully deleted the old project image: ${publicId}`
+          );
         } catch (error) {
           console.log("❌ Error deleting image from Cloudinary:", error);
-            return res
-              .status(500)
-              .json({ message: "Filed to delete image", status: "error" });
+          return res
+            .status(500)
+            .json({ message: "Filed to delete image", status: "error" });
         }
       }
 
@@ -199,7 +201,22 @@ export const updateProject = async (
     }
 
     await project.save();
-    res.status(200).json({ data: project, status: "success", message: "Project updated successfully" });
+
+    await Notification.create({
+      userId: user._id,
+      title: "Project Updated",
+      message: `Your project "${project.title}" has been updated successfully.`,
+      type: "info",
+      isRead: false,
+    });
+
+    res
+      .status(200)
+      .json({
+        data: project,
+        status: "success",
+        message: "Project updated successfully",
+      });
   } catch (error) {
     console.log("❌ Error in updateProject:", error);
     res.status(500).json({ message: "Server Error", status: "error" });
@@ -252,12 +269,10 @@ export const deleteProject = async (
         }
       } catch (error) {
         console.error("❌ Failed to delete the project images:", error);
-        return res
-          .status(500)
-          .json({
-            message: "Failed to delete the project images",
-            status: "error",
-          });
+        return res.status(500).json({
+          message: "Failed to delete the project images",
+          status: "error",
+        });
       }
     }
   } catch (error) {

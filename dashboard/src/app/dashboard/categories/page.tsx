@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Search, Plus, Edit, Trash2, AlertCircle, CheckCircle, Tag } from 'lucide-react'
-import { formatDateTime } from '@/lib/utils'
+import { formatDateTime, formatDate } from '@/lib/utils'
 import CategoryForm from '@/components/categories/CategoryForm'
 import { Category } from '@/lib/slices/categorySlice'
 
@@ -155,7 +155,7 @@ export default function CategoriesPage() {
                       </div>
                     </td>
                     <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
-                      {formatDateTime(category.createdAt)}
+                      {formatDate(category.createdAt)}
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">

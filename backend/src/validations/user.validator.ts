@@ -4,12 +4,12 @@ export const updateAccount = Joi.object({
   name: Joi.string().max(50).optional(),
   email: Joi.string().email().optional(),
   phone: Joi.string()
-    .pattern(/^[0-9]{10,15}$/)
+    .pattern(/^[0-9]{9,15}$/)
     .optional(),
   image: Joi.string().optional(),
 
-  title: Joi.string().max(50).optional(),
-  about_me: Joi.string().max(200).optional(),
+  title: Joi.string().optional(),
+  about_me: Joi.string().min(25).max(400).optional(),
 });
 
 export const changePassword = Joi.object({

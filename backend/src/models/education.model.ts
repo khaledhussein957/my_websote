@@ -1,4 +1,4 @@
-import { Schema, Document, model } from "mongoose";
+import { Schema, Document, model, Types } from "mongoose";
 
 export interface IEducation extends Document {
   user: Types.ObjectId;
@@ -31,9 +31,11 @@ const educationSchema: Schema<IEducation> = new Schema({
   },
   gpa: {
     type: String,
+    default: "N/A",
   },
   uri: {
     type: String,
+    default: "N/A",
   },
 }, { timestamps: true });
 

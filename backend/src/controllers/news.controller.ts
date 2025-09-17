@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 
 import News from "../models/news.model.ts";
 import User from "../models/user.model.ts";
+import Notification from "../models/notification.model.ts";
 
 import cloudinary from "../config/cloudinary.ts";
 
@@ -97,6 +98,14 @@ export const createNews = async (req: AuthenticatedRequest, res: Response) => {
       eventAt,
       slug,
       image: images.length > 0 ? images[0] : undefined,
+    });
+
+    await Notification.create({
+      userId: user._id,
+      title: "News Created",
+      message: `Your news titled "${title}" has been created successfully.`,
+      type: "success",
+      isRead: false,
     });
 
     return res.status(201).json({
@@ -217,6 +226,14 @@ export const updateNews = async (req: AuthenticatedRequest, res: Response) => {
       { new: true }
     );
 
+    await Notification.create({
+      userId: user._id,
+      title: "News Updated",
+      message: `Your news titled "${title}" has been updated successfully.`,
+      type: "info",
+      isRead: false,
+    });
+
     return res
       .status(200)
       .json({
@@ -276,7 +293,17 @@ export const deleteNews = async (req: AuthenticatedRequest, res: Response) => {
       }
     }
 
-    await News.findByIdAndDelete(newsId);
+    const deletedNews = await News.findByIdAndDelete(newsId);
+    if (!deletedNews) return res.status(404).json({ message: "News not found" });
+
+    await Notification.create({
+      userId: user._id,
+      title: "News Deleted",
+      message: `Your news titled "${news.title}" has been deleted.`,
+      type: "warning",
+      isRead: false,
+    });
+    
     return res
       .status(200)
       .json({ message: "News deleted successfully", status: "success" });
