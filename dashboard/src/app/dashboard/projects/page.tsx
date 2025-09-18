@@ -7,11 +7,23 @@ import {
   deleteProject,
   clearError,
   clearSuccess,
+  updateProject,
 } from "@/lib/slices/projectSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import {
   Search,
   Plus,
@@ -24,20 +36,23 @@ import {
   ExternalLink,
   Github,
   Star,
+  X,
 } from "lucide-react";
-import { formatDate, formatDateTime } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import ProjectForm from "@/components/projects/ProjectForm";
 import { Project } from "@/lib/slices/projectSlice";
 
 export default function ProjectsPage() {
   const dispatch = useAppDispatch();
-  const { projects, isLoading, isDeleting, error, success } = useAppSelector(
+  const { projects, isLoading, deletingIds, error, success } = useAppSelector(
     (state) => state.project
   );
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [viewingProject, setViewingProject] = useState<Project | null>(null);
 
   useEffect(() => {
     dispatch(fetchProjects());
@@ -55,12 +70,11 @@ export default function ProjectsPage() {
   }, [error, success, dispatch]);
 
   const filteredProjects = projects.filter((project) => {
-    const matchesSearch =
+    return (
       project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.user.name.toLowerCase().includes(searchTerm.toLowerCase());
-
-    return matchesSearch;
+      project.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.user?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   });
 
   const handleCreateProject = () => {
@@ -73,15 +87,26 @@ export default function ProjectsPage() {
     setShowForm(true);
   };
 
-  const handleDeleteProject = async (projectId: string) => {
-    if (confirm("Are you sure you want to delete this project?")) {
-      dispatch(deleteProject(projectId));
+  const handleToggleFeatured = (project: Project) => {
+    // Dispatch a thunk that updates project.isFeatured
+    dispatch(
+      updateProject({
+        id: project._id,
+        projectData: { featured: !project.featured },
+      })
+    );
+  };
+
+  const handleDeleteProject = () => {
+    if (projectToDelete) {
+      dispatch(deleteProject(projectToDelete._id));
+      setProjectToDelete(null);
     }
   };
 
+  // Update handleViewProject
   const handleViewProject = (project: Project) => {
-    console.log("View project:", project);
-    // TODO: Implement view functionality - could open in a modal or navigate to detail page
+    setViewingProject(project);
   };
 
   const handleFormClose = () => {
@@ -208,67 +233,51 @@ export default function ProjectsPage() {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex flex-wrap gap-1">
-                        {project.techStack.slice(0, 3).map((tech) => (
-                          <Badge
-                            key={tech._id}
-                            variant="outline"
-                            className="text-xs"
-                          >
-                            {tech.name}
-                          </Badge>
-                        ))}
-                        {project.techStack.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{project.techStack.length - 3} more
-                          </Badge>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex space-x-2">
-                        {project.githubUrl && (
-                          <a
-                            href={project.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                          >
-                            <Github className="h-4 w-4" />
-                          </a>
-                        )}
-                        {project.liveDemoUrl && (
-                          <a
-                            href={project.liveDemoUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      {project.isFeatured ? (
-                        <Button
-                          size="sm"
-                          disabled
-                          onClick={(e) => e.preventDefault()}
-                          className="bg-blue-100 text-blue-800 cursor-default"
-                        >
-                          <Star className="h-4 w-4 mr-1" />
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
+                        <Badge
+                          key={`more-${project._id}`}
                           variant="outline"
-                          disabled
-                          onClick={(e) => e.preventDefault()}
-                          className="cursor-default"
+                          className="text-xs"
                         >
-                          <Star className="h-4 w-4 mr-1" />
-                        </Button>
+                          +{project.techStack.length - 3} more
+                        </Badge>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 flex space-x-2">
+                      {project.githubUrl && (
+                        <a
+                          href={project.githubUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                        >
+                          <Github className="h-4 w-4" />
+                        </a>
                       )}
+                      {project.liveDemoUrl && (
+                        <a
+                          href={project.liveDemoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      <Button
+                        size="sm"
+                        variant={project.featured ? "default" : "outline"}
+                        onClick={() => handleToggleFeatured(project)}
+                      >
+                        <Star
+                          className={`h-4 w-4 mr-1 ${
+                            project.featured
+                              ? "text-yellow-400"
+                              : "text-gray-400 dark:text-gray-500"
+                          }`}
+                        />
+                      </Button>
                     </td>
                     <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
                       {formatDate(project.createdAt)}
@@ -289,20 +298,43 @@ export default function ProjectsPage() {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteProject(project._id)}
-                          disabled={isDeleting}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-600" />
-                        </Button>
+                        {/* AlertDialog for Delete */}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={deletingIds.includes(project._id)}
+                              onClick={() => setProjectToDelete(project)}
+                            >
+                              <Trash2 className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Delete Project
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{project.title}
+                                "? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleDeleteProject}>
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+
             {isLoading ? (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                 <div className="animate-spin rounded-full h-8 w-8 border-4 border-t-transparent border-gray-900 dark:border-white mx-auto mb-4"></div>
@@ -318,6 +350,90 @@ export default function ProjectsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* View Project Modal */}
+      {viewingProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 overflow-auto p-4">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-lg relative shadow-lg">
+            {/* Close button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setViewingProject(null)}
+              className="absolute top-3 right-3"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+
+            {/* Project Image */}
+            {viewingProject.image ? (
+              <img
+                src={viewingProject.image}
+                alt={viewingProject.title}
+                className="w-full h-64 object-cover rounded mb-4"
+              />
+            ) : (
+              <div className="w-full h-64 bg-gray-200 dark:bg-gray-700 rounded mb-4 flex items-center justify-center">
+                <FolderOpen className="h-12 w-12 text-gray-400" />
+              </div>
+            )}
+
+            {/* Title */}
+            <h2 className="text-2xl font-bold mb-2">{viewingProject.title}</h2>
+
+            {/* Description */}
+            <p className="text-gray-700 dark:text-gray-300 mb-4 whitespace-pre-line">
+              {viewingProject.description || "No description available."}
+            </p>
+
+            {/* Tech Stack */}
+            {/* Tech Stack */}
+            {viewingProject.techStack &&
+              viewingProject.techStack.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {viewingProject.techStack.map(
+                    (tech: { _id: string; name: string }) => (
+                      <Badge key={tech._id} variant="outline">
+                        {tech.name}
+                      </Badge>
+                    )
+                  )}
+                </div>
+              )}
+
+            {/* Links */}
+            <div className="flex flex-wrap gap-4 mb-4">
+              {viewingProject.githubUrl && (
+                <a
+                  href={viewingProject.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1"
+                >
+                  <Github className="h-4 w-4" /> GitHub
+                </a>
+              )}
+              {viewingProject.liveDemoUrl && (
+                <a
+                  href={viewingProject.liveDemoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1"
+                >
+                  <ExternalLink className="h-4 w-4" /> Live Demo
+                </a>
+              )}
+            </div>
+
+            {/* Featured & Created Info */}
+            <div className="text-sm text-gray-500 space-y-1">
+              <p>Featured: {viewingProject.featured ? "Yes" : "No"}</p>
+              <p>Created by: {viewingProject.user?.name || "Unknown"}</p>
+              <p>Created at: {formatDate(viewingProject.createdAt)}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Project Form Modal */}
       {showForm && (

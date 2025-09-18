@@ -50,15 +50,7 @@ export const registerAccount = Joi.object({
 });
 
 export const loginAccount = Joi.object({
-  identifier: Joi.alternatives()
-    .try(
-      Joi.string().email(), // ✅ email
-      Joi.string().pattern(/^[0-9]{10,15}$/) // ✅ phone number (10-15 digits)
-    )
-    .required()
-    .messages({
-      "alternatives.match": "Identifier must be a valid email or phone number",
-    }),
+  email: Joi.string().email().required(),
   password: Joi.string().required(),
 });
 

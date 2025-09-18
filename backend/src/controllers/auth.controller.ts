@@ -61,6 +61,7 @@ export const registerAccount = async (req: Request, res: Response) => {
       message: "User created successfully",
       status: "success",
       newUser,
+      token,
     });
   } catch (error) {
     console.log("❌ Error in registerAccount: ", error);
@@ -72,15 +73,15 @@ export const registerAccount = async (req: Request, res: Response) => {
 
 export const loginAccount = async (req: Request, res: Response) => {
   try {
-    const { identifier, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!identifier || !password)
+    if (!email || !password)
       return res
         .status(400)
         .json({ message: "All fields are required", status: "error" });
 
     const user = await User.findOne({
-      $or: [{ email: identifier }, { phone: identifier }],
+      email
     });
     if (!user)
       return res
@@ -106,7 +107,7 @@ export const loginAccount = async (req: Request, res: Response) => {
 
     return res
       .status(200)
-      .json({ message: "Login successful", status: "success", user });
+      .json({ message: "Login successful", status: "success", user, token });
   } catch (error) {
     console.log("❌ Error in loginAccount: ", error);
     return res

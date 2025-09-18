@@ -14,7 +14,7 @@ export interface User {
 
 // Auth types
 export interface LoginCredentials {
-  identifier: string // email or phone
+  email: string // email or phone
   password: string
 }
 

@@ -1,129 +1,172 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { api } from '../api'
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { api } from "../api";
 
 export interface Education {
-  _id: string
-  institution: string
-  degree: string
-  startYear: string
-  endYear: string
-  gpa?: string
-  uri?: string
+  _id: string;
+  institution: string;
+  degree: string;
+  startYear: string;
+  endYear: string;
+  gpa?: string;
+  uri?: string;
 }
 
 interface EducationState {
-  educationList: Education[]
-  isLoading: boolean
-  isDeleting: boolean
-  error: string | null
-  success: string | null
+  educationList: Education[];
+  isLoading: boolean;
+  isDeletingIds: string[];
+  error: string | null;
+  success: string | null;
 }
 
 const initialState: EducationState = {
   educationList: [],
   isLoading: false,
-  isDeleting: false,
+  isDeletingIds: [],
   error: null,
   success: null,
-}
+};
 
 // Thunks
 export const fetchEducations = createAsyncThunk(
-  'education/fetchAll',
+  "education/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get('/educations')
-      return res.data.data as Education[]
+      const res = await api.get("/educations");
+      return res.data.data as Education[];
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to fetch educations')
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch educations"
+      );
     }
   }
-)
+);
 
 export const addEducation = createAsyncThunk(
-  'education/add',
-  async (data: Omit<Education, '_id'>, { rejectWithValue }) => {
+  "education/add",
+  async (data: Omit<Education, "_id">, { rejectWithValue }) => {
     try {
-      const res = await api.post('/educations', data)
-      return res.data.data as Education
+      const res = await api.post("/educations", data);
+      return res.data.data as Education;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to add education')
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to add education"
+      );
     }
   }
-)
+);
 
 export const updateEducation = createAsyncThunk(
-  'education/update',
-  async ({ id, data }: { id: string; data: Partial<Education> }, { rejectWithValue }) => {
+  "education/update",
+  async (
+    { id, data }: { id: string; data: Partial<Education> },
+    { rejectWithValue }
+  ) => {
     try {
-      const res = await api.put(`/educations/${id}`, data)
-      return res.data.data as Education
+      const res = await api.put(`/educations/${id}`, data);
+      return res.data.data as Education;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to update education')
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to update education"
+      );
     }
   }
-)
+);
 
 export const deleteEducation = createAsyncThunk(
-  'education/delete',
+  "education/delete",
   async (id: string, { rejectWithValue }) => {
     try {
-      await api.delete(`/educations/${id}`)
-      return id
+      await api.delete(`/educations/${id}`);
+      return id;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to delete education')
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete education"
+      );
     }
   }
-)
+);
 
 const educationSlice = createSlice({
-  name: 'education',
+  name: "education",
   initialState,
   reducers: {
     clearEducationError(state) {
-      state.error = null
+      state.error = null;
     },
     clearEducationSuccess(state) {
-      state.success = null
+      state.success = null;
     },
   },
   extraReducers: (builder) => {
     builder
+      // Fetch
       .addCase(fetchEducations.pending, (state) => {
-        state.isLoading = true
-        state.error = null
+        state.isLoading = true;
+        state.error = null;
       })
-      .addCase(fetchEducations.fulfilled, (state, action: PayloadAction<Education[]>) => {
-        state.isLoading = false
-        state.items = action.payload
-      })
+      .addCase(
+        fetchEducations.fulfilled,
+        (state, action: PayloadAction<Education[]>) => {
+          state.isLoading = false;
+          state.educationList = action.payload;
+        }
+      )
       .addCase(fetchEducations.rejected, (state, action) => {
-        state.isLoading = false
-        state.error = action.payload as string
+        state.isLoading = false;
+        state.error = action.payload as string;
       })
-      .addCase(addEducation.fulfilled, (state, action: PayloadAction<Education>) => {
-        state.items.push(action.payload)
-        state.success = 'Education added successfully'
-      })
-      .addCase(addEducation.rejected, (state, action) => {
-        state.error = action.payload as string
-      })
-      .addCase(updateEducation.fulfilled, (state, action: PayloadAction<Education>) => {
-        state.items = state.items.map(e => e._id === action.payload._id ? action.payload : e)
-        state.success = 'Education updated successfully'
-      })
-      .addCase(updateEducation.rejected, (state, action) => {
-        state.error = action.payload as string
-      })
-      .addCase(deleteEducation.fulfilled, (state, action: PayloadAction<string>) => {
-        state.items = state.items.filter(e => e._id !== action.payload)
-        state.success = 'Education deleted successfully'
-      })
-      .addCase(deleteEducation.rejected, (state, action) => {
-        state.error = action.payload as string
-      })
-  },
-})
 
-export const { clearEducationError, clearEducationSuccess } = educationSlice.actions
-export default educationSlice.reducer
+      // Add
+      .addCase(
+        addEducation.fulfilled,
+        (state, action: PayloadAction<Education>) => {
+          state.educationList.push(action.payload);
+          state.success = "Education added successfully";
+        }
+      )
+      .addCase(addEducation.rejected, (state, action) => {
+        state.error = action.payload as string;
+      })
+
+      // Update
+      .addCase(
+        updateEducation.fulfilled,
+        (state, action: PayloadAction<Education>) => {
+          state.educationList = state.educationList.map((e) =>
+            e._id === action.payload._id ? action.payload : e
+          );
+          state.success = "Education updated successfully";
+        }
+      )
+      .addCase(updateEducation.rejected, (state, action) => {
+        state.error = action.payload as string;
+      })
+
+      // Delete
+      .addCase(deleteEducation.pending, (state, action) => {
+        state.isDeletingIds.push(action.meta.arg); // add id to deleting list
+      })
+      .addCase(
+        deleteEducation.fulfilled,
+        (state, action: PayloadAction<string>) => {
+          state.educationList = state.educationList.filter(
+            (e) => e._id !== action.payload
+          );
+          state.isDeletingIds = state.isDeletingIds.filter(
+            (id) => id !== action.payload
+          );
+          state.success = "Education deleted successfully";
+        }
+      )
+      .addCase(deleteEducation.rejected, (state, action) => {
+        const id = action.meta.arg;
+        state.isDeletingIds = state.isDeletingIds.filter((d) => d !== id);
+        state.error = action.payload as string;
+      });
+  },
+});
+
+export const { clearEducationError, clearEducationSuccess } =
+  educationSlice.actions;
+export default educationSlice.reducer;

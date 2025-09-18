@@ -150,6 +150,9 @@ export default function EducationPage() {
                     Institution
                   </th>
                   <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    GPA
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
                     Year
                   </th>
                   <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
@@ -168,7 +171,8 @@ export default function EducationPage() {
                       {edu.degree}
                     </td>
                     <td className="py-3 px-4">{edu.institution}</td>
-                    <td className="py-3 px-4">{edu.year}</td>
+                    <td className="py-3 px-4" >{edu.gpa ? edu.gpa : "N/A"}</td>
+                    <td className="py-3 px-4">{edu.startYear} - {edu.endYear}</td>
                     <td className="py-3 px-4 flex space-x-2">
                       <Button
                         variant="ghost"

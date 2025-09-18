@@ -11,7 +11,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   Search,
   Plus,
@@ -20,6 +19,7 @@ import {
   Eye,
   AlertCircle,
   CheckCircle,
+  X,
 } from "lucide-react";
 import { formatDate, formatDateTime } from "@/lib/utils";
 import NewsForm from "@/components/news/NewsForm";
@@ -34,12 +34,12 @@ export default function NewsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingNews, setEditingNews] = useState<News | null>(null);
+  const [viewingNews, setViewingNews] = useState<News | null>(null);
 
   useEffect(() => {
     dispatch(fetchNews());
   }, [dispatch]);
 
-  // Clear messages after 5 seconds
   useEffect(() => {
     if (error || success) {
       const timer = setTimeout(() => {
@@ -54,7 +54,6 @@ export default function NewsPage() {
     const matchesSearch =
       newsItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       newsItem.description.toLowerCase().includes(searchTerm.toLowerCase());
-
     return matchesSearch;
   });
 
@@ -75,8 +74,7 @@ export default function NewsPage() {
   };
 
   const handleViewNews = (newsItem: News) => {
-    console.log("View news:", newsItem);
-    // TODO: Implement view functionality - could open in a modal or navigate to detail page
+    setViewingNews(newsItem);
   };
 
   const handleFormClose = () => {
@@ -91,6 +89,7 @@ export default function NewsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header & Add Button */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -106,7 +105,7 @@ export default function NewsPage() {
         </Button>
       </div>
 
-      {/* Error and Success Messages */}
+      {/* Error & Success Messages */}
       {error && (
         <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800">
           <div className="flex">
@@ -117,7 +116,6 @@ export default function NewsPage() {
           </div>
         </div>
       )}
-
       {success && (
         <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-4 border border-green-200 dark:border-green-800">
           <div className="flex">
@@ -129,6 +127,7 @@ export default function NewsPage() {
         </div>
       )}
 
+      {/* News Table */}
       <Card>
         <CardHeader>
           <CardTitle>News Articles</CardTitle>
@@ -149,21 +148,12 @@ export default function NewsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
-                    Image
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
-                    Title
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
-                    Event Date
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
-                    Created
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
-                    Actions
-                  </th>
+                  <th>Image</th>
+                  <th>Title</th>
+                  <th>Event Date</th>
+                  <th>Created By</th>
+                  <th>Created At</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -173,81 +163,62 @@ export default function NewsPage() {
                     className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     <td className="py-3 px-4">
-                      <div>
-                        {newsItem.image ? (
-                          <img
-                            src={newsItem.image}
-                            alt={newsItem.title}
-                            className="w-16 h-10 object-cover rounded"
-                          />
-                        ) : (
-                          <div className="w-16 h-10 bg-gray-200 dark:bg-gray-700 flex items-center justify-center rounded">
-                            <span className="text-gray-400">No Image</span>
-                          </div>
-                        )}
-                      </div>
+                      {newsItem.image ? (
+                        <img
+                          src={newsItem.image}
+                          alt={newsItem.title}
+                          className="w-16 h-10 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-16 h-10 bg-gray-200 dark:bg-gray-700 flex items-center justify-center rounded">
+                          <span className="text-gray-400">No Image</span>
+                        </div>
+                      )}
                     </td>
+                    <td className="py-3 px-4">{newsItem.title}</td>
                     <td className="py-3 px-4">
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-white">
-                          {newsItem.title}
-                        </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-xs">
-                          {newsItem.description.substring(0, 100)}...
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
                       {formatDate(newsItem.eventAt)}
                     </td>
                     <td className="py-3 px-4">
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {newsItem.user?.name || "Unknown"}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
-                      {formatDateTime(newsItem.createdAt)}
+                      {newsItem.user?.name || "Unknown"}
                     </td>
                     <td className="py-3 px-4">
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleViewNews(newsItem)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditNews(newsItem)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteNews(newsItem._id)}
-                          disabled={isDeleting}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-600" />
-                        </Button>
-                      </div>
+                      {formatDateTime(newsItem.createdAt)}
+                    </td>
+                    <td className="py-3 px-4 flex space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleViewNews(newsItem)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditNews(newsItem)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteNews(newsItem._id)}
+                        disabled={isDeleting}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-600" />
+                      </Button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {isLoading ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <div className="animate-spin rounded-full h-8 w-8 border-4 border-t-transparent border-gray-900 dark:border-white mx-auto mb-4"></div>
-                Loading news...
-              </div>
-            ) : filteredNews.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                No news found
-              </div>
-            ) : null}
+            {isLoading && (
+              <div className="text-center py-8">Loading news...</div>
+            )}
+            {filteredNews.length === 0 && !isLoading && (
+              <div className="text-center py-8">No news found</div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -259,6 +230,47 @@ export default function NewsPage() {
           onClose={handleFormClose}
           onSuccess={handleFormSuccess}
         />
+      )}
+
+      {/* View News Modal */}
+      {viewingNews && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 overflow-auto">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-11/12 max-w-lg relative shadow-lg">
+            {/* Close button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setViewingNews(null)}
+              className="absolute top-3 right-3"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+
+            {/* Image */}
+            {viewingNews.image && (
+              <img
+                src={viewingNews.image}
+                alt={viewingNews.title}
+                className="w-full h-64 object-cover rounded mb-4"
+              />
+            )}
+
+            {/* Title */}
+            <h2 className="text-2xl font-bold mb-2">{viewingNews.title}</h2>
+
+            {/* Description */}
+            <p className="text-gray-700 dark:text-gray-300 mb-4 whitespace-pre-line">
+              {viewingNews.description}
+            </p>
+
+            {/* Additional Details */}
+            <div className="text-sm text-gray-500 space-y-1">
+              <p>Event Date: {formatDate(viewingNews.eventAt)}</p>
+              <p>Created By: {viewingNews.user?.name || "Unknown"}</p>
+              <p>Created At: {formatDateTime(viewingNews.createdAt)}</p>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -7,7 +7,6 @@ import Notification from "../models/notification.model.ts";
 import type { AuthenticatedRequest } from "../middlewares/protectRoute.ts";
 
 import cloudinary from "../config/cloudinary.ts";
-import { stat } from "fs";
 
 export const getTestimonials = async (req: Request, res: Response) => {
   try {
@@ -26,8 +25,9 @@ export const getTestimonials = async (req: Request, res: Response) => {
 
 export const addTestimonial = async (req: Request, res: Response) => {
   try {
-    const { name, email, feedback, rating } = req.body;
-    if (!name || !email || !feedback || !rating)
+    const { name, email, message, rating } = req.body; // ✅ fixed typo
+
+    if (!name || !email || !message || !rating)
       return res
         .status(400)
         .json({ message: "All fields are required", status: "false" });
@@ -60,7 +60,7 @@ export const addTestimonial = async (req: Request, res: Response) => {
     const newTestimonial = new Testimonial({
       name,
       email,
-      feedback,
+      message, // ✅ fixed typo
       rating,
       image: imageUrl,
     });
@@ -96,11 +96,11 @@ export const updateTestimonial = async (
         .status(404)
         .json({ message: "Testimonial not found", status: "false" });
 
-    const { name, email, feedback, rating } = req.body;
+    const { name, email, messgae, rating } = req.body;
 
     testimonial.name = name || testimonial.name;
     testimonial.email = email || testimonial.email;
-    testimonial.feedback = feedback || testimonial.feedback;
+    testimonial.messgae = messgae || testimonial.messgae;
     testimonial.rating = rating || testimonial.rating;
 
     if (req.file) {
@@ -144,26 +144,29 @@ export const deleteTestimonial = async (
   try {
     const userId = req.user;
     if (!userId)
-      return res.status(401).json({ message: "Unauthorized", status: "false" });
+      return res.status(401).json({ message: "Unauthorized", status: false });
 
     const user = await User.findById(userId);
     if (!user)
-      return res
-        .status(404)
-        .json({ message: "User not found", status: "false" });
+      return res.status(404).json({ message: "User not found", status: false });
 
     const { testimonialId } = req.params;
 
-    const testi = await Testimonial.findById(testimonialId);
-    if (!testi)
+    const deletedTestimonial = await Testimonial.findByIdAndDelete(
+      testimonialId
+    );
+    if (!deletedTestimonial)
       return res
         .status(404)
-        .json({ message: "Testimonial not found", status: "false" });
+        .json({ message: "Testimonial not found", status: false });
 
     // Delete image from Cloudinary
-    if (testi.image) {
+    if (deletedTestimonial.image) {
       try {
-        const publicId = testi.image.split("/").pop()?.split(".")[0];
+        const publicId = deletedTestimonial.image
+          .split("/")
+          .pop()
+          ?.split(".")[0];
         if (publicId) {
           await cloudinary.uploader.destroy(`testimonials/${publicId}`);
         }
@@ -171,23 +174,26 @@ export const deleteTestimonial = async (
         console.log("❌ Error deleting image from Cloudinary:", error);
       }
     }
-
     const testimonial = await Testimonial.findByIdAndDelete(testimonialId);
     if (!testimonial) {
-      return res.status(404).json({ message: "Testimonial not found", status:"false" });
+      return res
+        .status(404)
+        .json({ message: "Testimonial not found", status: "false" });
     }
 
     await Notification.create({
       userId: user._id,
       title: "Testimonial Deleted",
-      message: `Your testimonial "${testimonial.name}" has been deleted successfully.`,
+      message: `Your testimonial "${deletedTestimonial.name}" has been deleted successfully.`,
       type: "info",
       isRead: false,
     });
 
-    res.status(200).json({ message: "Testimonial deleted", status: "true" });
+    res.status(200).json({ message: "Testimonial deleted", status: true });
   } catch (error) {
     console.log("❌ Error deleting testimonial:", error);
-    res.status(500).json({ message: "Failed to delete testimonial", status: "false" });
+    res
+      .status(500)
+      .json({ message: "Failed to delete testimonial", status: false });
   }
 };

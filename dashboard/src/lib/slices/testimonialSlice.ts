@@ -4,9 +4,10 @@ import { api } from "../api";
 export interface Testimonial {
   _id: string;
   name: string;
-  designation: string;
+  email: string;
   message: string;
   image?: string;
+  rating: number;
 }
 
 interface TestimonialState {

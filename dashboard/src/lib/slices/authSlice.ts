@@ -6,7 +6,7 @@ import { User } from "../types";
 export const loginUser = createAsyncThunk(
   "auth/login",
   async (
-    credentials: { identifier: string; password: string },
+    credentials: { email: string; password: string },
     { rejectWithValue }
   ) => {
     try {
