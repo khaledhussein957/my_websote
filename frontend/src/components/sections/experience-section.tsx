@@ -94,7 +94,7 @@ export function ExperienceSection() {
             <div className="space-y-12">
               {experienceList.map((experience: any, index: number) => (
                 <motion.div
-                  key={experience._id}
+                  key={experience._id || index}
                   variants={timelineVariants}
                   className="relative flex items-start md:items-center"
                 >

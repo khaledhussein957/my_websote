@@ -174,9 +174,9 @@ export const apiService = {
       return handleApiError(error, []);
     }
   },
-  getNewsItem: async (id: string) => {
+  getNewsBySlug: async (slug: string) => {
     try {
-      return await api.get(`${endpoints.news}/${id}`);
+      return await api.get(`${endpoints.news}/${slug}`);
     } catch (error) {
       return handleApiError(error, null);
     }

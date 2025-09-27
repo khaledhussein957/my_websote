@@ -11,8 +11,12 @@ import { format, parseISO } from 'date-fns';
 export function EducationSection() {
   const dispatch = useAppDispatch();
   const { educations, loading } = useAppSelector((state) => state.portfolio);
-  // Use educations.data as the array, fallback to []
-  const educationList = Array.isArray(educations?.data) ? educations.data : [];
+  // Support both API (object with data) and demo (array) formats
+  const educationList = Array.isArray(educations?.data)
+    ? educations.data
+    : Array.isArray(educations)
+    ? educations
+    : [];
 
   useEffect(() => {
     dispatch(fetchEducations());

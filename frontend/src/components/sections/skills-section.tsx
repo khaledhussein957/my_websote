@@ -6,24 +6,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { fetchTechStacks } from '@/store/portfolioSlice';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const skillIcons: { [key: string]: string } = {
-  'React': '⚛️',
-  'JavaScript': '🟨',
-  'TypeScript': '🔷',
-  'Node.js': '🟢',
-  'Next.js': '▲',
-  'Python': '🐍',
-  'Java': '☕',
-  'HTML': '🌐',
-  'CSS': '🎨',
-  'Tailwind': '💨',
-  'MongoDB': '🍃',
-  'PostgreSQL': '🐘',
-  'Docker': '🐳',
-  'AWS': '☁️',
-  'Git': '📦',
-  'Figma': '🎨',
-};
+
 
 export function SkillsSection() {
   const dispatch = useAppDispatch();
@@ -87,7 +70,9 @@ export function SkillsSection() {
 
   // Group skills by category (using first category name or 'Other')
   const skillsByCategory = techStackList.reduce((acc, skill) => {
-    const category = Array.isArray(skill.category) && skill.category.length > 0 ? skill.category[0].name : 'Other';
+    // Defensive: trim category name and skill name
+    const category = Array.isArray(skill.category) && skill.category.length > 0 ? skill.category[0].name.trim() : 'Other';
+    skill.name = skill.name.trim();
     if (!acc[category]) {
       acc[category] = [];
     }
@@ -138,11 +123,7 @@ export function SkillsSection() {
                           className="flex flex-col items-center p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
                         >
                           <div className="text-2xl mb-2">
-                            {skill.icon ? (
-                              <img src={skill.icon} alt={skill.name} className="w-8 h-8 object-contain" />
-                            ) : (
-                              skillIcons[skill.name.trim()] || '💻'
-                            )}
+                            <img src={skill.icon} alt={skill.name} className="w-8 h-8 object-contain" />
                           </div>
                           <span className="text-sm font-medium text-center">
                             {skill.name}
