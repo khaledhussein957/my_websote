@@ -21,6 +21,9 @@ export default function NotificationsScreen() {
     isLoading,
     isError,
   } = useFetchNotificationsQuery();
+
+  // notifications is an object with a data property (array)
+  const notificationList = notifications?.data || [];
   const [markNotificationAsRead] = useMarkNotificationAsReadMutation();
   const [markAllNotificationsAsRead] = useMarkAllNotificationsAsReadMutation();
 
@@ -47,7 +50,7 @@ export default function NotificationsScreen() {
     }
   };
 
-  const renderItem = ({ item }: { item: (typeof notifications)[0] }) => (
+  const renderItem = ({ item }: { item: (typeof notificationList)[0] }) => (
     <TouchableOpacity
       style={[
         styles.notificationItem,
@@ -76,7 +79,7 @@ export default function NotificationsScreen() {
       </TouchableOpacity>
 
       <FlatList
-        data={notifications}
+        data={notificationList}
         keyExtractor={(item) => item._id}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 20 }}

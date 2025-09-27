@@ -13,6 +13,8 @@ import { Ionicons } from "@expo/vector-icons";
 import StatCard from "@/components/StatCard";
 import { ActivityIndicator } from "react-native";
 
+import { tokenUtils } from "../../lib/baseQuery";
+
 const screenWidth = Dimensions.get("window").width;
 
 export default function DashboardScreen() {
@@ -25,13 +27,17 @@ export default function DashboardScreen() {
 
   if (!stats) return null;
 
+  // get the user from tokenUtils
+  const user = tokenUtils.getUser();
+
   const statCards = [
     {
       title: "Total Projects",
       value: stats.totalProjects,
       change: stats.newProjectsThisMonth,
       changeLabel: "new this month",
-      icon: <Ionicons name="folder-open" color="#22c55e" size={20} />,
+      iconName: "folder-open",
+      iconColor: "#22c55e",
       color: "#22c55e",
     },
     {
@@ -39,26 +45,38 @@ export default function DashboardScreen() {
       value: stats.totalNews,
       change: stats.newNewsThisMonth,
       changeLabel: "new this month",
-      icon: <Ionicons name="newspaper" color="#eab308" size={20} />,
+      iconName: "newspaper",
+      iconColor: "#eab308",
       color: "#eab308",
+    },
+    {
+      title: "Total TechStacks",
+      value: stats.totalTechStacks,
+      change: 0,
+      changeLabel: "total",
+      iconName: "layers",
+      iconColor: "#38bdf8",
+      color: "#38bdf8",
     },
     {
       title: "Total Testimonials",
       value: stats.totalTestimonials,
       change: stats.newTestimonialsThisMonth,
       changeLabel: "new this month",
-      icon: <Ionicons name="star" color="#ec4899" size={20} />,
+      iconName: "star",
+      iconColor: "#ec4899",
       color: "#ec4899",
     },
-    stats.totalVisitsThisMonth !== undefined && {
+    {
       title: "Total Visits",
       value: stats.totalVisitsThisMonth,
       change: 0,
       changeLabel: "this month",
-      icon: <Ionicons name="analytics" color="#ef4444" size={20} />,
+      iconName: "analytics",
+      iconColor: "#ef4444",
       color: "#ef4444",
     },
-  ].filter(Boolean);
+  ];
 
   // Pie chart data
   const pieData = [
@@ -77,6 +95,13 @@ export default function DashboardScreen() {
       legendFontSize: 14,
     },
     {
+      name: "TechStacks",
+      population: stats.totalTechStacks,
+      color: "#38bdf8",
+      legendFontColor: "#000",
+      legendFontSize: 14,
+    },
+    {
       name: "Testimonials",
       population: stats.totalTestimonials,
       color: "#ec4899",
@@ -89,18 +114,36 @@ export default function DashboardScreen() {
     labels: stats.monthlyTrends.map((t) => t.month),
     datasets: [
       {
-        data: stats.monthlyTrends.map((t) => t.value),
-        color: () => "#3b82f6",
+        data: stats.monthlyTrends.map((t) => t.projects),
+        color: () => "#22c55e",
+        strokeWidth: 2,
+      },
+      {
+        data: stats.monthlyTrends.map((t) => t.news),
+        color: () => "#eab308",
+        strokeWidth: 2,
+      },
+      {
+        data: stats.monthlyTrends.map((t) => t.testimonials),
+        color: () => "#ec4899",
+        strokeWidth: 2,
+      },
+      {
+        data: stats.monthlyTrends.map((t) => t.visits),
+        color: () => "#ef4444",
         strokeWidth: 2,
       },
     ],
+    legend: ["Projects", "News", "Testimonials", "Visits"],
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{ paddingBottom: 20 }}
-    >
+    <View style={styles.container}>
+      <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 8 }}>Dashboard Overview</Text>
+      <Text style={{ marginBottom: 16 }}>
+        {`Welcome back, ${user?.name || "User"}! Here's what's happening with your portfolio.`}
+      </Text>
+
       {/* Stat Cards */}
       <FlatList
         data={statCards}
@@ -113,24 +156,12 @@ export default function DashboardScreen() {
             value={item.value}
             change={item.change}
             changeLabel={item.changeLabel}
-            icon={item.icon as any}
+            icon={<Ionicons name={item.iconName} color={item.iconColor} size={20} />}
             color={item.color}
           />
         )}
-        style={{ marginBottom: 20 }}
-      />
-
-      {/* Pie Chart */}
-      <Text style={styles.chartTitle}>Categories Distribution</Text>
-      <PieChart
-        data={pieData}
-        width={screenWidth - 40}
-        height={220}
-        chartConfig={chartConfig}
-        accessor="population"
-        backgroundColor="transparent"
-        paddingLeft="15"
-        absolute
+        style={{ marginBottom: 24 }}
+        scrollEnabled={false}
       />
 
       {/* Line Chart */}
@@ -149,21 +180,37 @@ export default function DashboardScreen() {
         <Text style={styles.sectionTitle}>Recent Activity</Text>
         <FlatList
           data={stats.recentActivity}
-          keyExtractor={(item) => item._id}
-          renderItem={({ item }) => (
-            <View style={styles.activityItem}>
-              <Text style={styles.activityText}>
-                <Text style={{ fontWeight: "bold" }}>{item.user.name}</Text>{" "}
-                {item.action}
-              </Text>
+          keyExtractor={(item, index) =>
+            item.id ? String(item.id) : `activity-${index}`
+          }
+          renderItem={({ item, index }) => (
+            <View
+              style={styles.activityItem}
+              key={item.id ? String(item.id) : `activity-${index}`}
+            >
+              <Text style={styles.activityText}>{item.message}</Text>
               <Text style={styles.activityDate}>
-                {new Date(item.createdAt).toLocaleString()}
+                {new Date(item.timeAgo).toLocaleString()}
               </Text>
             </View>
           )}
+          scrollEnabled={false}
         />
       </View>
-    </ScrollView>
+
+      {/* Pie Chart */}
+      <Text style={styles.chartTitle}>Categories Distribution</Text>
+      <PieChart
+        data={pieData}
+        width={screenWidth - 40}
+        height={220}
+        chartConfig={chartConfig}
+        accessor="population"
+        backgroundColor="transparent"
+        paddingLeft="15"
+        absolute
+      />
+    </View>
   );
 }
 

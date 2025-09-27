@@ -23,15 +23,13 @@ import { Star } from "lucide-react";
 
 import { Testimonial } from "../../lib/slices/testimonialSlice";
 
-const testimonialSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  email: z.string().email("Valid email required"),
-  message: z.string().min(5, "Message is required"),
-  rating: z.number().min(1, "Please select rating").max(5),
-  image: z.any().optional(),
-});
 
-type TestimonialFormData = z.infer<typeof testimonialSchema>;
+type TestimonialFormData = {
+  name: string;
+  email: string;
+  message: string;
+  rating: number;
+};
 
 export default function TestimonialForm({
   testimonial,
@@ -42,50 +40,70 @@ export default function TestimonialForm({
   onClose: () => void;
   onSuccess: () => void;
 }) {
+
   const dispatch = useAppDispatch();
-  const [preview, setPreview] = useState<string | null>(
-    testimonial?.image || null
-  );
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<TestimonialFormData>({
-    resolver: zodResolver(testimonialSchema),
-    defaultValues: {
-      name: testimonial?.name || "",
-      email: testimonial?.email || "",
-      message: testimonial?.message || "",
-      rating: testimonial?.rating || 0,
-    },
+  const [formData, setFormData] = useState<TestimonialFormData>({
+    name: testimonial?.name || "",
+    email: testimonial?.email || "",
+    message: testimonial?.message || "",
+    rating: testimonial?.rating || 0,
   });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(testimonial?.image || null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const rating = watch("rating");
 
-  const onSubmit = async (data: TestimonialFormData) => {
-    try {
-      const payload: Omit<Testimonial, "_id"> = {
-        name: data.name,
-        email: data.email,
-        message: data.message,
-        rating: data.rating,
-        image: data.image ? data.image[0] : undefined, // or upload separately
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleRatingChange = (star: number) => {
+    setFormData(prev => ({ ...prev, rating: star }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setImagePreview(ev.target?.result as string);
       };
+      reader.readAsDataURL(file);
+    }
+  };
 
-      if (testimonial?._id) {
-        await dispatch(
-          updateTestimonial({ id: testimonial._id, data: payload })
-        );
-      } else {
-        await dispatch(createTestimonial(payload));
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const payload: any = {
+        name: formData.name,
+        email: formData.email,
+        message: formData.message,
+        rating: formData.rating,
+      };
+      let sendData: any = payload;
+      if (selectedImage) {
+        const fd = new FormData();
+        fd.append("name", formData.name);
+        fd.append("email", formData.email);
+        fd.append("message", formData.message);
+        fd.append("rating", String(formData.rating));
+        fd.append("image", selectedImage);
+        sendData = fd;
       }
-
+      if (testimonial?._id) {
+        await dispatch(updateTestimonial({ id: testimonial._id, data: sendData }));
+      } else {
+        await dispatch(createTestimonial(sendData));
+      }
       onSuccess();
     } catch (err) {
       console.error("❌ Error saving testimonial:", err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -98,14 +116,19 @@ export default function TestimonialForm({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+  <form onSubmit={onSubmit} className="space-y-6">
           {/* Name */}
           <div>
             <Label htmlFor="name">Name</Label>
-            <Input id="name" placeholder="John Doe" {...register("name")} />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
-            )}
+            <Input
+              id="name"
+              name="name"
+              placeholder="John Doe"
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+              disabled={isSubmitting}
+            />
           </div>
 
           {/* Email */}
@@ -113,12 +136,13 @@ export default function TestimonialForm({
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
+              name="email"
               placeholder="john@example.com"
-              {...register("email")}
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+              disabled={isSubmitting}
             />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
-            )}
           </div>
 
           {/* Message */}
@@ -126,12 +150,13 @@ export default function TestimonialForm({
             <Label htmlFor="message">Message</Label>
             <Textarea
               id="message"
+              name="message"
               placeholder="Write your feedback..."
-              {...register("message")}
+              value={formData.message}
+              onChange={handleInputChange}
+              required
+              disabled={isSubmitting}
             />
-            {errors.message && (
-              <p className="text-sm text-red-500">{errors.message.message}</p>
-            )}
           </div>
 
           {/* Rating */}
@@ -142,12 +167,12 @@ export default function TestimonialForm({
                 <button
                   key={star}
                   type="button"
-                  onClick={() => setValue("rating", star)}
+                  onClick={() => handleRatingChange(star)}
                   className="focus:outline-none"
                 >
                   <Star
                     className={`h-6 w-6 ${
-                      rating >= star
+                      formData.rating >= star
                         ? "text-yellow-400 fill-yellow-400"
                         : "text-gray-400"
                     }`}
@@ -155,9 +180,6 @@ export default function TestimonialForm({
                 </button>
               ))}
             </div>
-            {errors.rating && (
-              <p className="text-sm text-red-500">{errors.rating.message}</p>
-            )}
           </div>
 
           {/* Image Upload */}
@@ -167,36 +189,25 @@ export default function TestimonialForm({
               id="image"
               type="file"
               accept="image/*"
-              {...register("image")}
-              onChange={(e) => {
-                if (e.target.files?.[0]) {
-                  setPreview(URL.createObjectURL(e.target.files[0]));
-                  setValue("image", e.target.files as any); // ensure RHF knows about it
-                }
-              }}
+              onChange={handleImageChange}
+              disabled={isSubmitting}
             />
-            {preview ? (
+            {imagePreview && (
               <img
-                src={preview}
+                src={imagePreview}
                 alt="Preview"
                 className="mt-2 h-20 w-20 object-cover rounded-full"
               />
-            ) : testimonial?.image ? (
-              <img
-                src={testimonial.image}
-                alt="Existing"
-                className="mt-2 h-20 w-20 object-cover rounded-full"
-              />
-            ) : null}
+            )}
           </div>
 
           {/* Actions */}
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {testimonial ? "Update" : "Create"}
+            <Button type="submit" disabled={isSubmitting || !formData.name || !formData.email || !formData.message || formData.rating < 1}>
+              {isSubmitting ? (testimonial ? "Updating..." : "Creating...") : (testimonial ? "Update" : "Create")}
             </Button>
           </div>
         </form>

@@ -56,10 +56,6 @@ function Header({ onMenuClick }: HeaderProps) {
               <Menu className="h-5 w-5" />
             </Button>
           )}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <Input placeholder="Search..." className="pl-10 w-64" />
-          </div>
         </div>
 
         {/* Right side: theme, notifications, profile */}

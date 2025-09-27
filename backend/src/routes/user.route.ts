@@ -8,12 +8,17 @@ import {
 } from "../middlewares/userValidate.middleware.ts";
 
 import {
+  getUsers,
+  getUser,
   changePassword,
   updateAccount,
   deleteAccount,
 } from "../controllers/user.controller.ts";
 
 const router = express.Router();
+
+router.get("/", getUsers);
+router.get("/:id", authMiddleware, getUser);
 
 router.put(
   "/update-account",

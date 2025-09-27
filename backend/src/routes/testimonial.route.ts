@@ -13,8 +13,8 @@ import { uploadTestimonialImage } from "../middlewares/upload.ts";
 const router = express.Router();
 
 router.get("/", getTestimonials);
-router.post("/", createTestimonialValidate, uploadTestimonialImage.single("image") , addTestimonial);
-router.put("/:testimonialId", authMiddleware, updateTestimonialValidate, updateTestimonial);
+router.post("/", uploadTestimonialImage.single("image"), createTestimonialValidate, addTestimonial);
+router.put("/:testimonialId", authMiddleware, uploadTestimonialImage.single("image"), updateTestimonialValidate, updateTestimonial);
 router.delete("/:testimonialId", authMiddleware, deleteTestimonial);
 
 export default router;

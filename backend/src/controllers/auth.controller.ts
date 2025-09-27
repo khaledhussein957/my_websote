@@ -47,7 +47,7 @@ export const registerAccount = async (req: Request, res: Response) => {
     });
 
     const token = jwt.sign({ id: newUser._id }, ENV.JWT_SECRET as string, {
-      expiresIn: "1h",
+      expiresIn: "7d",
     });
 
     res.cookie("token", token, {
@@ -95,7 +95,7 @@ export const loginAccount = async (req: Request, res: Response) => {
         .json({ message: "Invalid password", status: "error" });
 
     const token = jwt.sign({ id: user._id }, ENV.JWT_SECRET as string, {
-      expiresIn: "1h",
+      expiresIn: "7h",
     });
 
     res.cookie("token", token, {

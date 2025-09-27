@@ -78,7 +78,7 @@ export const updateTestimonial = async (
   res: Response
 ) => {
   try {
-    const userId = req.user;
+  const userId = req.user?.id;
     if (!userId)
       return res.status(401).json({ message: "Unauthorized", status: "false" });
 
@@ -96,11 +96,11 @@ export const updateTestimonial = async (
         .status(404)
         .json({ message: "Testimonial not found", status: "false" });
 
-    const { name, email, messgae, rating } = req.body;
+    const { name, email, message, rating } = req.body;
 
     testimonial.name = name || testimonial.name;
     testimonial.email = email || testimonial.email;
-    testimonial.messgae = messgae || testimonial.messgae;
+    testimonial.message = message || testimonial.message;
     testimonial.rating = rating || testimonial.rating;
 
     if (req.file) {
@@ -142,7 +142,7 @@ export const deleteTestimonial = async (
   res: Response
 ) => {
   try {
-    const userId = req.user;
+    const userId = req.user?.id;
     if (!userId)
       return res.status(401).json({ message: "Unauthorized", status: false });
 
@@ -152,6 +152,7 @@ export const deleteTestimonial = async (
 
     const { testimonialId } = req.params;
 
+    // Find and delete testimonial in one step
     const deletedTestimonial = await Testimonial.findByIdAndDelete(
       testimonialId
     );
@@ -173,12 +174,6 @@ export const deleteTestimonial = async (
       } catch (error) {
         console.log("❌ Error deleting image from Cloudinary:", error);
       }
-    }
-    const testimonial = await Testimonial.findByIdAndDelete(testimonialId);
-    if (!testimonial) {
-      return res
-        .status(404)
-        .json({ message: "Testimonial not found", status: "false" });
     }
 
     await Notification.create({

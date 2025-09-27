@@ -10,7 +10,7 @@ export const forgotPasswordEmail = async (
   resetCode: string,
   clientURL: string
 ) => {
-  const { data, error } = await resendClient.email.send({
+  const { data, error } = await resendClient.emails.send({
     from: `${sender.name} <${sender.email}>`,
     to: email,
     subject: "Reset your password",
@@ -18,24 +18,24 @@ export const forgotPasswordEmail = async (
   });
 
   if (error) {
-    console.error("Error in sending forgot password rmail", error);
-    throw new Error("Filed to send forgot password email");
+    console.error("Error in sending forgot password email", error);
+    throw new Error("Failed to send forgot password email");
   }
 
   console.log("Reset code sent successfully", data);
 };
 
 export const sendPasswordResetSuccessEmail = async (email: string) => {
-  const { data, error } = await resendClient.email.send({
+  const { data, error } = await resendClient.emails.send({
     from: `${sender.name} <${sender.email}>`,
     to: email,
-    subject: "Reset your password",
+    subject: "Your password has been reset",
     html: PASSWORD_RESET_SUCCESS_TEMPLATE(email),
   });
 
   if (error) {
-    console.error("Error in sending forgot password rmail", error);
-    throw new Error("Filed to send forgot password email");
+    console.error("Error in sending password reset success email", error);
+    throw new Error("Failed to send password reset success email");
   }
 
   console.log("Reset code sent successfully", data);

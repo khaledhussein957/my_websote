@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { loginUser, clearError } from "@/lib/slices/authSlice";
 import { Button } from "@/components/ui/button";
@@ -79,7 +80,7 @@ export default function LoginForm() {
                 </p>
               )}
             </div>
-
+            
             <div>
               <label
                 htmlFor="password"
@@ -102,6 +103,15 @@ export default function LoginForm() {
                   {errors.password.message}
                 </p>
               )}
+            </div>
+
+            <div className="flex justify-end">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
+              >
+                Forgot password?
+              </Link>
             </div>
           </div>
 

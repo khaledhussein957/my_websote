@@ -37,11 +37,17 @@ export const fetchTestimonials = createAsyncThunk(
   }
 );
 
+
 export const addTestimonial = createAsyncThunk(
   "testimonial/add",
-  async (data: Omit<Testimonial, "_id">, { rejectWithValue }) => {
+  async (data: any, { rejectWithValue }) => {
     try {
-      const res = await api.post("/testimonials", data);
+      let config = {};
+      let payload = data;
+      if (typeof FormData !== "undefined" && data instanceof FormData) {
+        config = { headers: { "Content-Type": "multipart/form-data" } };
+      }
+      const res = await api.post("/testimonials", payload, config);
       return res.data.data as Testimonial;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Failed to add testimonial");
@@ -49,11 +55,17 @@ export const addTestimonial = createAsyncThunk(
   }
 );
 
+
 export const updateTestimonial = createAsyncThunk(
   "testimonial/update",
-  async ({ id, data }: { id: string; data: Partial<Testimonial> }, { rejectWithValue }) => {
+  async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
     try {
-      const res = await api.put(`/testimonials/${id}`, data);
+      let config = {};
+      let payload = data;
+      if (typeof FormData !== "undefined" && data instanceof FormData) {
+        config = { headers: { "Content-Type": "multipart/form-data" } };
+      }
+      const res = await api.put(`/testimonials/${id}`, payload, config);
       return res.data.data as Testimonial;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Failed to update testimonial");

@@ -129,14 +129,14 @@ export const updateProject = async (
         .status(400)
         .json({ message: "Project ID is required", status: "error" });
 
-    const project = await Project.findById(projectId).populate(
-      "user",
-      "name email image"
-    );
+    const project = await Project.findById(projectId);
     if (!project)
       return res
         .status(404)
         .json({ message: "Project not found", status: "error" });
+
+        console.log(project.user, userId);
+        console.log(project);
 
     if (project.user._id.toString() !== userId) {
       return res.status(403).json({

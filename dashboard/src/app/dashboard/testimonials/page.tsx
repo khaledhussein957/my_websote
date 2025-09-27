@@ -29,10 +29,11 @@ import {
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogTitle,
-} from "@radix-ui/react-alert-dialog";
-import {
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogTrigger,
+  AlertDialogCancel,
+  AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogHeader } from "@/components/ui/dialog";
 import { DialogContent, DialogTitle } from "@radix-ui/react-dialog";
@@ -61,9 +62,7 @@ export default function TestimonialPage() {
   const [editingTestimonial, setEditingTestimonial] =
     useState<Testimonial | null>(null);
 
-  const [deletingTestimonial, setDeletingTestimonial] =
-    useState<Testimonial | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [viewingTestimonial, setViewingTestimonial] =
     useState<Testimonial | null>(null);
@@ -99,15 +98,13 @@ export default function TestimonialPage() {
     setShowForm(true);
   };
 
-  const handleDelete = (testimonial: Testimonial) => {
-    setDeletingTestimonial(testimonial);
-    setShowDeleteDialog(true);
+  const handleDelete = (id: string) => {
+    setDeletingId(id);
   };
 
-  const handleDeleteConfirm = () => {
-    if (deletingTestimonial)
-      dispatch(deleteTestimonial(deletingTestimonial._id));
-    setShowDeleteDialog(false);
+  const handleDeleteConfirm = async (id: string) => {
+    await dispatch(deleteTestimonial(id));
+    setDeletingId(null);
   };
 
   return (
@@ -210,13 +207,41 @@ export default function TestimonialPage() {
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(t)}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      </Button>
+                      <AlertDialog open={deletingId === t._id} onOpenChange={(open) => { if (!open) setDeletingId(null); }}>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(t._id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-600" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Testimonial</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete "{t.name}"? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel asChild>
+                              <Button variant="outline">Cancel</Button>
+                            </AlertDialogCancel>
+                            <AlertDialogAction asChild>
+                              <Button
+                                variant="destructive"
+                                onClick={async (e) => {
+                                  e.preventDefault(); // prevent dialog from closing before action
+                                  await handleDeleteConfirm(t._id);
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </td>
                   </tr>
                 ))}
@@ -250,29 +275,7 @@ export default function TestimonialPage() {
         />
       )}
 
-      {/* Delete AlertDialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Testimonial</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{deletingTestimonial?.name}"?
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteDialog(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>
-              Delete
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Delete AlertDialog removed: now handled per row */}
 
       {/* View Testimonial Modal */}
       {viewingTestimonial && (

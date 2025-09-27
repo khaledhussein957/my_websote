@@ -13,6 +13,49 @@ import { validatePhoneNumber } from "../utils/phoneValidate.ts";
 import cloudinary from "../config/cloudinary.ts";
 // import s3 from "../config/Aws.ts";
 
+export const getUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await User.find();
+    if (users.length === 0)
+      return res.status(404).json({ message: "No users found", status: "error" });
+
+    return res.status(200).json({
+      message: "Users fetched successfully",
+      status: "success",
+      data: users,
+    });
+  } catch (error) {
+    console.log("❌ Error in getUsers: ", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", status: "error" });
+  }
+};
+
+export const getUser = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId)
+      return res.status(401).json({ message: "Unauthorized", status: "error" });
+
+    const user = await User.findById(userId);
+    if (!user)
+      return res.status(404).json({ message: "User not found", status: "error" });
+
+    return res.status(200).json({
+      message: "User fetched successfully",
+      status: "success",
+      data: user,
+    });
+    
+  } catch (error) {
+    console.log("❌ Error in getUser: ", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", status: "error" });
+  }
+};
+
 export const updateAccount = async (
   req: AuthenticatedRequest,
   res: Response

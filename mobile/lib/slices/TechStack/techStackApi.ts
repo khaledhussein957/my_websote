@@ -36,7 +36,7 @@ export const techStackApi = createApi({
         // Fetch all tech stacks
         fetchTechStacks: builder.query<TechStack[], void>({
             query: () => ({
-                url: "/tech-stacks",
+                url: "/techstacks",
                 method: "GET",
             }),
             providesTags: ["TechStack"],
@@ -45,7 +45,7 @@ export const techStackApi = createApi({
         // Create tech stack
         createTechStack: builder.mutation<TechStack, CreateTechStackData>({
             query: (data) => ({
-                url: "/tech-stacks",
+                url: "/techstacks",
                 method: "POST",
                 body: data,
             }),
@@ -55,7 +55,7 @@ export const techStackApi = createApi({
         // Update tech stack
         updateTechStack: builder.mutation<TechStack, UpdateTechStackData>({
             query: ({ id, ...data }) => ({
-                url: `/tech-stacks/${id}`,
+                url: `/techstacks/${id}`,
                 method: "PUT",
                 body: data,
             }),
@@ -65,7 +65,7 @@ export const techStackApi = createApi({
         // Delete tech stack
         deleteTechStack: builder.mutation<{ message: string }, string>({
             query: (id) => ({
-                url: `/tech-stacks/${id}`,
+                url: `/techstacks/${id}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["TechStack"],
