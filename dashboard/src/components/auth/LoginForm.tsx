@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Eye, EyeOff } from "lucide-react";
 
 // --- Zod schema ---
 const loginSchema = z.object({
@@ -24,6 +25,7 @@ export default function LoginForm() {
     (state) => state.auth
   );
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -81,7 +83,7 @@ export default function LoginForm() {
               )}
             </div>
             
-            <div>
+            <div className="relative">
               <label
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -90,7 +92,7 @@ export default function LoginForm() {
               </label>
               <input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 disabled={isLoading}
                 placeholder="Enter your password"
                 {...register("password")}
@@ -98,6 +100,15 @@ export default function LoginForm() {
                   errors.password ? "border-red-500" : "border-gray-300"
                 }`}
               />
+              <button
+                type="button"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword((v) => !v)}
+                disabled={isLoading}
+                className="absolute right-3 top-[38px] text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                   {errors.password.message}

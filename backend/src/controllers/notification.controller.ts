@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 
-import User from "../models/user.model.ts";
-import Notification from "../models/notification.model.ts";
+import User from "../models/user.model";
+import Notification from "../models/notification.model";
 
-import type { AuthenticatedRequest } from "../middlewares/protectRoute.ts";
+import type { AuthenticatedRequest } from "../middlewares/protectRoute";
 
 export const getNotifications = async (
   req: AuthenticatedRequest,

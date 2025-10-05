@@ -1,10 +1,10 @@
 import type { Response } from "express";
 
-import Visit from "../models/visit.model.ts";
-import Notification from "../models/notification.model.ts";
-import User from "../models/user.model.ts";
+import Visit from "../models/visit.model";
+import Notification from "../models/notification.model";
+import User from "../models/user.model";
 
-import type { AuthenticatedRequest } from "../middlewares/protectRoute.js";
+import type { AuthenticatedRequest } from "../middlewares/protectRoute";
 
 // ✅ Total visits this month
 export const getTotalVisitsThisMonth = async (

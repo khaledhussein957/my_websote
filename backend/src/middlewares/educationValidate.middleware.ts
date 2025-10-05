@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import {
   addEducation,
   updateEducation,
-} from "../validations/education.validator.ts";
+} from "../validations/education.validator";
 
 export const addEducationValidate = async (
   req: Request,

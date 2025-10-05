@@ -131,22 +131,51 @@ export const forgotPassword = createAsyncThunk(
   async (email: string, { rejectWithValue }) => {
     try {
       const response = await api.post("/auth/forgot-password", { email });
-      return response.data.message || "Password reset email sent";
+      const message = response.data?.message || "Reset code sent successfully";
+      return { success: true, message };
     } catch (error: unknown) {
       let errorMessage = "Failed to send reset email";
       if (
         error &&
         typeof error === "object" &&
         "response" in error &&
-        error.response &&
-        typeof error.response === "object" &&
-        "data" in error.response &&
-        error.response.data &&
-        typeof error.response.data === "object" &&
-        "message" in error.response.data
+        (error as any).response &&
+        typeof (error as any).response === "object" &&
+        "data" in (error as any).response &&
+        (error as any).response.data &&
+        typeof (error as any).response.data === "object" &&
+        "message" in (error as any).response.data
       ) {
         errorMessage =
-          (error.response.data as { message?: string }).message || errorMessage;
+          ((error as any).response.data as { message?: string }).message || errorMessage;
+      }
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const resendResetCode = createAsyncThunk(
+  "auth/resend-reset-code",
+  async (email: string, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/auth/resend-code", { email });
+      const message = response.data?.message || "Reset code resent";
+      return { success: true, message };
+    } catch (error: unknown) {
+      let errorMessage = "Failed to resend reset code";
+      if (
+        error &&
+        typeof error === "object" &&
+        "response" in error &&
+        (error as any).response &&
+        typeof (error as any).response === "object" &&
+        "data" in (error as any).response &&
+        (error as any).response.data &&
+        typeof (error as any).response.data === "object" &&
+        "message" in (error as any).response.data
+      ) {
+        errorMessage =
+          ((error as any).response.data as { message?: string }).message || errorMessage;
       }
       return rejectWithValue(errorMessage);
     }
@@ -195,6 +224,7 @@ interface AuthState {
   error: string | null;
   forgotPasswordSuccess: string | null;
   resetPasswordSuccess: string | null;
+  resendCodeSuccess: string | null;
 }
 
 const initialState: AuthState = {
@@ -204,6 +234,7 @@ const initialState: AuthState = {
   error: null,
   forgotPasswordSuccess: null,
   resetPasswordSuccess: null,
+  resendCodeSuccess: null,
 };
 
 const authSlice = createSlice({
@@ -272,9 +303,23 @@ const authSlice = createSlice({
       })
       .addCase(forgotPassword.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.forgotPasswordSuccess = action.payload as string;
+        state.forgotPasswordSuccess = (action.payload as { message: string }).message;
       })
       .addCase(forgotPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // resend code
+      .addCase(resendResetCode.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.resendCodeSuccess = null;
+      })
+      .addCase(resendResetCode.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.resendCodeSuccess = (action.payload as { message: string }).message;
+      })
+      .addCase(resendResetCode.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })

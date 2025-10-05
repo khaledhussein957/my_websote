@@ -186,6 +186,9 @@ export default function ProjectsPage() {
                     Tech Stack
                   </th>
                   <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Type
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
                     Links
                   </th>
                   <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
@@ -242,6 +245,11 @@ export default function ProjectsPage() {
                         </Badge>
                       </div>
                     </td>
+                  <td className="py-3 px-4">
+                    <Badge variant="secondary" className="text-xs capitalize">
+                      {project.type}
+                    </Badge>
+                  </td>
                     <td className="py-3 px-4 flex space-x-2">
                       {project.githubUrl && (
                         <a

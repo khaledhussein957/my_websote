@@ -1,10 +1,10 @@
 import express from "express";
 
-import { getNews, getNewsBySlug, createNews, updateNews, deleteNews } from "../controllers/news.controller.ts";
+import { getNews, getNewsBySlug, createNews, updateNews, deleteNews } from "../controllers/news.controller";
 
-import { authMiddleware } from "../middlewares/protectRoute.ts";
-import { uploadBlogImage } from "../middlewares/upload.ts";
-import { createNewsValidate, updateNewsValidate } from "../middlewares/newsValidate.middleware.ts";
+import { authMiddleware } from "../middlewares/protectRoute";
+import { uploadBlogImage } from "../middlewares/upload";
+import { createNewsValidate, updateNewsValidate } from "../middlewares/newsValidate.middleware";
 
 const router = express.Router();
 

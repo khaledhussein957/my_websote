@@ -1,16 +1,16 @@
 import { type Request, type Response } from "express";
 import bcryptjs from "bcryptjs";
 
-import User from "../models/user.model.ts";
-import Notification from "../models/notification.model.ts";
+import User from "../models/user.model";
+import Notification from "../models/notification.model";
 
-import type { AuthenticatedRequest } from "../middlewares/protectRoute.ts";
+import type { AuthenticatedRequest } from "../middlewares/protectRoute";
 
 // import uploadImages from "../utils/s3Uploader.ts";
-import { validatePhoneNumber } from "../utils/phoneValidate.ts";
+import { validatePhoneNumber } from "../utils/phoneValidate";
 
 // import ENV from "../config/ENV.ts";
-import cloudinary from "../config/cloudinary.ts";
+import cloudinary from "../config/cloudinary";
 // import s3 from "../config/Aws.ts";
 
 export const getUsers = async (req: Request, res: Response) => {

@@ -8,6 +8,8 @@ import { AlertCircle, CheckCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 
 const forgotSchema = z.object({
@@ -19,6 +21,8 @@ type ForgotFormData = z.infer<typeof forgotSchema>;
 export default function ForgotPasswordForm() {
   const dispatch = useAppDispatch();
   const { isLoading, error, forgotPasswordSuccess } = useAppSelector((state) => state.auth);
+  const router = useRouter();
+  const [email, setEmail] = useState("");
   const {
     register,
     handleSubmit,
@@ -32,8 +36,16 @@ export default function ForgotPasswordForm() {
   const onSubmit = async (data: ForgotFormData) => {
     dispatch(clearError());
     dispatch(clearForgotPasswordSuccess());
-    await dispatch(forgotPassword(data.email));
-    reset();
+    try {
+      const result = await dispatch(forgotPassword(email || data.email)).unwrap();
+      if (result && typeof result === "object" && "message" in result) {
+        // Navigate with email as query param so reset form can preload it
+        router.push(`/reset-password?email=${encodeURIComponent(email || data.email)}`);
+      }
+      reset();
+    } catch (e) {
+      // leave error handling to slice state displayed below
+    }
   };
 
   return (
@@ -60,6 +72,8 @@ export default function ForgotPasswordForm() {
                 placeholder="Enter your email"
                 disabled={isLoading}
                 {...register("email")}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className={`mt-1 block w-full px-3 py-2 border rounded-md sm:text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white ${
                   errors.email ? "border-red-500" : "border-gray-300"
                 }`}

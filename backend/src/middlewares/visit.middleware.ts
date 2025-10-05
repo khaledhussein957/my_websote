@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import useragent from "useragent";
-import Visit from "../models/visit.model.ts";
+import Visit from "../models/visit.model";
 
 export const logVisit = async (
   req: Request,

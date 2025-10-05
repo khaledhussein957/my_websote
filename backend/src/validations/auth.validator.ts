@@ -101,3 +101,7 @@ export const resetPasswordAccount = Joi.object({
     "string.empty": "Confirm password is required",
   }),
 });
+
+export const resendCode = Joi.object({
+  email: Joi.string().email().required(),
+});

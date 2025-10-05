@@ -1,8 +1,9 @@
-import { resendClient, sender } from "../config/resend.ts";
+import ENV from "../config/ENV";
+import { getTransporter } from "../config/nodeMailer";
 import {
   FORGOT_PASSWORD_EMAIL_TEMPLATE,
   PASSWORD_RESET_SUCCESS_TEMPLATE,
-} from "../emails/emailTemplate.ts";
+} from "../emails/emailTemplate";
 
 export const forgotPasswordEmail = async (
   name: string,
@@ -10,33 +11,35 @@ export const forgotPasswordEmail = async (
   resetCode: string,
   clientURL: string
 ) => {
-  const { data, error } = await resendClient.emails.send({
-    from: `${sender.name} <${sender.email}>`,
+  const transporter = await getTransporter();
+  const info = await transporter.sendMail({
+    from: `${ENV.SMTP_EMAIL} <${ENV.SMTP_EMAIL}>`,
     to: email,
     subject: "Reset your password",
     html: FORGOT_PASSWORD_EMAIL_TEMPLATE(name, resetCode, clientURL),
   });
 
-  if (error) {
-    console.error("Error in sending forgot password email", error);
+  if (!info.messageId) {
+    console.error("Error in sending forgot password email", info);
     throw new Error("Failed to send forgot password email");
   }
 
-  console.log("Reset code sent successfully", data);
+  console.log("Reset code sent successfully", info.messageId);
 };
 
 export const sendPasswordResetSuccessEmail = async (email: string) => {
-  const { data, error } = await resendClient.emails.send({
-    from: `${sender.name} <${sender.email}>`,
+  const transporter = await getTransporter();
+  const info = await transporter.sendMail({
+    from: `${ENV.SMTP_EMAIL} <${ENV.SMTP_EMAIL}>`,
     to: email,
     subject: "Your password has been reset",
     html: PASSWORD_RESET_SUCCESS_TEMPLATE(email),
   });
 
-  if (error) {
-    console.error("Error in sending password reset success email", error);
+  if (!info.messageId) {
+    console.error("Error in sending password reset success email", info);
     throw new Error("Failed to send password reset success email");
   }
 
-  console.log("Reset code sent successfully", data);
+  console.log("Password reset success email sent successfully", info.messageId);
 };

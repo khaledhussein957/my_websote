@@ -1,12 +1,12 @@
 import type { Request, Response } from "express";
 
-import Testimonial from "../models/testimonial.model.ts";
-import User from "../models/user.model.ts";
-import Notification from "../models/notification.model.ts";
+import Testimonial from "../models/testimonial.model";
+import User from "../models/user.model";
+import Notification from "../models/notification.model";
 
-import type { AuthenticatedRequest } from "../middlewares/protectRoute.ts";
+import type { AuthenticatedRequest } from "../middlewares/protectRoute";
 
-import cloudinary from "../config/cloudinary.ts";
+import cloudinary from "../config/cloudinary";
 
 export const getTestimonials = async (req: Request, res: Response) => {
   try {

@@ -1,9 +1,9 @@
 import express from "express";
 
-import { getEducations, getEducation, addEducation, updateEducation, deleteEducation } from "../controllers/education.controller.ts";
+import { getEducations, getEducation, addEducation, updateEducation, deleteEducation } from "../controllers/education.controller";
 
-import { authMiddleware } from "../middlewares/protectRoute.ts";
-import { addEducationValidate, updateEducationValidate } from "../middlewares/educationValidate.middleware.ts";
+import { authMiddleware } from "../middlewares/protectRoute";
+import { addEducationValidate, updateEducationValidate } from "../middlewares/educationValidate.middleware";
 
 const router = express.Router();
 

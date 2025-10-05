@@ -3,7 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 import {
   createNewsSchema,
   updateNewsSchema,
-} from "../validations/news.validator.ts";
+} from "../validations/news.validator";
 
 export const createNewsValidate = async (
   req: Request,

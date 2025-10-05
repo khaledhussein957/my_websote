@@ -1,12 +1,12 @@
 import type { Request, Response } from "express";
 
-import News from "../models/news.model.ts";
-import User from "../models/user.model.ts";
-import Notification from "../models/notification.model.ts";
+import News from "../models/news.model";
+import User from "../models/user.model";
+import Notification from "../models/notification.model";
 
-import cloudinary from "../config/cloudinary.ts";
+import cloudinary from "../config/cloudinary";
 
-import type { AuthenticatedRequest } from "../middlewares/protectRoute.ts";
+import type { AuthenticatedRequest } from "../middlewares/protectRoute";
 
 export const getNews = async (req: Request, res: Response) => {
   try {

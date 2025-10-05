@@ -1,9 +1,9 @@
 import { type Request, type Response } from "express";
 
-import type { AuthenticatedRequest } from "../middlewares/protectRoute.ts";
+import type { AuthenticatedRequest } from "../middlewares/protectRoute";
 
-import Category from "../models/category.model.ts";
-import Notification from "../models/notification.model.ts";
+import Category from "../models/category.model";
+import Notification from "../models/notification.model";
 
 export const getCategories = async (req: Request, res: Response) => {
     try {

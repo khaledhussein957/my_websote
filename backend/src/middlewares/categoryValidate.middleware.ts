@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { categoryValidation, categoryUpdateValidation } from "../validations/category.validator.ts";
+import { categoryValidation, categoryUpdateValidation } from "../validations/category.validator";
 
 export const validateCategory = (req: Request, res: Response, next: NextFunction) => {
     const { error } = categoryValidation.validate(req.body);

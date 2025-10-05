@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio - Full-Stack Developer",
-  description: "Professional portfolio showcasing projects, skills, and experience",
+  title: "Khalid Hussein Sayid",
+  description: "Khalid Hussein Sayid's Portfolio",
 };
 
 export default function RootLayout({

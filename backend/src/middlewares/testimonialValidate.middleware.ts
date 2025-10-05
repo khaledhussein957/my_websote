@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { createTestimonialSchema, updateTestimonialSchema } from "../validations/testimonial.validator.ts";
+import { createTestimonialSchema, updateTestimonialSchema } from "../validations/testimonial.validator";
 
 export const createTestimonialValidate = (
   req: Request,

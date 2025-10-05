@@ -1,7 +1,7 @@
 import express from "express";
 
-import { getTotalVisitsThisMonth, getVisit } from "../controllers/visit.controller.ts";
-import { authMiddleware } from "../middlewares/protectRoute.ts";
+import { getTotalVisitsThisMonth, getVisit } from "../controllers/visit.controller";
+import { authMiddleware } from "../middlewares/protectRoute";
 
 const router = express.Router();
 

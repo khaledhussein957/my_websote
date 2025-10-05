@@ -4,7 +4,8 @@ import {
   loginAccount,
   forgotPasswordAccount,
   resetPasswordAccount,
-} from "../validations/auth.validator.ts";
+  resendCode,
+} from "../validations/auth.validator";
 
 export const registerAccountValidate = async (
   req: Request,
@@ -48,6 +49,18 @@ export const resetPasswordValidate = async (
   next: NextFunction
 ) => {
   const { error } = resetPasswordAccount.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: error.message, status: "error" });
+  }
+  next();
+};
+
+export const resendResetCode = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { error } = resendCode.validate(req.body);
   if (error) {
     return res.status(400).json({ message: error.message, status: "error" });
   }

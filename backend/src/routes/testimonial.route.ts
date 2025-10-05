@@ -4,11 +4,11 @@ import {
   addTestimonial,
   updateTestimonial,
   deleteTestimonial,
-} from "../controllers/testimonial.controller.ts";
+} from "../controllers/testimonial.controller";
 
-import { createTestimonialValidate, updateTestimonialValidate } from "../middlewares/testimonialValidate.middleware.ts";
-import { authMiddleware } from "../middlewares/protectRoute.ts";
-import { uploadTestimonialImage } from "../middlewares/upload.ts";
+import { createTestimonialValidate, updateTestimonialValidate } from "../middlewares/testimonialValidate.middleware";
+import { authMiddleware } from "../middlewares/protectRoute";
+import { uploadTestimonialImage } from "../middlewares/upload";
 
 const router = express.Router();
 

@@ -2,19 +2,19 @@ import { type Request, type Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-import User from "../models/user.model.ts";
-import Notification from "../models/notification.model.ts";
+import User from "../models/user.model";
+import Notification from "../models/notification.model";
 
-import { validatePhoneNumber } from "../utils/phoneValidate.ts";
+import { validatePhoneNumber } from "../utils/phoneValidate";
 
-import ENV from "../config/ENV.ts";
+import ENV from "../config/ENV";
 
-import { type AuthenticatedRequest } from "../middlewares/protectRoute.ts";
+import { type AuthenticatedRequest } from "../middlewares/protectRoute";
 
 import {
   forgotPasswordEmail,
   sendPasswordResetSuccessEmail,
-} from "../emails/emailHandlers.ts";
+} from "../emails/emailHandlers";
 
 export const registerAccount = async (req: Request, res: Response) => {
   try {
@@ -192,9 +192,9 @@ export const forgotPassword = async (req: Request, res: Response) => {
     try {
       await forgotPasswordEmail(
         user.name,
+        user.email,
         resetCode,
-        ENV.CLIENT_URL as string,
-        user.email
+        ENV.CLIENT_URL as string
       );
       res
         .status(200)
@@ -218,7 +218,7 @@ export const resetPassword = async (req: Request, res: Response) => {
         .status(400)
         .json({ message: "All field are required", status: "false" });
 
-    if (password === confirmPassword)
+    if (password !== confirmPassword)
       return res
         .status(400)
         .json({
@@ -279,3 +279,42 @@ export const resetPassword = async (req: Request, res: Response) => {
       .json({ message: "Internal server error", status: "error" });
   }
 };
+
+export const resendResetPasswordCode = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required", status: "false" });
+
+    const user = await User.findOne({ email }).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found", status: "false" });
+
+    // check if code not expired
+    if (user.resetPasswordCode && user.resetPasswordExpiresAt && user.resetPasswordExpiresAt > new Date()) return res.status(400).json({ message: "Reset code not expired", status: "false" });
+
+    // generate new code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const resetCodeExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+
+    user.resetPasswordCode = resetCode;
+    user.resetPasswordExpiresAt = resetCodeExpiresAt;
+
+    await user.save();
+
+    await Notification.create({
+      userId: user._id,
+      title: "Password Reset Requested",
+      message: `A password reset was requested for your account. Use the code ${resetCode} to reset your password. This code will expire in 5 minutes.`,
+      type: "info",
+      isRead: false,
+    });
+
+    await forgotPasswordEmail(user.name, user.email, resetCode, ENV.CLIENT_URL as string);
+
+    return res.status(200).json({ message: "Reset code sent to email", status: "true" });
+  } catch (error) {
+    console.log("❌ Error in resendResetPasswordCode: ", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error", status: "error" });
+  }
+}

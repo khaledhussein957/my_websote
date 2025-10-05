@@ -180,7 +180,7 @@ export default function TestimonialPage() {
                     <td className="py-3 px-4">{t.name}</td>
                     <td className="py-3 px-4">{t.email}</td>
                     <td className="py-3 px-4">{t.message}</td>
-                    <td className="py-3 px-4 flex gap-1">
+                    <td className="py-3 px-4 flex gap-1 mt-3">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                           key={i}
@@ -192,7 +192,7 @@ export default function TestimonialPage() {
                         />
                       ))}
                     </td>
-                    <td className="py-3 px-4 flex gap-2">
+                    <td className="py-3 px-4">
                       <Button
                         variant="ghost"
                         size="icon"

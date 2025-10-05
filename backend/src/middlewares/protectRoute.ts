@@ -1,7 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 
-import ENV from "../config/ENV.ts";
+import ENV from "../config/ENV";
 
 export interface AuthenticatedRequest extends express.Request {
   user?: { id: string };

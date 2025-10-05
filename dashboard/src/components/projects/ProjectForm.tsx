@@ -27,6 +27,7 @@ export default function ProjectForm({ project, onClose, onSuccess }: ProjectForm
     githubUrl: '',
     liveDemoUrl: '',
     techStack: [] as string[],
+    type: '' as '' | 'mobile' | 'fullstack' | 'frontend' | 'backend' | 'machine',
   })
   
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
@@ -48,6 +49,7 @@ export default function ProjectForm({ project, onClose, onSuccess }: ProjectForm
         githubUrl: project.githubUrl || '',
         liveDemoUrl: project.liveDemoUrl || '',
         techStack: project.techStack.map(tech => tech._id),
+        type: project.type,
       })
       if (project.image) {
         setImagePreview(project.image)
@@ -85,7 +87,7 @@ export default function ProjectForm({ project, onClose, onSuccess }: ProjectForm
     }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
@@ -102,7 +104,7 @@ export default function ProjectForm({ project, onClose, onSuccess }: ProjectForm
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!formData.title || !formData.description || formData.techStack.length === 0) {
+    if (!formData.title || !formData.description || formData.techStack.length === 0 || !formData.type) {
       return
     }
 
@@ -115,6 +117,7 @@ export default function ProjectForm({ project, onClose, onSuccess }: ProjectForm
       githubUrl: formData.githubUrl || undefined,
       liveDemoUrl: formData.liveDemoUrl || undefined,
       techStack: formData.techStack,
+      type: formData.type,
       image: selectedImage || undefined,
     }
 
@@ -233,6 +236,29 @@ export default function ProjectForm({ project, onClose, onSuccess }: ProjectForm
                 />
               </div>
             </div>
+
+          {/* Project Type */}
+          <div>
+            <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Project Type *
+            </label>
+            <select
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleInputChange}
+              disabled={isLoading}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              required
+            >
+              <option value="" disabled>Select type</option>
+              <option value="mobile">Mobile</option>
+              <option value="fullstack">Fullstack</option>
+              <option value="frontend">Frontend</option>
+              <option value="backend">Backend</option>
+              <option value="machine">Machine</option>
+            </select>
+          </div>
 
             {/* Tech Stack */}
             <div>

@@ -3,21 +3,21 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 // import morgan from "morgan";
 
-import authRoutes from "../src/routes/auth.route.ts";
-import userRoutes from "../src/routes/user.route.ts";
-import educationRoutes from "../src/routes/education.route.ts";
-import experienceRoutes from "../src/routes/experience.route.ts";
-import categoryRoutes from "./routes/category.route.ts";
-import techStackRoutes from "./routes/techstack.route.ts";
-import projectRoutes from "./routes/project.route.ts";
-import newsRoutes from "./routes/news.route.ts";
-import testimonialRoute from "./routes/testimonial.route.ts";
-import notificationRoute from "./routes/notification.route.ts";
-import visitRoutes from "./routes/visit.route.ts";
-import dashboardRoutes from "./routes/dashboard.route.ts";
+import authRoutes from "./routes/auth.route";
+import userRoutes from "./routes/user.route";
+import educationRoutes from "./routes/education.route";
+import experienceRoutes from "./routes/experience.route";
+import categoryRoutes from "./routes/category.route";
+// import techStackRoutes from "./routes/techstack.route";
+// import projectRoutes from "./routes/project.route";
+import newsRoutes from "./routes/news.route";
+import testimonialRoute from "./routes/testimonial.route";
+import notificationRoute from "./routes/notification.route";
+import visitRoutes from "./routes/visit.route";
+import dashboardRoutes from "./routes/dashboard.route";
 
-import { arcjetProtection } from "./middlewares/arcjetProtection.middleware.ts";
-import { logVisit } from "./middlewares/visit.middleware.ts";
+import { arcjetProtection } from "./middlewares/arcjetProtection.middleware";
+import { logVisit } from "./middlewares/visit.middleware";
 
 const app = express();
 
@@ -53,8 +53,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/educations", educationRoutes);
 app.use("/api/experiences", experienceRoutes);
 app.use("/api/categories", categoryRoutes);
-app.use("/api/techstacks", techStackRoutes);
-app.use("/api/projects", projectRoutes);
+// app.use("/api/techstacks", techStackRoutes);
+// app.use("/api/projects", projectRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/testimonials", testimonialRoute);
 app.use("/api/notifications", notificationRoute);

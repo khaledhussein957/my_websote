@@ -6,6 +6,7 @@ export interface IProject extends Document {
   description: string;
   techStack: Types.ObjectId[]; // array of tech stack IDs
   githubUrl?: string;
+  type: string;
   liveDemoUrl?: string;
   image?: string;
   featured: boolean;
@@ -18,6 +19,11 @@ const projectSchema = new Schema<IProject>(
     description: { type: String, required: true },
     techStack: [{ type: Schema.Types.ObjectId, ref: "TechStack" }],
     githubUrl: { type: String },
+    type: {
+      type: String,
+      required: true,
+      enum: ["mobile", "fullstack", "frontend", "backend", "machine"],
+    },
     liveDemoUrl: { type: String },
     image: { type: String },
     featured: { type: Boolean, default: false },

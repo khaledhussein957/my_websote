@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 
 import { isSpoofedBot } from "@arcjet/inspect";
-import aj from "../config/arcjet.ts";
+import aj from "../config/arcjet";
 
 export const arcjetProtection = async (req: Request, res: Response, next: NextFunction) => {
   try {

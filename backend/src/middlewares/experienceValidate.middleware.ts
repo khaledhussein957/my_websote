@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import {
   createExperienceSchema,
   updateExperienceSchema,
-} from "../validations/experience.validator.ts";
+} from "../validations/experience.validator";
 
 export const addExperienceValidate = async (
   req: Request,

@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { updateAccount, changePassword } from "../validations/user.validator.ts";
+import { updateAccount, changePassword } from "../validations/user.validator";
 
 export const validateUpdateUser = (
   req: Request,

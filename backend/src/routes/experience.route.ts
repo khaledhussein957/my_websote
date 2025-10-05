@@ -1,7 +1,7 @@
 import express from "express";
-import { createExperience, getExperiences, getExperience, updateExperience, deleteExperience } from "../controllers/experience.controller.ts";
-import { authMiddleware } from "../middlewares/protectRoute.ts";
-import { addExperienceValidate, updateExperienceValidate } from "../middlewares/experienceValidate.middleware.ts";
+import { createExperience, getExperiences, getExperience, updateExperience, deleteExperience } from "../controllers/experience.controller";
+import { authMiddleware } from "../middlewares/protectRoute";
+import { addExperienceValidate, updateExperienceValidate } from "../middlewares/experienceValidate.middleware";
 
 const router = express.Router();
 

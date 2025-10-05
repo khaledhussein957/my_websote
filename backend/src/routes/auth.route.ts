@@ -5,8 +5,9 @@ import {
   loginAccountValidate,
   forgotPasswordValidate,
   resetPasswordValidate,
-} from "../middlewares/authValidate.middleware.ts";
-import { authMiddleware } from "../middlewares/protectRoute.ts";
+  resendResetCode,
+} from "../middlewares/authValidate.middleware";
+import { authMiddleware } from "../middlewares/protectRoute";
 
 import {
   registerAccount,
@@ -15,7 +16,8 @@ import {
   logout,
   forgotPassword,
   resetPassword,
-} from "../controllers/auth.controller.ts";
+  resendResetPasswordCode,
+} from "../controllers/auth.controller";
 
 const router = express.Router();
 
@@ -27,5 +29,6 @@ router.get("/check-auth", authMiddleware, checkAuth);
 
 router.post("/forgot-password", forgotPasswordValidate, forgotPassword);
 router.post("/reset-password", resetPasswordValidate, resetPassword);
+router.post("/resend-code", resendResetCode, resendResetPasswordCode);
 
 export default router;

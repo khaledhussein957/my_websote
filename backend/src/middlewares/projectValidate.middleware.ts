@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { createProjectSchema, updateProjectSchema } from "../validations/project.validator.ts";
+import { createProjectSchema, updateProjectSchema } from "../validations/project.validator";
 
 export const createProjectValidate = async (req: Request, res: Response, next: NextFunction) => {
     const { error } = createProjectSchema.validate(req.body);

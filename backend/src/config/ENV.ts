@@ -14,8 +14,8 @@ const ENV = {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || "",
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || "",
   RESEND_API_KEY: process.env.RESEND_API_KEY,
-  EMAIL_FROM: process.env.EMAIL_FROM,
-  EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME,
+  SMTP_EMAIL: process.env.SMTP_EMAIL,
+  SMTP_PASSWORD: process.env.SMTP_PASSWORD,
   ARCJET_KEY: process.env.ARJEC_API_KEY || "",
 };
 

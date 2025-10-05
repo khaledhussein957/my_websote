@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard",
+  title: "Khalodi's Dashboard",
   description: "Portfolio Admin Dashboard",
 };
 

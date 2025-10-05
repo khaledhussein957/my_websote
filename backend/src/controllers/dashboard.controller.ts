@@ -1,11 +1,11 @@
 import type { Response } from "express";
-import type { AuthenticatedRequest } from "../middlewares/protectRoute.ts";
+import type { AuthenticatedRequest } from "../middlewares/protectRoute";
 
-import Project from "../models/project.model.ts";
-import News from "../models/news.model.ts";
-import TechStack from "../models/techstack.model.ts";
-import Testimonial from "../models/testimonial.model.ts";
-import Visit from "../models/visit.model.ts";
+import Project from "../models/project.model";
+import News from "../models/news.model";
+import TechStack from "../models/techstack.model";
+import Testimonial from "../models/testimonial.model";
+import Visit from "../models/visit.model";
 
 export const DashboardStats = async (req: AuthenticatedRequest, res: Response) => {
     try {
@@ -34,26 +34,26 @@ export const DashboardStats = async (req: AuthenticatedRequest, res: Response) =
         const lastProject = await Project.find().sort({ createdAt: -1 }).limit(1);
         const lastNews = await News.find().sort({ createdAt: -1 }).limit(1);
         const lastTestimonial = await Testimonial.find().sort({ createdAt: -1 }).limit(1);
-        const recentActivity = [
-            ...lastProject.map(proj => ({
-                id: proj._id,
-                type: 'project',
-                message: `New project added: ${proj.title}`,
-                timeAgo: proj.createdAt.toISOString(),
-            })),
-            ...lastNews.map(news => ({
-                id: news._id,
-                type: 'news',
-                message: `New news article: ${news.title}`,
-                timeAgo: news.createdAt.toISOString(),
-            })),
-            ...lastTestimonial.map(testi => ({
-                id: testi._id,
-                type: 'testimonial',
-                message: `New testimonial from: ${testi.author}`,
-                timeAgo: testi.createdAt.toISOString(),
-            })),
-        ];
+        // const recentActivity = [
+        //     ...lastProject.map(proj => ({
+        //         id: proj._id,
+        //         type: 'project',
+        //         message: `New project added: ${proj.title}`,
+        //         timeAgo: proj.createdAt.toISOString(),
+        //     })),
+        //     ...lastNews.map(news => ({
+        //         id: news._id,
+        //         type: 'news',
+        //         message: `New news article: ${news.title}`,
+        //         timeAgo: news.createdAt.toISOString(),
+        //     })),
+        //     ...lastTestimonial.map(testi => ({
+        //         id: testi._id,
+        //         type: 'testimonial',
+        //         message: `New testimonial from: ${testi.author}`,
+        //         timeAgo: testi.createdAt.toISOString(),
+        //     })),
+        // ];
 
         // Monthly trends (6 months)
         const monthlyTrends = [];
@@ -85,7 +85,7 @@ export const DashboardStats = async (req: AuthenticatedRequest, res: Response) =
             newNewsThisMonth,
             newTestimonialsThisMonth,
             totalVisitsThisMonth,
-            recentActivity,
+            // recentActivity,
             monthlyTrends: monthlyTrends.reverse(),
             status: "true"
         });

@@ -12,6 +12,7 @@ export interface Project {
     _id: string;
     name: string;
   }>;
+  type: "mobile" | "fullstack" | "frontend" | "backend" | "machine";
   featured: boolean;
   image?: string;
   user: {
@@ -30,6 +31,7 @@ interface CreateProjectData {
   githubUrl?: string;
   liveDemoUrl?: string;
   techStack: string[];
+  type: "mobile" | "fullstack" | "frontend" | "backend" | "machine";
   image?: File;
 }
 
@@ -39,6 +41,7 @@ interface UpdateProjectData {
   githubUrl?: string;
   liveDemoUrl?: string;
   techStack?: string[];
+  type?: "mobile" | "fullstack" | "frontend" | "backend" | "machine";
   image?: File;
   featured?: boolean; // <-- add this
 }
@@ -76,6 +79,7 @@ export const createProject = createAsyncThunk(
       const formData = new FormData();
       formData.append("title", projectData.title);
       formData.append("description", projectData.description);
+      formData.append("type", projectData.type);
       if (projectData.githubUrl)
         formData.append("githubUrl", projectData.githubUrl);
       if (projectData.liveDemoUrl)
@@ -111,6 +115,8 @@ export const updateProject = createAsyncThunk(
         formData.append("githubUrl", projectData.githubUrl);
       if (projectData.liveDemoUrl)
         formData.append("liveDemoUrl", projectData.liveDemoUrl);
+      if (projectData.type)
+        formData.append("type", projectData.type);
       if (projectData.techStack)
         projectData.techStack.forEach((techId) =>
           formData.append("techStack", techId)

@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import {
   techStackSchema,
   techStackUpdateSchema,
-} from "../validations/techstack.validator.ts";
+} from "../validations/techstack.validator";
 
 export const validateTechStack = (
   req: Request,

@@ -1,7 +1,7 @@
 import express  from "express";
 
-import { getNotifications, markAllNotificationsAsRead, markNotificationAsRead } from "../controllers/notification.controller.ts"
-import {authMiddleware} from "../middlewares/protectRoute.ts";
+import { getNotifications, markAllNotificationsAsRead, markNotificationAsRead } from "../controllers/notification.controller"
+import {authMiddleware} from "../middlewares/protectRoute";
 
 const router = express.Router();
 

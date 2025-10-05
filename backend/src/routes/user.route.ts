@@ -1,11 +1,11 @@
 import express from "express";
 
-import { authMiddleware } from "../middlewares/protectRoute.ts";
-import { uploadProfile } from "../middlewares/upload.ts";
+import { authMiddleware } from "../middlewares/protectRoute";
+import { uploadProfile } from "../middlewares/upload";
 import {
   validateUpdateUser,
   validateChangePassword,
-} from "../middlewares/userValidate.middleware.ts";
+} from "../middlewares/userValidate.middleware";
 
 import {
   getUsers,
@@ -13,7 +13,7 @@ import {
   changePassword,
   updateAccount,
   deleteAccount,
-} from "../controllers/user.controller.ts";
+} from "../controllers/user.controller";
 
 const router = express.Router();
 
