@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import cookieParser from "cookie-parser";
+// import cookieParser from "cookie-parser";
 // import morgan from "morgan";
 
 import authRoutes from "./routes/auth.route";
@@ -45,7 +45,7 @@ app.use(logVisit);
 app.use(arcjetProtection); // Apply Arcjet protection middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+// app.use(cookieParser());
 
 // API ROutes
 app.use("/api/auth", authRoutes);

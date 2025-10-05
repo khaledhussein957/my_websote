@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { api } from "../api";
-import { User } from "../types";
+import { User, AuthResponse } from "../types";
+import { storage } from "../storage";
 
 // Async thunks
 export const loginUser = createAsyncThunk(
@@ -13,8 +14,12 @@ export const loginUser = createAsyncThunk(
       const response = await api.post("/auth/login", credentials, {
         withCredentials: true,
       });
-      const { user } = response.data;
-      return { user };
+      const { user, token } = response.data as AuthResponse & { user: User };
+      // Persist token locally if provided by backend
+      if (token) {
+        storage.setItem("auth_token", token);
+      }
+      return { user, token };
     } catch (error: unknown) {
       let errorMessage = "Login failed";
       if (
@@ -225,6 +230,7 @@ interface AuthState {
   forgotPasswordSuccess: string | null;
   resetPasswordSuccess: string | null;
   resendCodeSuccess: string | null;
+  token: string | null;
 }
 
 const initialState: AuthState = {
@@ -235,6 +241,7 @@ const initialState: AuthState = {
   forgotPasswordSuccess: null,
   resetPasswordSuccess: null,
   resendCodeSuccess: null,
+  token: null,
 };
 
 const authSlice = createSlice({
@@ -264,11 +271,13 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload.user;
         state.isAuthenticated = true;
+        state.token = (action.payload as { token?: string }).token || null;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.token = null;
         state.error = action.payload as string;
       })
       .addCase(registerUser.pending, (state) => {
@@ -294,6 +303,8 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.isAuthenticated = false;
+        state.token = null;
+        storage.removeItem("auth_token");
       })
       // forgot password
       .addCase(forgotPassword.pending, (state) => {

@@ -50,12 +50,12 @@ export const registerAccount = async (req: Request, res: Response) => {
       expiresIn: "7d",
     });
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: ENV.NODE_ENV === "production", // false for local dev
-      sameSite: ENV.NODE_ENV === "production" ? "strict" : "lax",
-      maxAge: 3600000,
-    });
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   secure: ENV.NODE_ENV === "production", // false for local dev
+    //   sameSite: ENV.NODE_ENV === "production" ? "strict" : "lax",
+    //   maxAge: 3600000,
+    // });
 
     return res.status(201).json({
       message: "User created successfully",
@@ -98,12 +98,12 @@ export const loginAccount = async (req: Request, res: Response) => {
       expiresIn: "7h",
     });
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: ENV.NODE_ENV === "production", // false for local dev
-      sameSite: ENV.NODE_ENV === "production" ? "strict" : "lax",
-      maxAge: 3600000,
-    });
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   secure: ENV.NODE_ENV === "production", // false for local dev
+    //   sameSite: ENV.NODE_ENV === "production" ? "strict" : "lax",
+    //   maxAge: 3600000,
+    // });
 
     return res
       .status(200)

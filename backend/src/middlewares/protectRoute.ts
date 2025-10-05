@@ -13,16 +13,19 @@ export const authMiddleware = (
   next: express.NextFunction
 ) => {
   try {
-    const token = req.cookies?.token;
+    const authHeader = req.headers["authorization"] as string | undefined;
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.slice(7)
+      : undefined;
     if (!token) {
-      return res.status(401).send("Missed token from cookies Unauthorized");
+      return res.status(401).send("Missing Authorization header. Unauthorized");
     }
 
     // The payload is { id: ... }
     const decode = jwt.verify(token, ENV.JWT_SECRET as string) as { id: string };
 
     if (!decode || !decode.id) {
-      return res.status(401).send("Error happen Unauthorized");
+      return res.status(401).send("Invalid token. Unauthorized");
     }
 
     req.user = { id: decode.id };

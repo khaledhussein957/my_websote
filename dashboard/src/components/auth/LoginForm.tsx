@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Eye, EyeOff } from "lucide-react";
+import { storage } from "@/lib/storage";
 
 // --- Zod schema ---
 const loginSchema = z.object({
@@ -35,10 +36,14 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-  // Redirect when authenticated
+  // On auth success, persist token (if set by slice) and redirect
+  const { token } = useAppSelector((state) => state.auth);
   useEffect(() => {
-    if (isAuthenticated) router.push("/dashboard");
-  }, [isAuthenticated, router]);
+    if (isAuthenticated) {
+      if (token) storage.setItem("auth_token", token);
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, token, router]);
 
   const onSubmit = (data: LoginFormInputs) => {
     dispatch(clearError());
