@@ -272,6 +272,11 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.isAuthenticated = true;
         state.token = (action.payload as { token?: string }).token || null;
+        if (state.token) {
+          console.log('Auth token set in slice:', state.token)
+        } else {
+          console.log('Login fulfilled but token is missing from payload')
+        }
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;

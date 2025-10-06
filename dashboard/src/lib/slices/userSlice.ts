@@ -15,7 +15,7 @@ interface UpdateProfileData {
 interface ChangePasswordData {
   oldPassword: string
   newPassword: string
-  comfirmPassword: string
+  confirmPassword: string
 }
 
 interface UserState {

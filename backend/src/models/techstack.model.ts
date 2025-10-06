@@ -1,5 +1,4 @@
-import pkg, { Types, Document } from "mongoose";
-const { Schema, model, models } = pkg;
+import { Types, Document, Schema, model } from "mongoose";
 
 export interface ITechStack extends Document {
   user: Types.ObjectId;
@@ -20,7 +19,6 @@ const techStackSchema = new Schema<ITechStack>(
   { timestamps: true }
 );
 
-const TechStack =
-  models.TechStack || model<ITechStack>("TechStack", techStackSchema);
+const TechStack = model<ITechStack>("TechStack", techStackSchema);
 
 export default TechStack;

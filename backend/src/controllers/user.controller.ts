@@ -210,11 +210,11 @@ export const changePassword = async (
         .status(404)
         .json({ message: "user not found", status: "error" });
 
-    const { oldPassword, newPassword, comfirmPassword } = req.body;
-    if (!oldPassword || !newPassword || !comfirmPassword)
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    if (!oldPassword || !newPassword || !confirmPassword)
       return res
         .status(400)
-        .json({ message: "All field are required", status: "error" });
+        .json({ message: "All fields are required", status: "error" });
 
     const isPasswordValid = await bcryptjs.compare(oldPassword, user.password);
     if (!isPasswordValid)
@@ -228,10 +228,10 @@ export const changePassword = async (
         status: "error",
       });
 
-    if (newPassword !== comfirmPassword)
+    if (newPassword !== confirmPassword)
       return res
         .status(400)
-        .json({ message: "Password not match", status: "error" });
+        .json({ message: "Passwords do not match", status: "error" });
 
     // hash the new password
     const hashedPassword = await bcryptjs.hash(newPassword, 10);

@@ -6,7 +6,9 @@ export interface ITestimonial extends Document {
   message: string;
   image?: string;
   rating: number; // ⭐ 1–5
+
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const TestimonialSchema: Schema = new Schema(

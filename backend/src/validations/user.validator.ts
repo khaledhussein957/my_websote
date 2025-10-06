@@ -13,13 +13,13 @@ export const updateAccount = Joi.object({
 });
 
 export const changePassword = Joi.object({
-  old_password: Joi.string()
+  oldPassword: Joi.string()
     .required()
     .messages({
       "string.empty": "Old password is required",
     }),
 
-  new_password: Joi.string()
+  newPassword: Joi.string()
     .min(8)
     .required()
     .custom((value, helpers) => {
@@ -48,12 +48,7 @@ export const changePassword = Joi.object({
       "any.custom": "{{#message}}",
     }),
 
-  confirm_password: Joi.string()
-    .required()
-    .valid(Joi.ref("new_password"))
-    .messages({
-      "any.only": "Confirm password must match new password",
-      "string.empty": "Confirm password is required",
-    }),
+  // confirmPassword is optional on the server since the frontend already checks equality
+  confirmPassword: Joi.string().optional(),
 });
 

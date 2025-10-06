@@ -213,7 +213,7 @@ export default function DashboardPage() {
               Recent Activity
             </CardTitle>
           </CardHeader>
-          {/* <CardContent>
+          <CardContent>
             <div className="space-y-4">
               {stats.recentActivity.map((act) => (
                 <div key={act.id} className="flex items-start space-x-3">
@@ -237,7 +237,7 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-          </CardContent> */}
+          </CardContent>
         </Card>
       </div>
 

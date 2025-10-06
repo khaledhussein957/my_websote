@@ -10,6 +10,9 @@ export interface IProject extends Document {
   liveDemoUrl?: string;
   image?: string;
   featured: boolean;
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const projectSchema = new Schema<IProject>(

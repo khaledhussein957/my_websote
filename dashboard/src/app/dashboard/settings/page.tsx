@@ -21,6 +21,8 @@ import {
   AlertCircle,
   CheckCircle,
   Lock,
+  Eye,
+  EyeOff,
   Trash,
 } from "lucide-react";
 
@@ -66,6 +68,9 @@ export default function SettingsPage() {
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -102,8 +107,9 @@ export default function SettingsPage() {
     dispatch(clearSuccess());
     dispatch(
       updatePassword({
-        currentPassword: data.currentPassword,
+        oldPassword: data.currentPassword,
         newPassword: data.newPassword,
+        confirmPassword: data.confirmNewPassword,
       })
     );
     resetPassword();
@@ -234,44 +240,60 @@ export default function SettingsPage() {
             onSubmit={handleSubmitPassword(onSubmitPassword)}
             className="space-y-4"
           >
-            <div>
+            <div className="relative">
               <label className="block text-sm font-medium mb-1">
                 Current Password
               </label>
               <Input
-                type="password"
+                type={showCurrentPassword ? "text" : "password"}
                 {...registerPassword("currentPassword", { required: true })}
               />
+              <button
+                type="button"
+                aria-label={showCurrentPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowCurrentPassword((s) => !s)}
+                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+              >
+                {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
               {passwordErrors.currentPassword && (
-                <p className="text-xs text-red-500">
-                  Current password is required
-                </p>
+                <p className="text-xs text-red-500">Current password is required</p>
               )}
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                New Password
-              </label>
+            <div className="relative">
+              <label className="block text-sm font-medium mb-1">New Password</label>
               <Input
-                type="password"
+                type={showNewPassword ? "text" : "password"}
                 {...registerPassword("newPassword", { required: true })}
               />
+              <button
+                type="button"
+                aria-label={showNewPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowNewPassword((s) => !s)}
+                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+              >
+                {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
               {passwordErrors.newPassword && (
                 <p className="text-xs text-red-500">New password is required</p>
               )}
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Confirm New Password
-              </label>
+            <div className="relative">
+              <label className="block text-sm font-medium mb-1">Confirm New Password</label>
               <Input
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 {...registerPassword("confirmNewPassword", { required: true })}
               />
+              <button
+                type="button"
+                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowConfirmPassword((s) => !s)}
+                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
               {passwordErrors.confirmNewPassword && (
-                <p className="text-xs text-red-500">
-                  Please confirm new password
-                </p>
+                <p className="text-xs text-red-500">Please confirm new password</p>
               )}
             </div>
             <Button type="submit">

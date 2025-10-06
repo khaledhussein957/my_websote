@@ -27,33 +27,49 @@ export const DashboardStats = async (req: AuthenticatedRequest, res: Response) =
         const totalVisitsThisMonth = await Visit.countDocuments({ createdAt: { $gte: startOfMonth } });
 
         const visits = await Visit.find().sort({ createdAt: -1 });
-        console.log("Total visits:", visits.length);
-        console.log("visits:", visits);
 
-        // Recent activity
-        const lastProject = await Project.find().sort({ createdAt: -1 }).limit(1);
-        const lastNews = await News.find().sort({ createdAt: -1 }).limit(1);
-        const lastTestimonial = await Testimonial.find().sort({ createdAt: -1 }).limit(1);
-        // const recentActivity = [
-        //     ...lastProject.map(proj => ({
-        //         id: proj._id,
-        //         type: 'project',
-        //         message: `New project added: ${proj.title}`,
-        //         timeAgo: proj.createdAt.toISOString(),
-        //     })),
-        //     ...lastNews.map(news => ({
-        //         id: news._id,
-        //         type: 'news',
-        //         message: `New news article: ${news.title}`,
-        //         timeAgo: news.createdAt.toISOString(),
-        //     })),
-        //     ...lastTestimonial.map(testi => ({
-        //         id: testi._id,
-        //         type: 'testimonial',
-        //         message: `New testimonial from: ${testi.author}`,
-        //         timeAgo: testi.createdAt.toISOString(),
-        //     })),
-        // ];
+        // Recent activity (fetch single most recent items and guard createdAt access)
+        const lastProject = await Project.findOne().sort({ createdAt: -1 });
+        const lastNews = await News.findOne().sort({ createdAt: -1 });
+        const lastTestimonial = await Testimonial.findOne().sort({ createdAt: -1 });
+
+        const recentActivity: Array<{ id: any; type: string; message: string; timeAgo: string | null }> = [];
+
+        const safeDateIso = (doc: any) => {
+            try {
+                const d = doc?.createdAt ? new Date(doc.createdAt) : null;
+                return d ? d.toISOString() : null;
+            } catch {
+                return null;
+            }
+        };
+
+        if (lastProject) {
+            recentActivity.push({
+                id: lastProject._id,
+                type: 'project',
+                message: `New project added: ${lastProject.title}`,
+                timeAgo: safeDateIso(lastProject),
+            });
+        }
+
+        if (lastNews) {
+            recentActivity.push({
+                id: lastNews._id,
+                type: 'news',
+                message: `New news article: ${lastNews.title}`,
+                timeAgo: safeDateIso(lastNews),
+            });
+        }
+
+        if (lastTestimonial) {
+            recentActivity.push({
+                id: lastTestimonial._id,
+                type: 'testimonial',
+                message: `New testimonial from: ${lastTestimonial.name ?? (lastTestimonial as any).author ?? 'unknown'}`,
+                timeAgo: safeDateIso(lastTestimonial),
+            });
+        }
 
         // Monthly trends (6 months)
         const monthlyTrends = [];
@@ -85,7 +101,7 @@ export const DashboardStats = async (req: AuthenticatedRequest, res: Response) =
             newNewsThisMonth,
             newTestimonialsThisMonth,
             totalVisitsThisMonth,
-            // recentActivity,
+            recentActivity,
             monthlyTrends: monthlyTrends.reverse(),
             status: "true"
         });
