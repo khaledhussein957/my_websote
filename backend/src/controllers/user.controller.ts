@@ -17,7 +17,9 @@ export const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await User.find();
     if (users.length === 0)
-      return res.status(404).json({ message: "No users found", status: "error" });
+      return res
+        .status(404)
+        .json({ message: "No users found", status: "error" });
 
     return res.status(200).json({
       message: "Users fetched successfully",
@@ -40,14 +42,15 @@ export const getUser = async (req: AuthenticatedRequest, res: Response) => {
 
     const user = await User.findById(userId);
     if (!user)
-      return res.status(404).json({ message: "User not found", status: "error" });
+      return res
+        .status(404)
+        .json({ message: "User not found", status: "error" });
 
     return res.status(200).json({
       message: "User fetched successfully",
       status: "success",
       data: user,
     });
-    
   } catch (error) {
     console.log("❌ Error in getUser: ", error);
     return res
@@ -266,7 +269,7 @@ export const deleteAccount = async (
 ) => {
   const userID = req.user?.id;
   try {
-    const user = await User.findByIdAndDelete(userID);
+    const user = await User.findById(userID);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -304,6 +307,11 @@ export const deleteAccount = async (
       } catch (error) {
         console.error("❌ Failed to delete old profile image:", error);
       }
+    }
+
+    const userToDelete = await User.findByIdAndDelete(userID);
+    if (!userToDelete) {
+      return res.status(404).json({ message: "User not found" });
     }
 
     return res

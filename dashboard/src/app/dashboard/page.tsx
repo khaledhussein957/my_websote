@@ -35,6 +35,12 @@ const COLORS = [
   "#8b5cf6",
 ];
 
+const emptyLineData = [
+  { month: "Jan", users: 0, projects: 0, news: 0 },
+  { month: "Feb", users: 0, projects: 0, news: 0 },
+  { month: "Mar", users: 0, projects: 0, news: 0 },
+];
+
 export default function DashboardPage() {
   const dispatch = useAppDispatch();
   const { stats, loading, error } = useAppSelector((state) => state.dashboard);
@@ -117,7 +123,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           Dashboard Overview
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
@@ -160,48 +166,77 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={stats.monthlyTrends}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="users"
-                  stroke="#3b82f6"
-                  name="Users"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="projects"
-                  stroke="#22c55e"
-                  name="Projects"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="news"
-                  stroke="#eab308"
-                  name="News"
-                />
-                {stats.monthlyTrends[0]?.testimonials !== undefined && (
+            {stats.monthlyTrends && stats.monthlyTrends.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={stats.monthlyTrends}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
                   <Line
                     type="monotone"
-                    dataKey="testimonials"
-                    stroke="#ec4899"
-                    name="Testimonials"
+                    dataKey="users"
+                    stroke="#3b82f6"
+                    name="Users"
                   />
-                )}
-                {stats.monthlyTrends[0]?.visits !== undefined && (
                   <Line
                     type="monotone"
-                    dataKey="visits"
-                    stroke="#f43f5e"
-                    name="Visits"
+                    dataKey="projects"
+                    stroke="#22c55e"
+                    name="Projects"
                   />
-                )}
-              </LineChart>
-            </ResponsiveContainer>
+                  <Line
+                    type="monotone"
+                    dataKey="news"
+                    stroke="#eab308"
+                    name="News"
+                  />
+                  {stats.monthlyTrends[0]?.testimonials !== undefined && (
+                    <Line
+                      type="monotone"
+                      dataKey="testimonials"
+                      stroke="#ec4899"
+                      name="Testimonials"
+                    />
+                  )}
+                  {stats.monthlyTrends[0]?.visits !== undefined && (
+                    <Line
+                      type="monotone"
+                      dataKey="visits"
+                      stroke="#f43f5e"
+                      name="Visits"
+                    />
+                  )}
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={emptyLineData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="users"
+                    stroke="#3b82f6"
+                    name="Users"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="projects"
+                    stroke="#22c55e"
+                    name="Projects"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="news"
+                    stroke="#eab308"
+                    name="News"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
 
@@ -215,27 +250,33 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {stats.recentActivity.map((act) => (
-                <div key={act.id} className="flex items-start space-x-3">
-                  <div
-                    className={`w-2 h-2 rounded-full mt-2 ${
-                      act.type === "user"
-                        ? "bg-green-500"
-                        : act.type === "project"
-                        ? "bg-blue-500"
-                        : act.type === "news"
-                        ? "bg-yellow-500"
-                        : "bg-pink-500"
-                    }`}
-                  ></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{act.message}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {act.timeAgo}
-                    </p>
+              {stats.recentActivity && stats.recentActivity.length > 0 ? (
+                stats.recentActivity.map((act) => (
+                  <div key={act.id} className="flex items-start space-x-3">
+                    <div
+                      className={`w-2 h-2 rounded-full mt-2 ${
+                        act.type === "user"
+                          ? "bg-green-500"
+                          : act.type === "project"
+                          ? "bg-blue-500"
+                          : act.type === "news"
+                          ? "bg-yellow-500"
+                          : "bg-pink-500"
+                      }`}
+                    ></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{act.message}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {act.timeAgo}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No recent activity.
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -252,28 +293,48 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  dataKey="count"
-                  nameKey="category"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {categoryData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Legend />
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            {categoryData && categoryData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    dataKey="count"
+                    nameKey="category"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label
+                  >
+                    {categoryData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Legend />
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={[{ name: "No Data", value: 1 }]}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label={({ name }) => name}
+                  >
+                    <Cell fill="#e5e7eb" />
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
       </div>

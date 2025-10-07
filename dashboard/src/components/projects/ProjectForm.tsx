@@ -1,303 +1,324 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useAppDispatch, useAppSelector } from '@/lib/hooks'
-import { createProject, updateProject, clearError, clearSuccess } from '@/lib/slices/projectSlice'
-import { fetchTechStacks } from '@/lib/slices/techstackSlice'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { X, Save, Upload, AlertCircle, CheckCircle, ExternalLink, Github } from 'lucide-react'
-import { Project } from '@/lib/slices/projectSlice'
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import {
+  createProject,
+  updateProject,
+  clearError,
+  clearSuccess,
+} from "@/lib/slices/projectSlice";
+import { fetchTechStacks } from "@/lib/slices/techstackSlice";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { X, Save, ExternalLink, Github } from "lucide-react";
+import { Project } from "@/lib/slices/projectSlice";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+
+import {
+  createProjectSchema,
+  updateProjectSchema,
+} from "@/validations/project.validator";
+import { z } from "zod";
+
+// You’ll need a Spinner component or substitute your own
+import { Spinner } from "@/components/ui/spinner";
+
+/** Choose schema dynamically */
+const getSchema = (isEdit: boolean) =>
+  isEdit ? updateProjectSchema : createProjectSchema;
+
+type CreateProjectData = z.infer<typeof createProjectSchema>;
+type UpdateProjectData = z.infer<typeof updateProjectSchema>;
+
+type ProjectFormFields = {
+  title: string;
+  description: string;
+  githubUrl?: string;
+  liveDemoUrl?: string;
+  type: "mobile" | "fullstack" | "frontend" | "backend" | "machine";
+  techStack: string[];
+  image?: FileList | string;
+  featured?: boolean;
+};
 
 interface ProjectFormProps {
-  project?: Project | null
-  onClose: () => void
-  onSuccess?: () => void
+  project?: Project | null;
+  onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export default function ProjectForm({ project, onClose, onSuccess }: ProjectFormProps) {
-  const dispatch = useAppDispatch()
-  const { isCreating, isUpdating, error, success } = useAppSelector((state) => state.project)
-  const { techStacks } = useAppSelector((state) => state.techstack)
-  
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    githubUrl: '',
-    liveDemoUrl: '',
-    techStack: [] as string[],
-    type: '' as '' | 'mobile' | 'fullstack' | 'frontend' | 'backend' | 'machine',
-  })
-  
-  const [selectedImage, setSelectedImage] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  
-  const isLoading = isCreating || isUpdating
+export default function ProjectForm({
+  project,
+  onClose,
+  onSuccess,
+}: ProjectFormProps) {
+  const dispatch = useAppDispatch();
+  const { isCreating, isUpdating, error, success } = useAppSelector(
+    (state) => state.project
+  );
+  const { techStacks } = useAppSelector((state) => state.techstack);
 
-  // Fetch tech stacks on component mount
+  const isEdit = Boolean(project);
+  const isLoading = isCreating || isUpdating;
+
+  // Set up react-hook-form
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<ProjectFormFields>({
+    resolver: zodResolver(getSchema(isEdit)),
+    defaultValues: {
+      title: "",
+      description: "",
+      githubUrl: "",
+      liveDemoUrl: "",
+      type: "" as any,
+      techStack: [],
+      image: undefined,
+      // if your schemas include `featured`, etc., include defaultValues here
+    },
+  });
+
+  // Fetch tech stacks initially
   useEffect(() => {
-    dispatch(fetchTechStacks())
-  }, [dispatch])
+    dispatch(fetchTechStacks());
+  }, [dispatch]);
 
-  // Initialize form data when editing
+  // When project is provided (edit mode), reset form with its data
   useEffect(() => {
     if (project) {
-      setFormData({
+      reset({
         title: project.title,
         description: project.description,
-        githubUrl: project.githubUrl || '',
-        liveDemoUrl: project.liveDemoUrl || '',
-        techStack: project.techStack.map(tech => tech._id),
-        type: project.type,
-      })
-      if (project.image) {
-        setImagePreview(project.image)
+        githubUrl: project.githubUrl ?? "",
+        liveDemoUrl: project.liveDemoUrl ?? "",
+        type: project.type as any,
+        techStack: project.techStack.map((t) => t._id),
+        image: undefined,
+        // if there are additional fields, e.g. featured, set them here
+      });
+    }
+  }, [project, reset]);
+
+  // Watch the image field (to build preview)
+  const watchedImage = watch("image");
+  let imagePreviewUrl: string | null = null;
+  if (
+    watchedImage &&
+    watchedImage instanceof FileList &&
+    watchedImage.length > 0
+  ) {
+    imagePreviewUrl = URL.createObjectURL(watchedImage[0]);
+  } else if (project && project.image) {
+    imagePreviewUrl = project.image;
+  }
+
+  // Show toasts on error / success
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      dispatch(clearError());
+    }
+    if (success) {
+      toast.success("Operation successful");
+      dispatch(clearSuccess());
+      if (onSuccess) {
+        onSuccess();
       }
     }
-  }, [project])
+  }, [error, success, dispatch, onSuccess]);
 
-  // Clear messages after 5 seconds
-  useEffect(() => {
-    if (error || success) {
-      const timer = setTimeout(() => {
-        dispatch(clearError())
-        dispatch(clearSuccess())
-      }, 5000)
-      return () => clearTimeout(timer)
-    }
-  }, [error, success, dispatch])
-
-  // Handle success
-  useEffect(() => {
-    if (success && onSuccess) {
-      onSuccess()
-    }
-  }, [success, onSuccess])
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      setSelectedImage(file)
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleTechStackChange = (techId: string) => {
-    setFormData(prev => ({
-      ...prev,
-      techStack: prev.techStack.includes(techId)
-        ? prev.techStack.filter(id => id !== techId)
-        : [...prev.techStack, techId]
-    }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!formData.title || !formData.description || formData.techStack.length === 0 || !formData.type) {
-      return
+  const onSubmit = (data: ProjectFormFields) => {
+    // Build payload
+    const payload: any = {
+      title: data.title,
+      description: data.description,
+      githubUrl: data.githubUrl || undefined,
+      liveDemoUrl: data.liveDemoUrl || undefined,
+      type: data.type,
+      techStack: data.techStack,
+      // include other fields (e.g. featured) if your schema has them
+    };
+    if (data.image && data.image.length > 0) {
+      payload.image = data.image[0]; // take the File from FileList
     }
 
-    dispatch(clearError())
-    dispatch(clearSuccess())
-
-    const projectData = {
-      title: formData.title,
-      description: formData.description,
-      githubUrl: formData.githubUrl || undefined,
-      liveDemoUrl: formData.liveDemoUrl || undefined,
-      techStack: formData.techStack,
-      type: formData.type,
-      image: selectedImage || undefined,
-    }
-
-    if (project) {
-      // Update existing project
-      dispatch(updateProject({ id: project._id, projectData }))
+    if (isEdit && project) {
+      dispatch(updateProject({ id: project._id, projectData: payload }));
     } else {
-      // Create new project
-      dispatch(createProject(projectData))
+      dispatch(createProject(payload));
     }
-  }
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/10 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex items-center justify-between">
           <CardTitle>
-            {project ? 'Edit Project' : 'Create New Project'}
+            {isEdit ? "Edit Project" : "Create New Project"}
           </CardTitle>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
-        
         <CardContent>
-          {/* Error and Success Messages */}
-          {error && (
-            <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800 mb-4">
-              <div className="flex">
-                <AlertCircle className="h-5 w-5 text-red-400 mr-2 mt-0.5" />
-                <div className="text-sm text-red-700 dark:text-red-400">
-                  {error}
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {success && (
-            <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-4 border border-green-200 dark:border-green-800 mb-4">
-              <div className="flex">
-                <CheckCircle className="h-5 w-5 text-green-400 mr-2 mt-0.5" />
-                <div className="text-sm text-green-700 dark:text-green-400">
-                  {success}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Title */}
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="title" className="block text-sm font-medium mb-1">
                 Project Title *
               </label>
               <Input
                 id="title"
-                name="title"
-                type="text"
-                value={formData.title}
-                onChange={handleInputChange}
-                required
+                {...register("title")}
                 disabled={isLoading}
                 placeholder="Enter project title"
               />
+              {errors.title && (
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.title.message}
+                </p>
+              )}
             </div>
 
             {/* Description */}
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium mb-1"
+              >
                 Description *
               </label>
               <textarea
                 id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                required
+                {...register("description")}
                 disabled={isLoading}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-vertical focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border rounded-md"
                 placeholder="Describe your project..."
               />
+              {errors.description && (
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.description.message}
+                </p>
+              )}
             </div>
 
             {/* URLs */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="githubUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label htmlFor="githubUrl" className="block text-sm mb-1">
                   <Github className="h-4 w-4 inline mr-1" />
                   GitHub URL
                 </label>
                 <Input
                   id="githubUrl"
-                  name="githubUrl"
-                  type="url"
-                  value={formData.githubUrl}
-                  onChange={handleInputChange}
+                  {...register("githubUrl")}
                   disabled={isLoading}
                   placeholder="https://github.com/username/repo"
                 />
+                {errors.githubUrl && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.githubUrl.message}
+                  </p>
+                )}
               </div>
-              
               <div>
-                <label htmlFor="liveDemoUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label htmlFor="liveDemoUrl" className="block text-sm mb-1">
                   <ExternalLink className="h-4 w-4 inline mr-1" />
                   Live Demo URL
                 </label>
                 <Input
                   id="liveDemoUrl"
-                  name="liveDemoUrl"
-                  type="url"
-                  value={formData.liveDemoUrl}
-                  onChange={handleInputChange}
+                  {...register("liveDemoUrl")}
                   disabled={isLoading}
                   placeholder="https://your-project.com"
                 />
+                {errors.liveDemoUrl && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.liveDemoUrl.message}
+                  </p>
+                )}
               </div>
             </div>
 
-          {/* Project Type */}
-          <div>
-            <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Project Type *
-            </label>
-            <select
-              id="type"
-              name="type"
-              value={formData.type}
-              onChange={handleInputChange}
-              disabled={isLoading}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            >
-              <option value="" disabled>Select type</option>
-              <option value="mobile">Mobile</option>
-              <option value="fullstack">Fullstack</option>
-              <option value="frontend">Frontend</option>
-              <option value="backend">Backend</option>
-              <option value="machine">Machine</option>
-            </select>
-          </div>
+            {/* Project Type */}
+            <div>
+              <label htmlFor="type" className="block text-sm font-medium mb-1">
+                Project Type *
+              </label>
+              <select
+                id="type"
+                {...register("type")}
+                disabled={isLoading}
+                className="w-full px-3 py-2 border rounded-md"
+              >
+                <option value="" disabled>
+                  Select type
+                </option>
+                {["mobile", "fullstack", "frontend", "backend", "machine"].map(
+                  (tp) => (
+                    <option key={tp} value={tp}>
+                      {tp.charAt(0).toUpperCase() + tp.slice(1)}
+                    </option>
+                  )
+                )}
+              </select>
+              {errors.type && (
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.type.message}
+                </p>
+              )}
+            </div>
 
             {/* Tech Stack */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium mb-2">
                 Tech Stack * (Select at least one)
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-md p-3">
-                {techStacks.map(tech => (
-                  <label key={tech._id} className="flex items-center space-x-2 cursor-pointer">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto border rounded-md p-3">
+                {techStacks.map((tech) => (
+                  <label
+                    key={tech._id}
+                    className="flex items-center space-x-2 cursor-pointer"
+                  >
                     <input
                       type="checkbox"
-                      checked={formData.techStack.includes(tech._id)}
-                      onChange={() => handleTechStackChange(tech._id)}
+                      value={tech._id}
+                      {...register("techStack")}
                       disabled={isLoading}
                       className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                     />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{tech.name}</span>
+                    <span className="text-sm">{tech.name}</span>
                   </label>
                 ))}
               </div>
-              {formData.techStack.length === 0 && (
-                <p className="text-sm text-red-600 dark:text-red-400 mt-1">
-                  Please select at least one technology
+              {errors.techStack && (
+                <p className="text-sm text-red-600 mt-1">
+                  {(errors.techStack as any)?.message}
                 </p>
               )}
             </div>
 
             {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium mb-1">
                 Project Image
               </label>
               <div className="space-y-4">
-                {imagePreview && (
-                  <div className="w-full h-48 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
-                    <img 
-                      src={imagePreview} 
-                      alt="Preview" 
-                      className="w-full h-full object-cover" 
+                {imagePreviewUrl && (
+                  <div className="w-full h-48 rounded-lg overflow-hidden bg-gray-200">
+                    <img
+                      src={imagePreviewUrl}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                 )}
@@ -305,11 +326,16 @@ export default function ProjectForm({ project, onClose, onSuccess }: ProjectForm
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={handleImageChange}
+                    {...register("image")}
                     disabled={isLoading}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900 dark:file:text-indigo-300 disabled:opacity-50"
+                    className="block w-full text-sm file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                   />
-                  <p className="text-xs text-gray-500 mt-1">JPG, PNG or GIF. Max size 5MB.</p>
+                  {/* Only show error if image is required, which it is not */}
+                  {errors.image && errors.image.message && (
+                    <p className="text-sm text-red-600 mt-1">
+                      {(errors.image as any).message}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -324,17 +350,23 @@ export default function ProjectForm({ project, onClose, onSuccess }: ProjectForm
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={isLoading || !formData.title || !formData.description || formData.techStack.length === 0}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                {isLoading ? (project ? 'Updating...' : 'Creating...') : (project ? 'Update Project' : 'Create Project')}
+              <Button type="submit" disabled={isLoading || isSubmitting}>
+                {isLoading ? (
+                  <>
+                    <Spinner className="h-4 w-4 mr-2" />
+                    {isEdit ? "Updating..." : "Creating..."}
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    {isEdit ? "Update Project" : "Create Project"}
+                  </>
+                )}
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

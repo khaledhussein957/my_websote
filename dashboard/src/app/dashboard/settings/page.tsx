@@ -3,6 +3,16 @@
 import { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import {
   updateProfile,
   changePassword as updatePassword,
   deleteAccount,
@@ -116,17 +126,11 @@ export default function SettingsPage() {
   };
 
   const handleDeleteAccount = () => {
-    if (
-      confirm(
-        "Are you sure you want to delete your account? This action cannot be undone."
-      )
-    ) {
-      dispatch(deleteAccount());
-    }
+    dispatch(deleteAccount());
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Profile Settings */}
       <Card>
         <CardHeader>
@@ -250,18 +254,28 @@ export default function SettingsPage() {
               />
               <button
                 type="button"
-                aria-label={showCurrentPassword ? "Hide password" : "Show password"}
+                aria-label={
+                  showCurrentPassword ? "Hide password" : "Show password"
+                }
                 onClick={() => setShowCurrentPassword((s) => !s)}
                 className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
               >
-                {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showCurrentPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
               {passwordErrors.currentPassword && (
-                <p className="text-xs text-red-500">Current password is required</p>
+                <p className="text-xs text-red-500">
+                  Current password is required
+                </p>
               )}
             </div>
             <div className="relative">
-              <label className="block text-sm font-medium mb-1">New Password</label>
+              <label className="block text-sm font-medium mb-1">
+                New Password
+              </label>
               <Input
                 type={showNewPassword ? "text" : "password"}
                 {...registerPassword("newPassword", { required: true })}
@@ -272,28 +286,42 @@ export default function SettingsPage() {
                 onClick={() => setShowNewPassword((s) => !s)}
                 className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
               >
-                {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showNewPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
               {passwordErrors.newPassword && (
                 <p className="text-xs text-red-500">New password is required</p>
               )}
             </div>
             <div className="relative">
-              <label className="block text-sm font-medium mb-1">Confirm New Password</label>
+              <label className="block text-sm font-medium mb-1">
+                Confirm New Password
+              </label>
               <Input
                 type={showConfirmPassword ? "text" : "password"}
                 {...registerPassword("confirmNewPassword", { required: true })}
               />
               <button
                 type="button"
-                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                aria-label={
+                  showConfirmPassword ? "Hide password" : "Show password"
+                }
                 onClick={() => setShowConfirmPassword((s) => !s)}
                 className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
               >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
               {passwordErrors.confirmNewPassword && (
-                <p className="text-xs text-red-500">Please confirm new password</p>
+                <p className="text-xs text-red-500">
+                  Please confirm new password
+                </p>
               )}
             </div>
             <Button type="submit">
@@ -313,14 +341,37 @@ export default function SettingsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm mb-2">
-            Once you delete your account, all your data will be permanently
-            removed. This action cannot be undone.
-          </p>
-          <Button variant="destructive" onClick={handleDeleteAccount}>
-            <Trash className="h-4 w-4 mr-2" />
-            Delete Account
-          </Button>
+          <AlertDialog>
+            <CardContent>
+              <p className="text-sm mb-2">
+                Once you delete your account, all your data will be permanently
+                removed. This action cannot be undone.
+              </p>
+
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">
+                  <Trash className="h-4 w-4 mr-2" />
+                  Delete Account
+                </Button>
+              </AlertDialogTrigger>
+            </CardContent>
+
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete your account and all associated
+                  data. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <Button variant="destructive" onClick={handleDeleteAccount}>
+                  Confirm Delete
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </CardContent>
       </Card>
     </div>

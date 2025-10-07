@@ -4,7 +4,7 @@ export const registerAccount = Joi.object({
   name: Joi.string().required(),
   email: Joi.string().email().required(),
   phone: Joi.string()
-    .pattern(/^[0-9]{10,15}$/)
+    .pattern(/^[0-9]{9,15}$/)
     .required()
     .max(15)
     .messages({

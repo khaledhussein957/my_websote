@@ -30,8 +30,6 @@ import {
   Edit,
   Trash2,
   Eye,
-  AlertCircle,
-  CheckCircle,
   FolderOpen,
   ExternalLink,
   Github,
@@ -41,6 +39,8 @@ import {
 import { formatDate } from "@/lib/utils";
 import ProjectForm from "@/components/projects/ProjectForm";
 import { Project } from "@/lib/slices/projectSlice";
+
+import { toast, Toaster } from "sonner"; // Import Sonner
 
 export default function ProjectsPage() {
   const dispatch = useAppDispatch();
@@ -58,16 +58,17 @@ export default function ProjectsPage() {
     dispatch(fetchProjects());
   }, [dispatch]);
 
-  // Clear messages after 5 seconds
+  // Toast notifications for success and error
   useEffect(() => {
-    if (error || success) {
-      const timer = setTimeout(() => {
-        dispatch(clearError());
-        dispatch(clearSuccess());
-      }, 5000);
-      return () => clearTimeout(timer);
+    if (success) {
+      toast.success(success);
+      dispatch(clearSuccess());
     }
-  }, [error, success, dispatch]);
+    if (error) {
+      toast.error(error);
+      dispatch(clearError());
+    }
+  }, [success, error, dispatch]);
 
   const filteredProjects = projects.filter((project) => {
     return (
@@ -88,7 +89,6 @@ export default function ProjectsPage() {
   };
 
   const handleToggleFeatured = (project: Project) => {
-    // Dispatch a thunk that updates project.isFeatured
     dispatch(
       updateProject({
         id: project._id,
@@ -104,7 +104,6 @@ export default function ProjectsPage() {
     }
   };
 
-  // Update handleViewProject
   const handleViewProject = (project: Project) => {
     setViewingProject(project);
   };
@@ -120,48 +119,25 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Projects Management
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
             Create and manage your projects
           </p>
         </div>
-        <Button onClick={handleCreateProject}>
+        <Button onClick={handleCreateProject} disabled={isLoading}>
           <Plus className="h-4 w-4 mr-2" />
           Add Project
         </Button>
       </div>
 
-      {/* Error and Success Messages */}
-      {error && (
-        <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800">
-          <div className="flex">
-            <AlertCircle className="h-5 w-5 text-red-400 mr-2 mt-0.5" />
-            <div className="text-sm text-red-700 dark:text-red-400">
-              {error}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {success && (
-        <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-4 border border-green-200 dark:border-green-800">
-          <div className="flex">
-            <CheckCircle className="h-5 w-5 text-green-400 mr-2 mt-0.5" />
-            <div className="text-sm text-green-700 dark:text-green-400">
-              {success}
-            </div>
-          </div>
-        </div>
-      )}
-
       <Card>
         <CardHeader>
-          <CardTitle>Projects</CardTitle>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -226,7 +202,7 @@ export default function ProjectsPage() {
                             {project.title}
                           </div>
                           <div className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-xs">
-                            {project.description}
+                            {project.description.slice(0, 45)} ...
                           </div>
                           <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                             by {project.user?.name}
@@ -241,15 +217,15 @@ export default function ProjectsPage() {
                           variant="outline"
                           className="text-xs"
                         >
-                          +{project.techStack.length - 3} more
+                          {project.techStack.length}
                         </Badge>
                       </div>
                     </td>
-                  <td className="py-3 px-4">
-                    <Badge variant="secondary" className="text-xs capitalize">
-                      {project.type}
-                    </Badge>
-                  </td>
+                    <td className="py-3 px-4">
+                      <Badge variant="secondary" className="text-xs capitalize">
+                        {project.type}
+                      </Badge>
+                    </td>
                     <td className="py-3 px-4 flex space-x-2">
                       {project.githubUrl && (
                         <a
@@ -277,6 +253,7 @@ export default function ProjectsPage() {
                         size="sm"
                         variant={project.featured ? "default" : "outline"}
                         onClick={() => handleToggleFeatured(project)}
+                        disabled={isLoading}
                       >
                         <Star
                           className={`h-4 w-4 mr-1 ${
@@ -303,6 +280,7 @@ export default function ProjectsPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEditProject(project)}
+                          disabled={isLoading}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -315,7 +293,11 @@ export default function ProjectsPage() {
                               disabled={deletingIds.includes(project._id)}
                               onClick={() => setProjectToDelete(project)}
                             >
-                              <Trash2 className="h-4 w-4 text-red-600" />
+                              {deletingIds.includes(project._id) ? (
+                                <div className="animate-spin rounded-full h-5 w-5 border-2 border-t-transparent border-red-600 mx-auto"></div>
+                              ) : (
+                                <Trash2 className="h-4 w-4 text-red-600" />
+                              )}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -394,7 +376,6 @@ export default function ProjectsPage() {
               {viewingProject.description || "No description available."}
             </p>
 
-            {/* Tech Stack */}
             {/* Tech Stack */}
             {viewingProject.techStack &&
               viewingProject.techStack.length > 0 && (

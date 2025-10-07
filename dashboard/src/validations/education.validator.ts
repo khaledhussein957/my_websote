@@ -1,61 +1,54 @@
 import { z } from "zod";
 
-export const createEducationSchema = z.object({
-  institution: z
-    .string()
-    .min(2, "Institution must be at least 2 characters")
-    .max(100, "Institution cannot exceed 100 characters"),
-  degree: z
-    .string()
-    .min(1, "Degree cannot be empty")
-    .max(100, "Degree cannot exceed 100 characters"),
-  startYear: z
-    .string()
-    .regex(/^\d{4}$/, "startYear must be a 4-digit year")
-    .optional()
-    .or(z.literal("")),
-  endYear: z
-    .string()
-    .regex(/^\d{4}$|^present$/i, "endYear must be a 4-digit year or 'Present'")
-    .optional()
-    .or(z.literal("")),
-  gpa: z
-    .string()
-    .regex(/^(\d+(\.\d+)?)$/, "gpa must be a number like 3.5")
-    .optional()
-    .or(z.literal("")),
-  uri: z.string().url("uri must be a valid URL").optional().or(z.literal("")),
-});
+const yearRegex = /^\d{4}$/;
+const currentYear = new Date().getFullYear();
 
-export const updateEducationSchema = z.object({
-  institution: z
-    .string()
-    .min(2, "Institution must be at least 2 characters")
-    .max(100, "Institution cannot exceed 100 characters")
-    .optional(),
-  degree: z
-    .string()
-    .min(1, "Degree cannot be empty")
-    .max(100, "Degree cannot exceed 100 characters")
-    .optional(),
-  startYear: z
-    .string()
-    .regex(/^\d{4}$/, "startYear must be a 4-digit year")
-    .optional()
-    .or(z.literal("")),
-  endYear: z
-    .string()
-    .regex(/^\d{4}$|^present$/i, "endYear must be a 4-digit year or 'Present'")
-    .optional()
-    .or(z.literal("")),
-  gpa: z
-    .string()
-    .regex(/^(\d+(\.\d+)?)$/, "gpa must be a number like 3.5")
-    .optional()
-    .or(z.literal("")),
-  uri: z.string().url("uri must be a valid URL").optional().or(z.literal("")),
-});
+export const addEducationSchema = z
+  .object({
+    institution: z.string().min(1, "Institution is required"),
+    degree: z.string().min(1, "Degree is required"),
+    startYear: z
+      .string()
+      .regex(yearRegex, { message: "Must be a 4-digit year" })
+      .refine(
+        (val) => {
+          const num = parseInt(val);
+          return num >= 2010 && num <= currentYear;
+        },
+        {
+          message: `Start year must be between 1900 and ${currentYear}`,
+        }
+      ),
+    endYear: z
+      .string()
+      .regex(yearRegex, { message: "Must be a 4-digit year" })
+      .refine(
+        (val) => {
+          const num = parseInt(val);
+          return num >= 2010 && num <= currentYear;
+        },
+        {
+          message: `End year must be between 1900 and ${currentYear}`,
+        }
+      ),
+    gpa: z.string().optional().or(z.literal("")),
+    uri: z.string().url().optional().or(z.literal("")),
+  })
+  .superRefine((data, ctx) => {
+    const start = parseInt(data.startYear);
+    const end = parseInt(data.endYear);
 
-export type CreateEducationSchema = z.infer<typeof createEducationSchema>;
+    if (!isNaN(start) && !isNaN(end) && end < start) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["endYear"],
+        message: "End year cannot be earlier than start year",
+      });
+    }
+  });
 
-export type UpdateEducationSchema = z.infer<typeof updateEducationSchema>;
+export const updateEducationSchema = addEducationSchema
+  .partial()
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "At least one field must be provided for update",
+  });

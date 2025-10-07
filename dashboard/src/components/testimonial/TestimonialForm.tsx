@@ -23,7 +23,6 @@ import { Star } from "lucide-react";
 
 import { Testimonial } from "../../lib/slices/testimonialSlice";
 
-
 type TestimonialFormData = {
   name: string;
   email: string;
@@ -40,7 +39,6 @@ export default function TestimonialForm({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-
   const dispatch = useAppDispatch();
   const [formData, setFormData] = useState<TestimonialFormData>({
     name: testimonial?.name || "",
@@ -49,17 +47,20 @@ export default function TestimonialForm({
     rating: testimonial?.rating || 0,
   });
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(testimonial?.image || null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    testimonial?.image || null
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleRatingChange = (star: number) => {
-    setFormData(prev => ({ ...prev, rating: star }));
+    setFormData((prev) => ({ ...prev, rating: star }));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,7 +96,9 @@ export default function TestimonialForm({
         sendData = fd;
       }
       if (testimonial?._id) {
-        await dispatch(updateTestimonial({ id: testimonial._id, data: sendData }));
+        await dispatch(
+          updateTestimonial({ id: testimonial._id, data: sendData })
+        );
       } else {
         await dispatch(createTestimonial(sendData));
       }
@@ -108,110 +111,132 @@ export default function TestimonialForm({
   };
 
   return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
-            {testimonial ? "Edit Testimonial" : "Add Testimonial"}
-          </DialogTitle>
-        </DialogHeader>
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/10  flex items-center justify-center p-4 z-50">
+      <Dialog open onOpenChange={onClose}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {testimonial ? "Edit Testimonial" : "Add Testimonial"}
+            </DialogTitle>
+          </DialogHeader>
 
-  <form onSubmit={onSubmit} className="space-y-6">
-          {/* Name */}
-          <div>
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              name="name"
-              placeholder="John Doe"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-              disabled={isSubmitting}
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              placeholder="john@example.com"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              disabled={isSubmitting}
-            />
-          </div>
-
-          {/* Message */}
-          <div>
-            <Label htmlFor="message">Message</Label>
-            <Textarea
-              id="message"
-              name="message"
-              placeholder="Write your feedback..."
-              value={formData.message}
-              onChange={handleInputChange}
-              required
-              disabled={isSubmitting}
-            />
-          </div>
-
-          {/* Rating */}
-          <div>
-            <Label>Rating</Label>
-            <div className="flex gap-1 mt-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => handleRatingChange(star)}
-                  className="focus:outline-none"
-                >
-                  <Star
-                    className={`h-6 w-6 ${
-                      formData.rating >= star
-                        ? "text-yellow-400 fill-yellow-400"
-                        : "text-gray-400"
-                    }`}
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Image Upload */}
-          <div>
-            <Label htmlFor="image">Image (optional)</Label>
-            <Input
-              id="image"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              disabled={isSubmitting}
-            />
-            {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="mt-2 h-20 w-20 object-cover rounded-full"
+          <form onSubmit={onSubmit} className="space-y-6">
+            {/* Name */}
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="John Doe"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+                disabled={isSubmitting}
               />
-            )}
-          </div>
+            </div>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting || !formData.name || !formData.email || !formData.message || formData.rating < 1}>
-              {isSubmitting ? (testimonial ? "Updating..." : "Creating...") : (testimonial ? "Update" : "Create")}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+            {/* Email */}
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                placeholder="john@example.com"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                disabled={isSubmitting}
+              />
+            </div>
+
+            {/* Message */}
+            <div>
+              <Label htmlFor="message">Message</Label>
+              <Textarea
+                id="message"
+                name="message"
+                placeholder="Write your feedback..."
+                value={formData.message}
+                onChange={handleInputChange}
+                required
+                disabled={isSubmitting}
+              />
+            </div>
+
+            {/* Rating */}
+            <div>
+              <Label>Rating</Label>
+              <div className="flex gap-1 mt-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => handleRatingChange(star)}
+                    className="focus:outline-none"
+                  >
+                    <Star
+                      className={`h-6 w-6 ${
+                        formData.rating >= star
+                          ? "text-yellow-400 fill-yellow-400"
+                          : "text-gray-400"
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Image Upload */}
+            <div>
+              <Label htmlFor="image">Image (optional)</Label>
+              <Input
+                id="image"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                disabled={isSubmitting}
+              />
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="mt-2 h-20 w-20 object-cover rounded-full"
+                />
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={
+                  isSubmitting ||
+                  !formData.name ||
+                  !formData.email ||
+                  !formData.message ||
+                  formData.rating < 1
+                }
+              >
+                {isSubmitting
+                  ? testimonial
+                    ? "Updating..."
+                    : "Creating..."
+                  : testimonial
+                  ? "Update"
+                  : "Create"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

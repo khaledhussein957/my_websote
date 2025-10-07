@@ -14,13 +14,11 @@ export const getEducations = async (req: Request, res: Response) => {
       return res
         .status(404)
         .json({ message: "No educations found", status: "false" });
-    return res
-      .status(200)
-      .json({
-        message: "Educations fetched successfully",
-        status: "true",
-        data: educations,
-      });
+    return res.status(200).json({
+      message: "Educations fetched successfully",
+      status: "true",
+      data: educations,
+    });
   } catch (error) {
     console.log("❌ Error in getEducation:", error);
     return res.status(500).json({ message: "Server error", status: "false" });
@@ -44,13 +42,11 @@ export const getEducation = async (req: Request, res: Response) => {
         .status(404)
         .json({ message: "Education not found", status: "false" });
 
-    return res
-      .status(200)
-      .json({
-        message: "Education fetched successfully",
-        status: "true",
-        data: education,
-      });
+    return res.status(200).json({
+      message: "Education fetched successfully",
+      status: "true",
+      data: education,
+    });
   } catch (error) {
     console.log("❌ Error in getEducation:", error);
     return res.status(500).json({ message: "Server error", status: "false" });
@@ -74,12 +70,10 @@ export const addEducation = async (
 
     const { institution, degree, startYear, endYear, gpa, uri } = req.body;
     if (!institution || !degree || !startYear || !endYear) {
-      return res
-        .status(400)
-        .json({
-          message: "Institution and degree are required",
-          status: "error",
-        });
+      return res.status(400).json({
+        message: "Institution and degree are required",
+        status: "error",
+      });
     }
 
     // check if education already exists for the user
@@ -92,6 +86,13 @@ export const addEducation = async (
       return res
         .status(400)
         .json({ message: "Education already exists", status: "error" });
+
+    if (endYear < startYear) {
+      return res.status(400).json({
+        message: "End year cannot be earlier than start year",
+        status: "error",
+      });
+    }
 
     const newEducation = new Education({
       user: userId,
@@ -113,13 +114,11 @@ export const addEducation = async (
       isRead: false,
     });
 
-    return res
-      .status(201)
-      .json({
-        message: "Education added successfully",
-        status: "success",
-        data: newEducation,
-      });
+    return res.status(201).json({
+      message: "Education added successfully",
+      status: "success",
+      data: newEducation,
+    });
   } catch (error) {
     console.log("❌ Error in addEducation:", error);
     return res.status(500).json({ message: "Server error", status: "error" });
@@ -143,12 +142,10 @@ export const updateEducation = async (
 
     const { institution, degree, startYear, endYear, gpa, uri } = req.body;
     if (!institution || !degree || !startYear || !endYear) {
-      return res
-        .status(400)
-        .json({
-          message: "Institution and degree are required",
-          status: "error",
-        });
+      return res.status(400).json({
+        message: "Institution and degree are required",
+        status: "error",
+      });
     }
 
     // check if education exists
@@ -161,6 +158,13 @@ export const updateEducation = async (
     // check if the education belongs to the user
     if (existingEducation.user.toString() !== userId) {
       return res.status(403).json({ message: "Forbidden", status: "error" });
+    }
+
+    if (endYear && startYear && endYear < startYear) {
+      return res.status(400).json({
+        message: "End year cannot be earlier than start year",
+        status: "error",
+      });
     }
 
     existingEducation.institution =
@@ -181,13 +185,11 @@ export const updateEducation = async (
       isRead: false,
     });
 
-    return res
-      .status(200)
-      .json({
-        message: "Education updated successfully",
-        status: "success",
-        data: existingEducation,
-      });
+    return res.status(200).json({
+      message: "Education updated successfully",
+      status: "success",
+      data: existingEducation,
+    });
   } catch (error) {
     console.log("❌ Error in updateEducation:", error);
     return res.status(500).json({ message: "Server error", status: "error" });

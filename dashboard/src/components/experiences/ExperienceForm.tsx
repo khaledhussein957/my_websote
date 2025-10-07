@@ -1,16 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
+
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
-import { AlertCircle, CheckCircle, Save, X } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { Input } from "../ui/input";
+
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import {
   Experience,
   addExperience as createExperience,
   updateExperience,
-  clearExperienceError as clearError,
-  clearExperienceSuccess as clearSuccess,
+  clearExperienceError,
+  clearExperienceSuccess,
 } from "@/lib/slices/experienceSlice";
+import {
+  createExperienceSchema,
+  updateExperienceSchema,
+} from "@/validations/experience.validator";
+
+type CreateExperienceData = z.infer<typeof createExperienceSchema>;
+type UpdateExperienceData = z.infer<typeof updateExperienceSchema>;
 
 interface ExperienceFormProps {
   experience?: Experience | null;
@@ -28,75 +41,70 @@ export default function ExperienceForm({
     (state) => state.experience
   );
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    company: "",
-    startYear: "",
-    endYear: "",
-    location: "",
+  const isEditing = !!experience;
+
+  // Select schema and type based on mode
+  const schema = isEditing ? updateExperienceSchema : createExperienceSchema;
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<CreateExperienceData | UpdateExperienceData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      title: "",
+      company: "",
+      location: "",
+      startYear: "",
+      endYear: "",
+      description: "",
+    },
   });
 
-  // Initialize form data when editing
+  // Set default values when editing
   useEffect(() => {
     if (experience) {
-      setFormData({
+      reset({
         title: experience.title || "",
-        description: experience.description || "",
         company: experience.company || "",
-        startYear: experience.startYear || "",
-        endYear: experience.endYear || "",
         location: experience.location || "",
+        startYear: experience.startYear?.toString() || "",
+        endYear: experience.endYear?.toString() || "",
+        description: experience.description || "",
       });
     }
-  }, [experience]);
+  }, [experience, reset]);
 
-  // Clear messages after 5 seconds
+  // Show toast notifications
   useEffect(() => {
-    if (error || success) {
-      const timer = setTimeout(() => {
-        dispatch(clearError());
-        dispatch(clearSuccess());
-      }, 5000);
-      return () => clearTimeout(timer);
+    if (error) {
+      toast.error(error);
+      dispatch(clearExperienceError());
     }
-  }, [error, success, dispatch]);
-
-  // Handle success
-  useEffect(() => {
-    if (success && onSuccess) {
-      onSuccess();
+    if (success) {
+      toast.success(success);
+      dispatch(clearExperienceSuccess());
+      if (onSuccess) onSuccess();
     }
-  }, [success, onSuccess]);
+  }, [error, success, dispatch, onSuccess]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData.title || !formData.company) return;
-
-    dispatch(clearError());
-    dispatch(clearSuccess());
-
-    if (experience) {
-      dispatch(updateExperience({ id: experience._id, data: formData }));
+  const onSubmit = (data: CreateExperienceData | UpdateExperienceData) => {
+    // No conversion needed — they stay as strings
+    if (isEditing && experience?._id) {
+      dispatch(updateExperience({ id: experience._id, data }));
     } else {
-      dispatch(createExperience(formData));
+      dispatch(createExperience(data));
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/10 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>
-            {experience ? "Edit Experience" : "Add Experience"}
+            {isEditing ? "Edit Experience" : "Add Experience"}
           </CardTitle>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -104,142 +112,84 @@ export default function ExperienceForm({
         </CardHeader>
 
         <CardContent>
-          {/* Error and Success Messages */}
-          {error && (
-            <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800 mb-4">
-              <div className="flex">
-                <AlertCircle className="h-5 w-5 text-red-400 mr-2 mt-0.5" />
-                <div className="text-sm text-red-700 dark:text-red-400">
-                  {error}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {success && (
-            <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-4 border border-green-200 dark:border-green-800 mb-4">
-              <div className="flex">
-                <CheckCircle className="h-5 w-5 text-green-400 mr-2 mt-0.5" />
-                <div className="text-sm text-green-700 dark:text-green-400">
-                  {success}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-0.5">
             {/* Title */}
             <div>
-              <label htmlFor="title" className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-1">
                 Job Title *
               </label>
-              <Input
-                id="title"
-                name="title"
-                type="text"
-                value={formData.title}
-                onChange={handleInputChange}
-                required
-                disabled={isLoading}
-                placeholder="e.g. Software Engineer"
-              />
+              <Input {...register("title")} disabled={isLoading} />
+              {errors.title && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.title.message}
+                </p>
+              )}
             </div>
 
             {/* Company */}
             <div>
-              <label
-                htmlFor="company"
-                className="block text-sm font-medium mb-1"
-              >
+              <label className="block text-sm font-medium mb-1">
                 Company *
               </label>
-              <Input
-                id="company"
-                name="company"
-                type="text"
-                value={formData.company}
-                onChange={handleInputChange}
-                required
-                disabled={isLoading}
-                placeholder="e.g. Google"
-              />
+              <Input {...register("company")} disabled={isLoading} />
+              {errors.company && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.company.message}
+                </p>
+              )}
             </div>
 
             {/* Location */}
             <div>
-              <label
-                htmlFor="location"
-                className="block text-sm font-medium mb-1"
-              >
-                Location
-              </label>
-              <Input
-                id="location"
-                name="location"
-                type="text"
-                value={formData.location}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                placeholder="e.g. New York, USA"
-              />
+              <label className="block text-sm font-medium mb-1">Location</label>
+              <Input {...register("location")} disabled={isLoading} />
+              {errors.location && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.location.message}
+                </p>
+              )}
             </div>
 
             {/* Start Year */}
             <div>
-              <label
-                htmlFor="startYear"
-                className="block text-sm font-medium mb-1"
-              >
+              <label className="block text-sm font-medium mb-1">
                 Start Year
               </label>
-              <Input
-                id="startYear"
-                name="startYear"
-                type="text"
-                value={formData.startYear}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                placeholder="e.g. 2020"
-              />
+              <Input {...register("startYear")} disabled={isLoading} />
+              {errors.startYear && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.startYear.message}
+                </p>
+              )}
             </div>
 
             {/* End Year */}
             <div>
-              <label
-                htmlFor="endYear"
-                className="block text-sm font-medium mb-1"
-              >
-                End Year
-              </label>
-              <Input
-                id="endYear"
-                name="endYear"
-                type="text"
-                value={formData.endYear}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                placeholder="e.g. 2023 or Present"
-              />
+              <label className="block text-sm font-medium mb-1">End Year</label>
+              <Input {...register("endYear")} disabled={isLoading} />
+              {errors.endYear && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.endYear.message}
+                </p>
+              )}
             </div>
 
             {/* Description */}
             <div>
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium mb-1"
-              >
+              <label className="block text-sm font-medium mb-1">
                 Description
               </label>
               <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                disabled={isLoading}
+                {...register("description")}
                 rows={4}
                 className="w-full px-3 py-2 border rounded-md resize-vertical focus:ring-2 focus:ring-indigo-500"
-                placeholder="Describe your role, responsibilities, and achievements"
+                disabled={isLoading}
               />
+              {errors.description && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.description.message}
+                </p>
+              )}
             </div>
 
             {/* Actions */}
@@ -252,18 +202,18 @@ export default function ExperienceForm({
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={isLoading || !formData.title || !formData.company}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                {isLoading
-                  ? experience
-                    ? "Updating..."
-                    : "Creating..."
-                  : experience
-                  ? "Update"
-                  : "Create"}
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <span className="animate-spin mr-2 h-4 w-4 border-t border-white rounded-full" />
+                    {isEditing ? "Updating..." : "Creating..."}
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    {isEditing ? "Update" : "Create"}
+                  </>
+                )}
               </Button>
             </div>
           </form>

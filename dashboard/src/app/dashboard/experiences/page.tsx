@@ -4,26 +4,28 @@ import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import {
   fetchExperiences,
-  addExperience,
-  updateExperience,
   deleteExperience,
   clearExperienceError,
   clearExperienceSuccess,
   Experience,
 } from "@/lib/slices/experienceSlice";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BookOpen, Plus, Edit, Trash2 } from "lucide-react";
+import ExperienceForm from "@/components/experiences/ExperienceForm";
+import { toast } from "sonner";
+
+// Assume you have an AlertDialog component
 import {
-  AlertCircle,
-  CheckCircle,
-  BookOpen,
-  Plus,
-  Edit,
-  Trash2,
-} from "lucide-react";
-import ExperienceForm from "../../../components/experiences/ExperienceForm";
-import { formatDate } from "@/lib/utils";
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 export default function ExperiencePage() {
   const dispatch = useAppDispatch();
@@ -37,18 +39,23 @@ export default function ExperiencePage() {
     null
   );
 
+  // For delete dialog
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
   useEffect(() => {
     dispatch(fetchExperiences());
   }, [dispatch]);
 
-  // Clear messages after 5 seconds
+  // Toast notifications & clear after showing
   useEffect(() => {
-    if (error || success) {
-      const timer = setTimeout(() => {
-        dispatch(clearExperienceError());
-        dispatch(clearExperienceSuccess());
-      }, 5000);
-      return () => clearTimeout(timer);
+    if (error) {
+      toast.error(error);
+      dispatch(clearExperienceError());
+    }
+    if (success) {
+      toast.success(success);
+      dispatch(clearExperienceSuccess());
     }
   }, [error, success, dispatch]);
 
@@ -69,9 +76,21 @@ export default function ExperiencePage() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this experience?")) {
-      dispatch(deleteExperience(id));
+    setDeleteId(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteId) {
+      dispatch(deleteExperience(deleteId));
     }
+    setIsDeleteDialogOpen(false);
+    setDeleteId(null);
+  };
+
+  const cancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setDeleteId(null);
   };
 
   const handleFormClose = () => {
@@ -85,11 +104,11 @@ export default function ExperiencePage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Experience Management
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
@@ -102,27 +121,8 @@ export default function ExperiencePage() {
         </Button>
       </div>
 
-      {/* Messages */}
-      {error && (
-        <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800 flex items-center gap-2">
-          <AlertCircle className="h-5 w-5 text-red-400" />
-          <span className="text-sm text-red-700 dark:text-red-400">
-            {error}
-          </span>
-        </div>
-      )}
-      {success && (
-        <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-4 border border-green-200 dark:border-green-800 flex items-center gap-2">
-          <CheckCircle className="h-5 w-5 text-green-400" />
-          <span className="text-sm text-green-700 dark:text-green-400">
-            {success}
-          </span>
-        </div>
-      )}
-
       <Card>
         <CardHeader>
-          <CardTitle>Experience Entries</CardTitle>
           <div className="relative flex-1 mt-2 sm:mt-0">
             <Input
               placeholder="Search experiences..."
@@ -134,7 +134,7 @@ export default function ExperiencePage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto relative">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -161,7 +161,7 @@ export default function ExperiencePage() {
                     <td className="py-3 px-4">{exp.title}</td>
                     <td className="py-3 px-4">{exp.company}</td>
                     <td className="py-3 px-4">
-                      {exp.startYear} - {exp.endYear}
+                      {exp.startYear} - {exp.endYear ?? "Present"}
                     </td>
                     <td className="py-3 px-4 flex space-x-2">
                       <Button
@@ -177,7 +177,11 @@ export default function ExperiencePage() {
                         onClick={() => handleDelete(exp._id)}
                         disabled={isDeleting}
                       >
-                        <Trash2 className="h-4 w-4 text-red-600" />
+                        {isDeleting ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-red-600" />
+                        ) : (
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        )}
                       </Button>
                     </td>
                   </tr>
@@ -186,9 +190,11 @@ export default function ExperiencePage() {
             </table>
 
             {isLoading && (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <div className="animate-spin rounded-full h-8 w-8 border-4 border-t-transparent border-gray-900 dark:border-white mx-auto mb-4"></div>
-                Loading experiences...
+              <div className="absolute inset-0 bg-white/70 dark:bg-gray-900/70 flex items-center justify-center">
+                <div className="text-center text-gray-500 dark:text-gray-400">
+                  <div className="animate-spin rounded-full h-8 w-8 border-4 border-t-transparent border-gray-900 dark:border-white mx-auto mb-4"></div>
+                  Loading experiences...
+                </div>
               </div>
             )}
 
@@ -211,6 +217,32 @@ export default function ExperiencePage() {
           onSuccess={handleFormSuccess}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogTrigger asChild>
+          {/* optionally, you may not need a trigger here because open is controlled */}
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogTitle>Delete Experience</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this experience? This action cannot
+            be undone.
+          </AlertDialogDescription>
+          <div className="flex justify-end space-x-2 mt-4">
+            <AlertDialogCancel onClick={cancelDelete}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>
+              {isDeleting ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-t-transparent border-white mr-2 inline-block" />
+              ) : null}
+              Delete
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

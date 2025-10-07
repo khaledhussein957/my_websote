@@ -9,7 +9,7 @@ export const createProjectSchema = Joi.object({
     type: Joi.string().valid(...projectTypeEnum).required(),
     liveDemoUrl: Joi.string().uri().optional(),
     image: Joi.string().optional(),
-    techStack: Joi.array().items(Joi.string()).required(),
+    techStack: Joi.array().items(Joi.string()).optional(),
     featured: Joi.boolean().default(false),
 });
 

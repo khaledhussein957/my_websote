@@ -69,10 +69,10 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Category Management
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
@@ -110,7 +110,6 @@ export default function CategoriesPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Categories</CardTitle>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
