@@ -15,22 +15,19 @@ import {
   ResetPasswordForm,
   resetPasswordSchema,
 } from "../../validations/auth.validator";
-import { useAppDispatch } from "../../lib/hooks";
-import { useResetPasswordMutation } from "../../lib/slices/Auth/authApi";
-import { resetPasswordSuccess } from "../../lib/slices/Auth/authSlice";
+import api from "../../src/lib/api";
 
 import { useRouter } from "expo-router";
 
 export default function ResetPassword() {
-  const styles = useThemedStyles(); // theme-aware styles
+  const styles = useThemedStyles();
 
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // react-hook-form setup
   const {
     control,
     handleSubmit,
@@ -44,19 +41,20 @@ export default function ResetPassword() {
     },
   });
 
-  // RTK Query mutation
-  const [resetPassword, { isLoading }] = useResetPasswordMutation();
-
   const handleResetPassword = async (data: ResetPasswordForm) => {
     setMessage("");
     try {
-      const response = await resetPassword({ token: data.code, password: data.password }).unwrap();
-      dispatch(resetPasswordSuccess(response.message));
+      setIsLoading(true);
+      await api.post("/api/auth/reset-password", {
+        token: data.code,
+        password: data.password,
+      });
       setMessage("Password reset successful ✅");
       router.replace("/(auth)/loginScreen");
     } catch (err: any) {
-      console.error(err);
-      setMessage(err?.data?.message || "Something went wrong. Try again.");
+      setMessage(err?.response?.data?.message || "Something went wrong. Try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -87,7 +85,11 @@ export default function ResetPassword() {
           />
         )}
       />
-      {errors.code && <Text style={{ color: "red", marginBottom: 6 }}>{errors.code.message}</Text>}
+      {errors.code && (
+        <Text style={{ color: "red", marginBottom: 6 }}>
+          {errors.code.message}
+        </Text>
+      )}
 
       {/* New Password */}
       <Controller
@@ -106,12 +108,18 @@ export default function ResetPassword() {
               onPress={() => setShowPassword((s) => !s)}
               style={{ position: "absolute", right: 12, top: 14 }}
             >
-              <Text style={{ color: "#2563eb" }}>{showPassword ? "Hide" : "Show"}</Text>
+              <Text style={{ color: "#2563eb" }}>
+                {showPassword ? "Hide" : "Show"}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
       />
-      {errors.password && <Text style={{ color: "red", marginBottom: 6 }}>{errors.password.message}</Text>}
+      {errors.password && (
+        <Text style={{ color: "red", marginBottom: 6 }}>
+          {errors.password.message}
+        </Text>
+      )}
 
       {/* Confirm Password */}
       <Controller
@@ -130,18 +138,22 @@ export default function ResetPassword() {
               onPress={() => setShowConfirm((s) => !s)}
               style={{ position: "absolute", right: 12, top: 14 }}
             >
-              <Text style={{ color: "#2563eb" }}>{showConfirm ? "Hide" : "Show"}</Text>
+              <Text style={{ color: "#2563eb" }}>
+                {showConfirm ? "Hide" : "Show"}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
       />
-      {errors.confirmPassword && <Text style={{ color: "red", marginBottom: 6 }}>{errors.confirmPassword.message}</Text>}
+      {errors.confirmPassword && (
+        <Text style={{ color: "red", marginBottom: 6 }}>
+          {errors.confirmPassword.message}
+        </Text>
+      )}
 
       {/* Success/Error Message */}
       {message ? (
-        <Text style={{ textAlign: "center", marginBottom: 10 }}>
-          {message}
-        </Text>
+        <Text style={{ textAlign: "center", marginBottom: 10 }}>{message}</Text>
       ) : null}
 
       {/* Submit Button */}

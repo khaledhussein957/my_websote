@@ -1,49 +1,68 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native'
-import React from 'react'
-import { useRouter } from 'expo-router';
+import { View, Text, Image, ScrollView } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
+import styles from "../../assets/styles/Profile.styles";
 
-const screens = [
-  { name: 'Project', route: '../screens/ProjectScreen' },
-  { name: 'TechStack', route: '../screens/TechStackScreen' },
-  { name: 'Education', route: '../screens/EducationScreen' },
-  { name: 'Experience', route: '../screens/ExperienceScreen' },
-  { name: 'Category', route: '../screens/CategoryScreen' },
-  { name: 'News', route: '../screens/NewsScreen' },
-  { name: 'Testimonial', route: '../screens/TestimonialScreen' },
-  { name: 'Settings', route: '../screens/SettingsScreen' },
-];
+type StoredUser = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  image?: string;
+  title?: string;
+  about_me?: string;
+} | null;
 
-const Profile = () => {
-  const router = useRouter();
+export default function ProfileScreen() {
+  const [user, setUser] = useState<StoredUser>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const raw = await AsyncStorage.getItem("auth_user");
+        if (raw) {
+          setUser(JSON.parse(raw));
+        }
+      } catch {
+        // ignore parse/storage errors
+      }
+    })();
+  }, []);
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Profile</Text>
-      {screens.map((screen) => (
-        <TouchableOpacity
-          key={screen.name}
-          style={styles.button}
-          onPress={() => router.push(screen.route)}
-        >
-          <Text style={styles.buttonText}>{screen.name}</Text>
-        </TouchableOpacity>
-      ))}
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 24 }}
+    >
+      <View style={styles.header}>
+        <Image
+          source={
+            user?.image ? (
+              { uri: user.image }
+            ) : (
+              { uri: user?.name?.charAt(0) }
+            )
+          }
+          style={styles.avatar}
+        />
+        <Text style={styles.name}>{user?.name || "Your Name"}</Text>
+        {!!user?.title && <Text style={styles.title}>{user.title}</Text>}
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.label}>Email</Text>
+        <Text style={styles.value}>{user?.email || "-"}</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.label}>Phone</Text>
+        <Text style={styles.value}>{user?.phone || "-"}</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.label}>About</Text>
+        <Text style={styles.about}>{user?.about_me || "No bio yet."}</Text>
+      </View>
     </ScrollView>
-  )
+  );
 }
-
-const styles = StyleSheet.create({
-  container: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f9fafb', padding: 24 },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 24 },
-  button: {
-    backgroundColor: '#3b82f6',
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-    borderRadius: 8,
-    marginBottom: 16,
-    width: '100%',
-    alignItems: 'center',
-  },
-  buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
-});
-
-export default Profile;

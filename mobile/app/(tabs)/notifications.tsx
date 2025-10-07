@@ -1,10 +1,10 @@
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function DashboardScreen() {
+export default function NotificationsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Dashboard</Text>
-      <Text>Stats will appear here.</Text>
+      <Text style={styles.title}>Notifications</Text>
+      <Text>List will appear here.</Text>
     </View>
   );
 }

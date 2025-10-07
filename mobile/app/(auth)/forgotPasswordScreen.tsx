@@ -11,24 +11,21 @@ import useThemedStyles from "../../assets/styles/auth.style";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { useAppDispatch } from "../../lib/hooks";
 import { useRouter } from "expo-router";
+import api from "../../src/lib/api";
 import {
   ForgotPasswordForm,
   forgotPasswordSchema,
 } from "../../validations/auth.validator";
-import { useForgotPasswordMutation } from "../../lib/slices/Auth/authApi";
-import { forgotPasswordSuccess } from "../../lib/slices/Auth/authSlice";
 
 export default function ForgotPassword() {
-  const styles = useThemedStyles(); // theme-aware styles
+  const styles = useThemedStyles();
 
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // react-hook-form setup
   const {
     control,
     handleSubmit,
@@ -38,20 +35,18 @@ export default function ForgotPassword() {
     defaultValues: { email: "" },
   });
 
-  // RTK Query mutation
-  const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
-
   const handleForgotPassword = async (data: ForgotPasswordForm) => {
     setMessage("");
     try {
-      const response = await forgotPassword(data).unwrap();
-      dispatch(forgotPasswordSuccess(response.message));
+      setIsLoading(true);
+      await api.post("/api/auth/forgot-password", data);
       setIsError(false);
       setMessage("Password reset link sent to your email 📩");
     } catch (err: any) {
-      console.error(err);
       setIsError(true);
-      setMessage(err?.data?.message || "Something went wrong. Try again.");
+      setMessage(err?.response?.data?.message || "Something went wrong. Try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
