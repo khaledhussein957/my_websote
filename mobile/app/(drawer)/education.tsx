@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 export default function EducationScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Education</Text>
+      <Text style={styles.title}>Educations</Text>
       <Text>CRUD UI goes here.</Text>
     </View>
   );

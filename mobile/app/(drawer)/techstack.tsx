@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 export default function TechStackScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tech Stack</Text>
+      <Text style={styles.title}>TechStack</Text>
       <Text>CRUD UI goes here.</Text>
     </View>
   );

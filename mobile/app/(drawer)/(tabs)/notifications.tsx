@@ -1,10 +1,10 @@
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function NewsScreen() {
+export default function NotificationsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>News</Text>
-      <Text>CRUD UI goes here.</Text>
+      <Text style={styles.title}>Notifications</Text>
+      <Text>List will appear here.</Text>
     </View>
   );
 }

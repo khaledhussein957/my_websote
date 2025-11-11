@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 export default function ExperienceScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Experience</Text>
+      <Text style={styles.title}>Experiences</Text>
       <Text>CRUD UI goes here.</Text>
     </View>
   );

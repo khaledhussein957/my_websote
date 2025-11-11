@@ -42,7 +42,7 @@ app.use(
   })
 );
 app.use(logVisit);
-app.use(arcjetProtection); // Apply Arcjet protection middleware
+// app.use(arcjetProtection); // Apply Arcjet protection middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use(cookieParser());
