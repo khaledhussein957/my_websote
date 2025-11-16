@@ -58,7 +58,6 @@ export const authApi = {
     try {
       const response = await axiosInstance.post("/auth/login", data);
       await saveUserAndToken(response.data.user, response.data.token);
-      console.log("done")
       return response.data;
     } catch (error: any) {
       throw new Error(error?.response?.data?.message || error.message || "Login failed");

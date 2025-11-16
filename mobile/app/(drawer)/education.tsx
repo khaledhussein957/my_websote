@@ -7,7 +7,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import { useEducations, useDeleteEducation } from "@/hooks/useEducation";
 import { educationStyles as styles } from "@/assets/styles/education.style";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,7 +16,11 @@ export default function EducationScreen() {
   const { data: educations, isLoading, isError } = useEducations();
   const deleteEducationMutation = useDeleteEducation();
 
-  // Generate a unique icon for each degree
+  // Header configuration
+  React.useLayoutEffect(() => {
+    // Optional: You can customize header here if using a stack inside layout
+  }, []);
+
   const getIconForDegree = (degree: string) => {
     switch (degree?.toLowerCase()) {
       case "bachelor":
@@ -39,9 +43,7 @@ export default function EducationScreen() {
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => {
-            deleteEducationMutation.mutate(id);
-          },
+          onPress: () => deleteEducationMutation.mutate(id),
         },
       ]
     );
@@ -55,7 +57,6 @@ export default function EducationScreen() {
         color="#007AFF"
         style={{ marginRight: 12 }}
       />
-
       <View style={{ flex: 1 }}>
         <Text style={styles.educationTitle}>{item.institution}</Text>
         <Text style={styles.educationSubtitle}>{item.degree}</Text>
@@ -63,22 +64,20 @@ export default function EducationScreen() {
           {item.startYear} - {item.endYear || "Present"}
         </Text>
       </View>
-
       <View style={styles.actionButtons}>
         <TouchableOpacity
           onPress={() =>
-            router.push(`/../components/education/UpdateEducationForm?id=${item._id}`)
+            router.push(
+              `../../components/education/UpdateEducationForm?id=${item._id}`
+            )
           }
           style={styles.iconButton}
-          accessibilityLabel="Update education"
         >
           <Ionicons name="pencil" size={22} color="#4CAF50" />
         </TouchableOpacity>
-
         <TouchableOpacity
           onPress={() => handleDelete(item._id)}
           style={styles.iconButton}
-          accessibilityLabel="Delete education"
         >
           <Ionicons name="trash" size={22} color="#F44336" />
         </TouchableOpacity>
@@ -98,10 +97,7 @@ export default function EducationScreen() {
     return (
       <View style={[styles.container, styles.centerContent]}>
         <Text style={styles.errorText}>Failed to load educations.</Text>
-        <TouchableOpacity
-          onPress={() => {}}
-          style={styles.retryButton}
-        >
+        <TouchableOpacity onPress={() => {}} style={styles.retryButton}>
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -110,6 +106,25 @@ export default function EducationScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
+      <Stack.Screen
+        options={{
+          title: "My Educations", // Set your header title
+          headerShown: true,
+          headerStyle: { backgroundColor: "#007AFF" },
+          headerTintColor: "#fff",
+          headerTitleStyle: { fontWeight: "bold" },
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{ marginLeft: 16 }}
+            >
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+
       {educations?.length === 0 ? (
         <View style={styles.centerContent}>
           <Text style={styles.noDataText}>No education records found.</Text>
@@ -127,8 +142,9 @@ export default function EducationScreen() {
       {/* Floating Action Button */}
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => router.push("/../components/education/CreateEducationForm")}
-        accessibilityLabel="Add education"
+        onPress={() =>
+          router.push("../../components/education/CreateEducationForm")
+        }
       >
         <Ionicons name="add" size={28} color="#fff" />
       </TouchableOpacity>

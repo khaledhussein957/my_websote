@@ -3,8 +3,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "@/constants/colors";
 import { useLogout } from "@/hooks/useAuth";
 import { TouchableOpacity, Text, View, Modal } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DrawerContentScrollView, DrawerContentComponentProps, DrawerItemList } from "@react-navigation/drawer";
+import { Redirect, useRouter } from "expo-router";
+import { useCheckAuth } from "@/hooks/useAuth";
+import NetInfo from "@react-native-community/netinfo";
 
 export default function DrawerLayout() {
   const colors = useThemeColors();
@@ -19,6 +22,22 @@ export default function DrawerLayout() {
     closeConfirm();
     logout.mutate();
   };
+
+  const [networkError, setNetworkError] = useState(false);
+
+  const { data: authData, isLoading } = useCheckAuth();
+
+  // Monitor network
+  useEffect(() => {
+    const unsub = NetInfo.addEventListener((state) => {
+      setNetworkError(!state.isConnected);
+    });
+    return () => unsub();
+  }, []);
+
+  if (networkError) return <Redirect href="/networkError" />
+  if (isLoading) return null;
+  if (!authData) return <Redirect href="/(auth)/loginScreen" />
 
   const CustomDrawerContent = (props: DrawerContentComponentProps) => {
     return (

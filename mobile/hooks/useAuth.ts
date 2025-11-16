@@ -103,6 +103,6 @@ export const useCheckAuth = () => {
   return useQuery({
     queryKey: ["auth", "check"],
     queryFn: authApi.checkAuth,
-    enabled: false, // call manually
+    enabled: true,
   });
 };
