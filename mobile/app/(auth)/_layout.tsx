@@ -1,13 +1,12 @@
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
+import { useCheckAuth } from "@/hooks/useAuth";
 
 const AuthLayout = () => {
-  return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="loginScreen" />
-      <Stack.Screen name="forgotPasswordScreen" />
-      <Stack.Screen name="resetPasswordScreen" />
-    </Stack>
-  );
+  const { data: authData } = useCheckAuth();
+
+  if (authData) return <Redirect href={"/(drawer)/(tabs)"} />;
+  
+  return <Stack screenOptions={{ headerShown: false }} />;
 };
 
 export default AuthLayout;

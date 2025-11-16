@@ -1,19 +1,18 @@
-import { View, Text, StyleSheet, Image, useColorScheme } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import React from "react";
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useThemeColors } from "@/constants/colors";
 
 const NetworkErrorScreen = () => {
-  const colorScheme = useColorScheme();
-  const COLORS = useThemeColor();
+  const colors = useThemeColors();
   return (
-    <View style={[styles.container, { backgroundColor: COLORS.background }]}> 
+    <View style={[styles.container, { backgroundColor: colors.background }]}> 
       <Image
         source={require("../assets/images/icon.png")}
         style={styles.image}
         resizeMode="contain"
       />
-      <Text style={[styles.title, { color: COLORS.error }]}>Network Error</Text>
-      <Text style={[styles.message, { color: COLORS.text }]}>Unable to connect. Please check your internet connection and try again.</Text>
+      <Text style={[styles.title, { color: colors.error }]}>Network Error</Text>
+      <Text style={[styles.message, { color: colors.text }]}>Unable to connect. Please check your internet connection and try again.</Text>
     </View>
   );
 };

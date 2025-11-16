@@ -15,7 +15,7 @@ export default function TabsLayout() {
         options={{
           title: "Dashboard",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" color={color} size={size} />
+            <Ionicons name="grid-outline" color={color} size={size} />
           ),
           headerLeft: () => (
             <TouchableOpacity

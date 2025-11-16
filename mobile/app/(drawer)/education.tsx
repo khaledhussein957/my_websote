@@ -1,15 +1,137 @@
-import { View, Text, StyleSheet } from 'react-native';
+import React from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
+import { router } from "expo-router";
+import { useEducations, useDeleteEducation } from "@/hooks/useEducation";
+import { educationStyles as styles } from "@/assets/styles/education.style";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function EducationScreen() {
+  const { data: educations, isLoading, isError } = useEducations();
+  const deleteEducationMutation = useDeleteEducation();
+
+  // Generate a unique icon for each degree
+  const getIconForDegree = (degree: string) => {
+    switch (degree?.toLowerCase()) {
+      case "bachelor":
+        return "school";
+      case "master":
+        return "ribbon";
+      case "phd":
+        return "school-outline";
+      default:
+        return "document";
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this education?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            deleteEducationMutation.mutate(id);
+          },
+        },
+      ]
+    );
+  };
+
+  const renderEducationItem = ({ item }: { item: any }) => (
+    <View style={styles.educationItem}>
+      <Ionicons
+        name={getIconForDegree(item.degree)}
+        size={28}
+        color="#007AFF"
+        style={{ marginRight: 12 }}
+      />
+
+      <View style={{ flex: 1 }}>
+        <Text style={styles.educationTitle}>{item.institution}</Text>
+        <Text style={styles.educationSubtitle}>{item.degree}</Text>
+        <Text style={styles.educationYears}>
+          {item.startYear} - {item.endYear || "Present"}
+        </Text>
+      </View>
+
+      <View style={styles.actionButtons}>
+        <TouchableOpacity
+          onPress={() =>
+            router.push(`/../components/education/UpdateEducationForm?id=${item._id}`)
+          }
+          style={styles.iconButton}
+          accessibilityLabel="Update education"
+        >
+          <Ionicons name="pencil" size={22} color="#4CAF50" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => handleDelete(item._id)}
+          style={styles.iconButton}
+          accessibilityLabel="Delete education"
+        >
+          <Ionicons name="trash" size={22} color="#F44336" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text style={styles.errorText}>Failed to load educations.</Text>
+        <TouchableOpacity
+          onPress={() => {}}
+          style={styles.retryButton}
+        >
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Educations</Text>
-      <Text>CRUD UI goes here.</Text>
+      {educations?.length === 0 ? (
+        <View style={styles.centerContent}>
+          <Text style={styles.noDataText}>No education records found.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={educations}
+          keyExtractor={(item) => item._id}
+          renderItem={renderEducationItem}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
+
+      {/* Floating Action Button */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push("/../components/education/CreateEducationForm")}
+        accessibilityLabel="Add education"
+      >
+        <Ionicons name="add" size={28} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  title: { fontSize: 24, fontWeight: '600', marginBottom: 12 },
-});
