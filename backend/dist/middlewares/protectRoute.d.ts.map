@@ -1,1 +1,0 @@
-{"version":3,"file":"protectRoute.d.ts","sourceRoot":"","sources":["../../src/middlewares/protectRoute.ts"],"names":[],"mappings":"AAAA,OAAO,OAAO,MAAM,SAAS,CAAC;AAK9B,MAAM,WAAW,oBAAqB,SAAQ,OAAO,CAAC,OAAO;IAC3D,IAAI,CAAC,EAAE;QAAE,EAAE,EAAE,MAAM,CAAA;KAAE,CAAC;CACvB;AAED,eAAO,MAAM,cAAc,GACzB,KAAK,oBAAoB,EACzB,KAAK,OAAO,CAAC,QAAQ,EACrB,MAAM,OAAO,CAAC,YAAY,2DAsB3B,CAAC"}
