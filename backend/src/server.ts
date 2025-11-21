@@ -1,7 +1,7 @@
 import app from "./app";
 
 import ENV from "./config/ENV";
-import connectDB from "../src/config/db";
+import connectDB from "./config/db";
 
 const PORT = ENV.PORT;
 
