@@ -5,14 +5,16 @@ import { useThemeColors } from "@/constants/colors";
 const NetworkErrorScreen = () => {
   const colors = useThemeColors();
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}> 
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Image
-        source={require("../assets/images/icon.png")}
+        source={require("../assets/images/network-error.png")}
         style={styles.image}
         resizeMode="contain"
       />
       <Text style={[styles.title, { color: colors.error }]}>Network Error</Text>
-      <Text style={[styles.message, { color: colors.text }]}>Unable to connect. Please check your internet connection and try again.</Text>
+      <Text style={[styles.message, { color: colors.text }]}>
+        Unable to connect. Please check your internet connection and try again.
+      </Text>
     </View>
   );
 };

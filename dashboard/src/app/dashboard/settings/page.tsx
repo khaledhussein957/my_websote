@@ -59,8 +59,13 @@ export default function SettingsPage() {
       name: user?.name || "",
       email: user?.email || "",
       phone: user?.phone || "",
+      location: user?.location || "",
       title: user?.title || "",
       about_me: user?.about_me || "",
+      linkedin: user?.linkedin || "",
+      github: user?.github || "",
+      instagram: user?.instagram || "",
+      facebook: user?.facebook || "",
     },
   });
 
@@ -70,8 +75,13 @@ export default function SettingsPage() {
         name: user.name || "",
         email: user.email || "",
         phone: user.phone || "",
+        location: user.location || "",
         title: user.title || "",
         about_me: user.about_me || "",
+        linkedin: user?.linkedin || "",
+        github: user?.github || "",
+        instagram: user?.instagram || "",
+        facebook: user?.facebook || "",
       });
     }
   }, [user, reset]);
@@ -179,7 +189,6 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
-
             <div>
               <label className="block text-sm font-medium mb-1">Name</label>
               <Input {...register("name")} />
@@ -202,6 +211,15 @@ export default function SettingsPage() {
               )}
             </div>
             <div>
+              <label className="block text-sm font-medium mb-1">Location</label>
+              <Input {...register("location")} />
+              {errors.location && (
+                <p className="text-xs text-red-500">
+                  {errors.location.message}
+                </p>
+              )}
+            </div>
+            <div>
               <label className="block text-sm font-medium mb-1">Title</label>
               <Input {...register("title")} />
               {errors.title && (
@@ -221,8 +239,43 @@ export default function SettingsPage() {
                   {errors.about_me.message}
                 </p>
               )}
+            </div>{" "}
+            <div>
+              <label className="block text-sm font-medium mb-1">LinkedIn</label>
+              <Input {...register("linkedin")} />
+              {errors.linkedin && (
+                <p className="text-xs text-red-500">
+                  {errors.linkedin.message}
+                </p>
+              )}
             </div>
-
+            <div>
+              <label className="block text-sm font-medium mb-1">GitHub</label>
+              <Input {...register("github")} />
+              {errors.github && (
+                <p className="text-xs text-red-500">{errors.github.message}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Instagram
+              </label>
+              <Input {...register("instagram")} />
+              {errors.instagram && (
+                <p className="text-xs text-red-500">
+                  {errors.instagram.message}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Facebook</label>
+              <Input {...register("facebook")} />
+              {errors.facebook && (
+                <p className="text-xs text-red-500">
+                  {errors.facebook.message}
+                </p>
+              )}
+            </div>
             <Button type="submit" disabled={isUpdating}>
               <Save className="h-4 w-4 mr-2" />
               {isUpdating ? "Saving..." : "Save Changes"}

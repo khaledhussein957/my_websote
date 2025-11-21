@@ -1,12 +1,31 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
 import AlertMessage from "@/components/AlerMessageController";
-import { educationApi, AddEducationDto, UpdateEducationDto } from "@/api/education";
+import {
+  educationApi,
+  AddEducationDto,
+  UpdateEducationDto,
+  PaginationResponse,
+  IEducation,
+} from "@/api/education";
+import { router } from "expo-router";
 
-
-export const useEducations = () => {
-  return useQuery({
-    queryKey: ["educations"],
-    queryFn: educationApi.getEducations,
+export const useEducations = (limit: number = 10) => {
+  return useInfiniteQuery({
+    queryKey: ["educations", limit],
+    queryFn: ({ pageParam = 1 }) =>
+      educationApi.getEducations(pageParam, limit),
+    getNextPageParam: (lastPage: PaginationResponse<IEducation>) => {
+      if (lastPage.page < lastPage.totalPages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
   });
 };
 
@@ -28,6 +47,7 @@ export const useCreateEducation = () => {
     onSuccess: () => {
       AlertMessage.success("Education created successfully!");
       queryClient.invalidateQueries({ queryKey: ["educations"] });
+      router.back();
     },
 
     onError: (error: any) =>
@@ -45,14 +65,8 @@ export const useUpdateEducation = () => {
   return useMutation({
     mutationKey: ["updateEducation"],
 
-    // FIX: Allow passing { id, data }
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: UpdateEducationDto;
-    }) => educationApi.updateEducation(id, data),
+    mutationFn: ({ id, ...data }: UpdateEducationDto & { id: string }) =>
+      educationApi.updateEducation(id, data),
 
     onSuccess: () => {
       AlertMessage.success("Education updated successfully!");

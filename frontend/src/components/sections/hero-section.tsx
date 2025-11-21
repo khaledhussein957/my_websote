@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronDown, Github, Linkedin, Mail, Phone } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { fetchUser } from '@/store/portfolioSlice';
+import { useEffect } from "react";
+import { motion } from "framer-motion";
+import { ChevronDown, Github, Linkedin, Mail, Phone } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { fetchUser } from "@/store/portfolioSlice";
 
 export function HeroSection() {
   const dispatch = useAppDispatch();
@@ -16,25 +16,31 @@ export function HeroSection() {
   }, [dispatch]);
 
   const scrollToNext = () => {
-    const aboutSection = document.querySelector('#about');
+    const aboutSection = document.querySelector("#about");
     if (aboutSection) {
-      aboutSection.scrollIntoView({ behavior: 'smooth' });
+      aboutSection.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   if (loading.user) {
     return (
-      <section id="home" className="min-h-screen flex items-center justify-center">
+      <section
+        id="home"
+        className="min-h-screen flex items-center justify-center"
+      >
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </section>
     );
   }
 
   return (
-    <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden">
+    <section
+      id="home"
+      className="min-h-screen flex items-center justify-center relative overflow-hidden pt-16"
+    >
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
-      
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
@@ -50,28 +56,28 @@ export function HeroSection() {
               transition={{ delay: 0.2, duration: 0.8 }}
               className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6"
             >
-              Hi, I'm{' '}
-              <span className="text-primary">
-                {user?.name || 'Your Name'}
-              </span>
+              Hi, I'm{" "}
+              <span className="text-primary">{user?.name || "Your Name"}</span>
             </motion.h1>
-            
+
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
               className="text-xl sm:text-2xl lg:text-3xl text-muted-foreground mb-8"
             >
-              {user?.title || 'Full-Stack Developer'}
+              {user?.title || "Full-Stack Developer"}
             </motion.h2>
-            
+
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
               className="text-lg text-muted-foreground mb-8 max-w-2xl"
             >
-              {user?.about_me || user?.bio || 'Passionate about creating innovative solutions and bringing ideas to life through code. I specialize in modern web technologies and love building user-centric applications.'}
+              {user?.about_me ||
+                user?.bio ||
+                "Passionate about creating innovative solutions and bringing ideas to life through code. I specialize in modern web technologies and love building user-centric applications."}
             </motion.p>
 
             {/* Social Links */}
@@ -83,7 +89,11 @@ export function HeroSection() {
             >
               {user?.github && (
                 <Button variant="outline" size="sm" asChild>
-                  <a href={user.github} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={user.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <Github className="h-4 w-4 mr-2" />
                     GitHub
                   </a>
@@ -91,7 +101,11 @@ export function HeroSection() {
               )}
               {user?.linkedin && (
                 <Button variant="outline" size="sm" asChild>
-                  <a href={user.linkedin} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={user.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <Linkedin className="h-4 w-4 mr-2" />
                     LinkedIn
                   </a>
@@ -154,19 +168,29 @@ export function HeroSection() {
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
                       <span className="text-4xl font-bold text-primary">
-                        {user?.name?.charAt(0) || 'Y'}
+                        {user?.name?.charAt(0) || "Y"}
                       </span>
                     </div>
                   )}
                 </div>
               </motion.div>
-              
+
               {/* Floating Elements */}
               <motion.div
-                className="absolute -top-4 -right-4 w-8 h-8 bg-primary rounded-full"
+                className="absolute -top-4 -right-4 w-8 h-8 rounded-full"
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
-              />
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  width="24"
+                  height="24"
+                >
+                  <path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z" />
+                </svg>
+              </motion.div>
               <motion.div
                 className="absolute -bottom-4 -left-4 w-6 h-6 bg-secondary rounded-full"
                 animate={{ y: [0, 10, 0] }}

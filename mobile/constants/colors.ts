@@ -1,5 +1,7 @@
+import { useColorScheme } from "react-native";
+
 export const lightTheme = {
-  primary: "#000000",        // black accent
+  primary: "#f59e0b", // amber/orange accent
   background: "#FFFFFF",
   text: "#000000",
   border: "#E1E1E1",
@@ -11,8 +13,8 @@ export const lightTheme = {
 };
 
 export const darkTheme = {
-  primary: "#FFFFFF",        // white accent
-  background: "#000000",     // Matches your KH logo
+  primary: "#f59e0b", // amber/orange accent
+  background: "#000000",
   text: "#FFFFFF",
   border: "#1A1A1A",
   textLight: "#B3B3B3",
@@ -26,9 +28,6 @@ export const THEMES = {
   light: lightTheme,
   dark: darkTheme,
 };
-
-// Auto-detect based on system mode
-import { useColorScheme } from "react-native";
 
 export const useThemeColors = () => {
   const mode = useColorScheme(); // 'dark' | 'light'

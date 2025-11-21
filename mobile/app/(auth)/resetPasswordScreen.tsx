@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -13,11 +13,18 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { resetPasswordAccount } from "@/validators/auth.validator";
 import AlertMessageController from "@/components/AlerMessageController";
-import { authStyles } from "@/assets/styles/auth.style";
+import { createAuthStyles } from "@/assets/styles/auth.style";
 import { useResetPassword, useResendResetCode } from "@/hooks/useAuth";
 import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useThemeColors } from "@/constants/colors";
+import { Image } from "react-native";
 
 export default function ResetPasswordScreen() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const authStyles = createAuthStyles();
+  const colors = useThemeColors();
   const {
     control,
     handleSubmit,
@@ -64,6 +71,13 @@ export default function ResetPasswordScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
+          <View style={authStyles.imageContainer}>
+            <Image
+              source={require("../../assets/images/reset-password.png")}
+              style={authStyles.image}
+              resizeMode="contain"
+            />
+          </View>
           <Text style={authStyles.title}>Reset Password</Text>
           <Text style={authStyles.subtitle}>
             Enter the reset code sent to your email and set a new password.
@@ -86,7 +100,7 @@ export default function ResetPasswordScreen() {
               )}
             />
             {errors.code && (
-              <Text style={{ color: "red", marginTop: 4, fontSize: 12 }}>
+              <Text style={{ color: colors.error, marginTop: 4, fontSize: 12 }}>
                 {errors.code.message || "Code is required"}
               </Text>
             )}
@@ -102,14 +116,24 @@ export default function ResetPasswordScreen() {
                   style={authStyles.textInput}
                   value={value}
                   onChangeText={onChange}
-                  secureTextEntry
+                  secureTextEntry={!showPassword}
                   placeholder="New password"
                   placeholderTextColor="#999"
                 />
               )}
             />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={authStyles.eyeButton}
+            >
+              <Ionicons
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                size={20}
+                color={colors.textLight}
+              />
+            </TouchableOpacity>
             {errors.password && (
-              <Text style={{ color: "red", marginTop: 4, fontSize: 12 }}>
+              <Text style={{ color: colors.error, marginTop: 4, fontSize: 12 }}>
                 {errors.password.message || "Password is required"}
               </Text>
             )}
@@ -125,21 +149,35 @@ export default function ResetPasswordScreen() {
                   style={authStyles.textInput}
                   value={value}
                   onChangeText={onChange}
-                  secureTextEntry
+                  secureTextEntry={!showConfirmPassword}
                   placeholder="Confirm new password"
                   placeholderTextColor="#999"
                 />
               )}
             />
+            <TouchableOpacity
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              style={authStyles.eyeButton}
+            >
+              <Ionicons
+                name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                size={20}
+                color={colors.textLight}
+              />
+            </TouchableOpacity>
             {errors.confirmPassword && (
-              <Text style={{ color: "red", marginTop: 4, fontSize: 12 }}>
-                {errors.confirmPassword.message || "confirmPassword is required"}
+              <Text style={{ color: colors.error, marginTop: 4, fontSize: 12 }}>
+                {errors.confirmPassword.message ||
+                  "Confirm password is required"}
               </Text>
             )}
           </View>
 
           <TouchableOpacity
-            style={authStyles.authButton}
+            style={[
+              authStyles.authButton,
+              resetPasswordMutation.isPending && authStyles.buttonDisabled,
+            ]}
             onPress={handleSubmit(onSubmit)}
             disabled={resetPasswordMutation.isPending}
           >
@@ -151,11 +189,15 @@ export default function ResetPasswordScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[authStyles.authButton, { backgroundColor: "#ccc" }]}
+            style={[
+              authStyles.authButton,
+              { backgroundColor: colors.border, marginTop: 12 },
+              resendCodeMutation.isPending && authStyles.buttonDisabled,
+            ]}
             onPress={onResendCode}
             disabled={resendCodeMutation.isPending}
           >
-            <Text style={[authStyles.buttonText, { color: "#333" }]}>
+            <Text style={[authStyles.buttonText, { color: colors.text }]}>
               {resendCodeMutation.isPending ? "Resending..." : "Resend Code"}
             </Text>
           </TouchableOpacity>

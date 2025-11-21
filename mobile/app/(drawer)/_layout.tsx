@@ -4,7 +4,11 @@ import { useThemeColors } from "@/constants/colors";
 import { useLogout } from "@/hooks/useAuth";
 import { TouchableOpacity, Text, View, Modal } from "react-native";
 import { useState, useEffect } from "react";
-import { DrawerContentScrollView, DrawerContentComponentProps, DrawerItemList } from "@react-navigation/drawer";
+import {
+  DrawerContentScrollView,
+  DrawerContentComponentProps,
+  DrawerItemList,
+} from "@react-navigation/drawer";
 import { Redirect, useRouter } from "expo-router";
 import { useCheckAuth } from "@/hooks/useAuth";
 import NetInfo from "@react-native-community/netinfo";
@@ -35,9 +39,9 @@ export default function DrawerLayout() {
     return () => unsub();
   }, []);
 
-  if (networkError) return <Redirect href="/networkError" />
+  if (networkError) return <Redirect href="/networkError" />;
   if (isLoading) return null;
-  if (!authData) return <Redirect href="/(auth)/loginScreen" />
+  if (!authData) return <Redirect href="/(auth)/loginScreen" />;
 
   const CustomDrawerContent = (props: DrawerContentComponentProps) => {
     return (
@@ -172,7 +176,11 @@ export default function DrawerLayout() {
           options={{
             title: "Testimonial",
             drawerIcon: ({ color }) => (
-              <Ionicons name="chatbubble-ellipses-outline" size={20} color={color} />
+              <Ionicons
+                name="chatbubble-ellipses-outline"
+                size={20}
+                color={color}
+              />
             ),
           }}
         />

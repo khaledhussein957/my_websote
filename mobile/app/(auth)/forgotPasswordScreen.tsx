@@ -8,16 +8,21 @@ import {
   Platform,
   ScrollView,
   Pressable,
+  Image,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { forgotPasswordAccount } from "@/validators/auth.validator";
 import AlertMessageController from "@/components/AlerMessageController";
-import { authStyles } from "@/assets/styles/auth.style";
+import { createAuthStyles } from "@/assets/styles/auth.style";
 import { useForgotPassword } from "@/hooks/useAuth";
 import { router } from "expo-router";
+import { useThemeColors } from "@/constants/colors";
 
 export default function ForgotPasswordScreen() {
+  const authStyles = createAuthStyles();
+  const colors = useThemeColors();
+
   const {
     control,
     handleSubmit,
@@ -57,6 +62,13 @@ export default function ForgotPasswordScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
+          <View style={authStyles.imageContainer}>
+            <Image
+              source={require("../../assets/images/forgot-password.png")}
+              style={authStyles.image}
+              resizeMode="contain"
+            />
+          </View>
           <Text style={authStyles.title}>Forgot Password</Text>
           <Text style={authStyles.subtitle}>
             Enter your email address to receive a password reset code.
@@ -80,14 +92,17 @@ export default function ForgotPasswordScreen() {
               )}
             />
             {errors.email && (
-              <Text style={{ color: "red", marginTop: 4, fontSize: 12 }}>
+              <Text style={{ color: colors.error, marginTop: 4, fontSize: 12 }}>
                 {errors.email.message || "Email is required"}
               </Text>
             )}
           </View>
 
           <TouchableOpacity
-            style={authStyles.authButton}
+            style={[
+              authStyles.authButton,
+              forgotPasswordMutation.isPending && authStyles.buttonDisabled,
+            ]}
             onPress={handleSubmit(onSubmit)}
             disabled={forgotPasswordMutation.isPending}
           >

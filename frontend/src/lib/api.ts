@@ -1,38 +1,38 @@
-import axios from 'axios';
-import { 
-  demoUser, 
-  demoProjects, 
-  demoEducations, 
-  demoExperiences, 
-  demoTestimonials, 
-  demoTechStacks 
-} from './demo-data';
+import axios from "axios";
+import {
+  demoUser,
+  demoProjects,
+  demoEducations,
+  demoExperiences,
+  demoTestimonials,
+  demoTechStacks,
+} from "./demo-data";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Helper function to handle API errors and return demo data
 const handleApiError = (error: any, demoData: any) => {
-  console.warn('API Error, using demo data:', error.message);
+  console.warn("API Error, using demo data:", error.message);
   return { data: demoData };
 };
 
 // API endpoints
 export const endpoints = {
-  users: '/api/users',
-  projects: '/api/projects',
-  educations: '/api/educations',
-  experiences: '/api/experiences',
-  testimonials: '/api/testimonials',
-  techstacks: '/api/techstacks',
-  categories: '/api/categories',
-  news: '/api/news',
+  users: "/api/users",
+  projects: "/api/projects",
+  educations: "/api/educations",
+  experiences: "/api/experiences",
+  testimonials: "/api/testimonials",
+  techstacks: "/api/techstacks",
+  categories: "/api/categories",
+  news: "/api/news",
 } as const;
 
 // API service functions with fallback to demo data
@@ -69,7 +69,7 @@ export const apiService = {
     try {
       return await api.get(`${endpoints.projects}/${id}`);
     } catch (error) {
-      const project = demoProjects.find(p => p.id === id);
+      const project = demoProjects.find((p) => p.id === id);
       return handleApiError(error, project);
     }
   },
@@ -88,7 +88,7 @@ export const apiService = {
     try {
       return await api.get(`${endpoints.educations}/${id}`);
     } catch (error) {
-      const education = demoEducations.find(e => e.id === id);
+      const education = demoEducations.find((e) => e.id === id);
       return handleApiError(error, education);
     }
   },
@@ -107,7 +107,7 @@ export const apiService = {
     try {
       return await api.get(`${endpoints.experiences}/${id}`);
     } catch (error) {
-      const experience = demoExperiences.find(e => e.id === id);
+      const experience = demoExperiences.find((e) => e.id === id);
       return handleApiError(error, experience);
     }
   },
@@ -126,7 +126,7 @@ export const apiService = {
     try {
       return await api.get(`${endpoints.testimonials}/${id}`);
     } catch (error) {
-      const testimonial = demoTestimonials.find(t => t.id === id);
+      const testimonial = demoTestimonials.find((t) => t.id === id);
       return handleApiError(error, testimonial);
     }
   },
@@ -145,7 +145,7 @@ export const apiService = {
     try {
       return await api.get(`${endpoints.techstacks}/${id}`);
     } catch (error) {
-      const techStack = demoTechStacks.find(t => t.id === id);
+      const techStack = demoTechStacks.find((t) => t.id === id);
       return handleApiError(error, techStack);
     }
   },
@@ -200,7 +200,8 @@ export interface User {
   website?: string;
   linkedin?: string;
   github?: string;
-  twitter?: string;
+  instagram?: string;
+  facebook?: string;
   resetPasswordCode?: string;
   resetPasswordExpiresAt?: string;
   createdAt: string;
@@ -278,11 +279,11 @@ export interface Testimonial {
 }
 
 export interface TechStack {
-  id: string;
+  _id: string;
   name: string;
   category: string;
   icon?: string;
-  level: number;
+  proficiency: number;
   createdAt: string;
   updatedAt: string;
 }

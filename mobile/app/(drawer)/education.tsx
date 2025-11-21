@@ -1,153 +1,176 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
   FlatList,
-  TouchableOpacity,
-  Alert,
+  RefreshControl,
   ActivityIndicator,
+  StyleSheet,
+  TouchableOpacity,
 } from "react-native";
-import { Stack, router } from "expo-router";
-import { useEducations, useDeleteEducation } from "@/hooks/useEducation";
-import { educationStyles as styles } from "@/assets/styles/education.style";
+import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import EducationCard from "@/components/education/EducationCard";
+import { useThemeColors } from "@/constants/colors";
+import { useEducations, useDeleteEducation } from "@/hooks/useEducation";
+
+const COLORS = useThemeColors();
 
 export default function EducationScreen() {
-  const { data: educations, isLoading, isError } = useEducations();
-  const deleteEducationMutation = useDeleteEducation();
+  const {
+    data,
+    isLoading,
+    refetch,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useEducations(10);
 
-  // Header configuration
-  React.useLayoutEffect(() => {
-    // Optional: You can customize header here if using a stack inside layout
-  }, []);
+  const deleteEducation = useDeleteEducation();
 
-  const getIconForDegree = (degree: string) => {
-    switch (degree?.toLowerCase()) {
-      case "bachelor":
-        return "school";
-      case "master":
-        return "ribbon";
-      case "phd":
-        return "school-outline";
-      default:
-        return "document";
+  const educations = data?.pages?.flatMap((p) => p.data) || [];
+
+  const router = useRouter();
+
+  const onRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const handleLoadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
   };
 
-  const handleDelete = (id: string) => {
-    Alert.alert(
-      "Confirm Delete",
-      "Are you sure you want to delete this education?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => deleteEducationMutation.mutate(id),
-        },
-      ]
-    );
-  };
-
-  const renderEducationItem = ({ item }: { item: any }) => (
-    <View style={styles.educationItem}>
-      <Ionicons
-        name={getIconForDegree(item.degree)}
-        size={28}
-        color="#007AFF"
-        style={{ marginRight: 12 }}
-      />
-      <View style={{ flex: 1 }}>
-        <Text style={styles.educationTitle}>{item.institution}</Text>
-        <Text style={styles.educationSubtitle}>{item.degree}</Text>
-        <Text style={styles.educationYears}>
-          {item.startYear} - {item.endYear || "Present"}
-        </Text>
-      </View>
-      <View style={styles.actionButtons}>
-        <TouchableOpacity
-          onPress={() =>
-            router.push(
-              `../../components/education/UpdateEducationForm?id=${item._id}`
-            )
-          }
-          style={styles.iconButton}
-        >
-          <Ionicons name="pencil" size={22} color="#4CAF50" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => handleDelete(item._id)}
-          style={styles.iconButton}
-        >
-          <Ionicons name="trash" size={22} color="#F44336" />
-        </TouchableOpacity>
-      </View>
-    </View>
+  const renderItem = ({ item }) => (
+    <EducationCard
+      item={item}
+      onUpdate={() =>
+        router.push({
+          pathname: "/updateEducation",
+          params: { item: JSON.stringify(item) },
+        })
+      }
+      onDelete={(id) => deleteEducation.mutate(id)}
+    />
   );
-
-  if (isLoading) {
-    return (
-      <View style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
-  }
-
-  if (isError) {
-    return (
-      <View style={[styles.container, styles.centerContent]}>
-        <Text style={styles.errorText}>Failed to load educations.</Text>
-        <TouchableOpacity onPress={() => {}} style={styles.retryButton}>
-          <Text style={styles.retryButtonText}>Retry</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <Stack.Screen
-        options={{
-          title: "My Educations", // Set your header title
-          headerShown: true,
-          headerStyle: { backgroundColor: "#007AFF" },
-          headerTintColor: "#fff",
-          headerTitleStyle: { fontWeight: "bold" },
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => router.back()}
-              style={{ marginLeft: 16 }}
-            >
-              <Ionicons name="arrow-back" size={24} color="#fff" />
+      <FlatList
+        data={educations}
+        renderItem={renderItem}
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={onRefresh}
+            colors={[COLORS.primary]}
+            tintColor={COLORS.primary}
+          />
+        }
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.1}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color={COLORS.text} />
             </TouchableOpacity>
-          ),
-        }}
+            <Text style={styles.headerTitle}>Education 🎓</Text>
+            <Text style={styles.headerSubtitle}>
+              Manage your academic background
+            </Text>
+          </View>
+        }
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <ActivityIndicator
+              style={styles.footerLoader}
+              size="small"
+              color={COLORS.primary}
+            />
+          ) : null
+        }
+        ListEmptyComponent={
+          !isLoading ? (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="school-outline" size={60} color={COLORS.text} />
+              <Text style={styles.emptyText}>No Education Added</Text>
+              <Text style={styles.emptySubtext}>
+                Tap + to add your first education
+              </Text>
+            </View>
+          ) : null
+        }
       />
-
-      {educations?.length === 0 ? (
-        <View style={styles.centerContent}>
-          <Text style={styles.noDataText}>No education records found.</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={educations}
-          keyExtractor={(item) => item._id}
-          renderItem={renderEducationItem}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
 
       {/* Floating Action Button */}
       <TouchableOpacity
         style={styles.fab}
-        onPress={() =>
-          router.push("../../components/education/CreateEducationForm")
-        }
+        onPress={() => router.push("/createEducation")}
       >
-        <Ionicons name="add" size={28} color="#fff" />
+        <Ionicons name="add" size={32} color="#fff" />
       </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  listContainer: {
+    padding: 16,
+    paddingBottom: 80,
+  },
+  header: {
+    marginBottom: 20,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: COLORS.text,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    marginTop: 4,
+    color: COLORS.textLight,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    marginTop: 100,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: COLORS.text,
+    marginTop: 10,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: COLORS.textLight,
+    marginTop: 4,
+  },
+  footerLoader: {
+    marginVertical: 20,
+  },
+  fab: {
+    position: "absolute",
+    right: 20,
+    bottom: 30,
+    backgroundColor: COLORS.primary,
+    width: 60,
+    height: 60,
+    borderRadius: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 4 },
+  },
+});

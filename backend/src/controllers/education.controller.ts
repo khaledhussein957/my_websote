@@ -8,15 +8,30 @@ import User from "../models/user.model";
 
 export const getEducations = async (req: Request, res: Response) => {
   try {
-    const educations = await Education.find().populate("user", "name email");
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const totolEducations = await Education.countDocuments();
+
+    const educations = await Education.find()
+      .populate("user", "name email")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
 
     if (!educations)
       return res
         .status(404)
         .json({ message: "No educations found", status: "false" });
+
     return res.status(200).json({
       message: "Educations fetched successfully",
       status: "true",
+      currenPage: page,
+      totalPages: Math.ceil(totolEducations / limit),
+      totolEducations,
+      limit,
       data: educations,
     });
   } catch (error) {

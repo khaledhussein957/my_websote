@@ -61,7 +61,12 @@ export const useForgotPassword = () => {
   return useMutation({
     mutationKey: ["forgotPassword"],
     mutationFn: authApi.forgotPassword,
-    onSuccess: () => AlertMessage.success("Reset code sent!"),
+    onSuccess: () => {
+      AlertMessage.success("Reset code sent!");
+
+      // navigate to reset password screen
+      router.replace("/(auth)/resetPasswordScreen");
+    },
     onError: (error: any) =>
       AlertMessage.error(
         error?.response?.data?.message ||
@@ -75,7 +80,12 @@ export const useResetPassword = () => {
   return useMutation({
     mutationKey: ["resetPassword"],
     mutationFn: authApi.resetPassword,
-    onSuccess: () => AlertMessage.success("Password reset successful!"),
+    onSuccess: () => {
+      AlertMessage.success("Password reset successful!");
+
+      // navigate to login screen
+      router.replace("/(auth)/loginScreen");
+    },
     onError: (error: any) =>
       AlertMessage.error(
         error?.response?.data?.message ||

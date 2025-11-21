@@ -68,7 +68,18 @@ export const updateAccount = async (
     if (!userId)
       return res.status(401).json({ message: "Unauthorized", status: "error" });
 
-    const { name, email, phone, title, about_me } = req.body;
+    const {
+      name,
+      email,
+      phone,
+      title,
+      about_me,
+      linkedin,
+      github,
+      instagram,
+      facebook,
+      location,
+    } = req.body;
 
     // ✅ Validate phone format first
     if (phone) {
@@ -174,6 +185,11 @@ export const updateAccount = async (
     if (phone) user.phone = phone || user.phone;
     if (title) user.title = title || user.title;
     if (about_me) user.about_me = about_me || user.about_me;
+    if (linkedin) user.linkedin = linkedin || user.linkedin;
+    if (github) user.github = github || user.github;
+    if (instagram) user.instagram = instagram || user.instagram;
+    if (facebook) user.facebook = facebook || user.facebook;
+    if (location) user.location = location || user.location;
 
     await user.save();
 

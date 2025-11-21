@@ -1,19 +1,23 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { Github, Linkedin, Twitter, Mail, Heart } from 'lucide-react';
-import { format } from 'date-fns';
-import { useAppSelector } from '@/hooks/redux';
+import { motion } from "framer-motion";
+import { Github, Linkedin, Twitter, Mail, Heart } from "lucide-react";
+import { format } from "date-fns";
+import { useAppSelector } from "@/hooks/redux";
 
 export function Footer() {
   const { user } = useAppSelector((state) => state.portfolio);
 
   const socialLinks = [
-    { name: 'GitHub', icon: Github, href: user?.github },
-    { name: 'LinkedIn', icon: Linkedin, href: user?.linkedin },
-    { name: 'Twitter', icon: Twitter, href: user?.twitter },
-    { name: 'Email', icon: Mail, href: user?.email ? `mailto:${user.email}` : undefined },
-  ].filter(link => link.href);
+    { name: "GitHub", icon: Github, href: user?.github },
+    { name: "LinkedIn", icon: Linkedin, href: user?.linkedin },
+    { name: "Twitter", icon: Twitter, href: user?.twitter },
+    {
+      name: "Email",
+      icon: Mail,
+      href: user?.email ? `mailto:${user.email}` : undefined,
+    },
+  ].filter((link) => link.href);
 
   const currentYear = new Date().getFullYear();
 
@@ -31,23 +35,27 @@ export function Footer() {
             {/* Brand */}
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-foreground">
-                {user?.name || 'Portfolio'}
+                {user?.name || "Portfolio"}
               </h3>
               <p className="text-muted-foreground leading-relaxed">
-                {user?.about_me || user?.bio || 'Full-Stack Developer passionate about creating innovative solutions and bringing ideas to life through code.'}
+                {user?.about_me ||
+                  user?.bio ||
+                  "Full-Stack Developer passionate about creating innovative solutions and bringing ideas to life through code."}
               </p>
             </div>
 
             {/* Quick Links */}
             <div className="space-y-4">
-              <h4 className="text-lg font-semibold text-foreground">Quick Links</h4>
+              <h4 className="text-lg font-semibold text-foreground">
+                Quick Links
+              </h4>
               <nav className="space-y-2">
                 {[
-                  { name: 'About', href: '#about' },
-                  { name: 'Skills', href: '#skills' },
-                  { name: 'Experience', href: '#experience' },
-                  { name: 'Projects', href: '#projects' },
-                  { name: 'Contact', href: '#contact' },
+                  { name: "About", href: "#about" },
+                  { name: "Skills", href: "#skills" },
+                  { name: "Experience", href: "#experience" },
+                  { name: "Projects", href: "#projects" },
+                  { name: "Contact", href: "#contact" },
                 ].map((link) => (
                   <a
                     key={link.name}
@@ -62,7 +70,9 @@ export function Footer() {
 
             {/* Contact Info */}
             <div className="space-y-4">
-              <h4 className="text-lg font-semibold text-foreground">Get In Touch</h4>
+              <h4 className="text-lg font-semibold text-foreground">
+                Get In Touch
+              </h4>
               <div className="space-y-2">
                 {user?.email && (
                   <a
@@ -111,10 +121,8 @@ export function Footer() {
           <div className="border-t border-border pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <p className="text-muted-foreground text-sm">
-                © {currentYear} {user?.name || 'Portfolio'}. All rights reserved.
-              </p>
-              <p className="text-muted-foreground text-sm flex items-center">
-                Made with <Heart className="h-4 w-4 mx-1 text-red-500" /> using Next.js & ShadCN UI
+                © {currentYear} {user?.name || "Portfolio"}. All rights
+                reserved.
               </p>
             </div>
           </div>

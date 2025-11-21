@@ -55,7 +55,7 @@ export default function UpdateEducationForm({
   const onSubmit = (data: UpdateFormData) => {
     if (!educationData.id) return; // ensure id exists
     updateEducationMutation.mutate(
-      { id: educationData.id, ...data }, // match your API: id + data
+      { id: educationData.id, ...data },
       {
         onSuccess: () => {
           if (onSuccess) onSuccess();
@@ -78,17 +78,33 @@ export default function UpdateEducationForm({
         >
           <View style={styles.headerContainer}>
             <Text style={styles.headerTitle}>Update Education</Text>
-            <Text style={styles.headerSubtitle}>Edit your education details</Text>
+            <Text style={styles.headerSubtitle}>
+              Edit your education details
+            </Text>
           </View>
 
           <View style={styles.formContainer}>
             {[
               { name: "institution", placeholder: "Institution" },
               { name: "degree", placeholder: "Degree" },
-              { name: "startYear", placeholder: "Start Year (YYYY)", keyboardType: "numeric", maxLength: 4 },
-              { name: "endYear", placeholder: "End Year (YYYY)", keyboardType: "numeric", maxLength: 4 },
+              {
+                name: "startYear",
+                placeholder: "Start Year (YYYY)",
+                keyboardType: "numeric",
+                maxLength: 4,
+              },
+              {
+                name: "endYear",
+                placeholder: "End Year (YYYY)",
+                keyboardType: "numeric",
+                maxLength: 4,
+              },
               { name: "gpa", placeholder: "GPA (optional)" },
-              { name: "uri", placeholder: "Website/URI (optional)", autoCapitalize: "none" },
+              {
+                name: "uri",
+                placeholder: "Website/URI (optional)",
+                autoCapitalize: "none",
+              },
             ].map((field) => (
               <View style={styles.inputContainer} key={field.name}>
                 <Controller
@@ -99,7 +115,8 @@ export default function UpdateEducationForm({
                       placeholder={field.placeholder}
                       style={[
                         styles.textInput,
-                        errors[field.name as keyof UpdateFormData] && styles.inputError,
+                        errors[field.name as keyof UpdateFormData] &&
+                          styles.inputError,
                       ]}
                       onBlur={onBlur}
                       onChangeText={onChange}
@@ -121,13 +138,14 @@ export default function UpdateEducationForm({
             <TouchableOpacity
               style={[
                 styles.submitButton,
-                (isSubmitting || updateEducationMutation.isPending) && styles.buttonDisabled,
+                (isSubmitting || updateEducationMutation.isPending) &&
+                  styles.buttonDisabled,
               ]}
               onPress={handleSubmit(onSubmit)}
               disabled={isSubmitting || updateEducationMutation.isPending}
             >
               <Text style={styles.buttonText}>
-                {(isSubmitting || updateEducationMutation.isPending)
+                {isSubmitting || updateEducationMutation.isPending
                   ? "Updating..."
                   : "Update Education"}
               </Text>

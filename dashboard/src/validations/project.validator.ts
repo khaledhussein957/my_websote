@@ -11,14 +11,15 @@ const projectTypeEnum = [
 export const createProjectSchema = z.object({
   title: z.string().min(2).max(100),
   description: z.string().max(1000),
-  githubUrl: z.string().url().optional(),
+  githubUrl: z.union([z.string().url(), z.literal("")]).optional(),
   type: z.enum(projectTypeEnum),
-  liveDemoUrl: z.string().url().optional(),
+  liveDemoUrl: z.union([z.string().url(), z.literal("")]).optional(),
   image: z
     .any()
     .optional()
     .transform((val) => {
-      if (!val || (val instanceof FileList && val.length === 0)) return undefined;
+      if (!val || (val instanceof FileList && val.length === 0))
+        return undefined;
       if (val instanceof FileList) return val;
       return val;
     }),
@@ -36,7 +37,8 @@ export const updateProjectSchema = z.object({
     .any()
     .optional()
     .transform((val) => {
-      if (!val || (val instanceof FileList && val.length === 0)) return undefined;
+      if (!val || (val instanceof FileList && val.length === 0))
+        return undefined;
       if (val instanceof FileList) return val;
       return val;
     }),

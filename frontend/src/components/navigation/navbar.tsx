@@ -1,21 +1,17 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Sun, Moon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useTheme } from '@/components/providers/theme-provider';
-import { useUIStore } from '@/store/uiStore';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, Sun, Moon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useTheme } from "@/components/providers/theme-provider";
+import { useUIStore } from "@/store/uiStore";
 
 const navItems = [
-  { name: 'Home', href: '#home' },
-  { name: 'About', href: '#about' },
-  { name: 'Skills', href: '#skills' },
-  { name: 'Experience', href: '#experience' },
-  { name: 'Education', href: '#education' },
-  { name: 'Projects', href: '#projects' },
-  { name: 'Testimonials', href: '#testimonials' },
-  { name: 'Contact', href: '#contact' },
+  { name: "About", href: "#about" },
+  { name: "Skills", href: "#skills" },
+  { name: "Experience", href: "#experience" },
+  { name: "Projects", href: "#projects" },
 ];
 
 export function Navbar() {
@@ -28,23 +24,27 @@ export function Navbar() {
       setIsScrolled(window.scrollY > 50);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleNavClick = (href: string) => {
-    const section = href.replace('#', '');
+    const section = href.replace("#", "");
     setActiveSection(section);
-    toggleMenu();
-    
+
+    // Only close menu if it's open (mobile)
+    if (isMenuOpen) {
+      toggleMenu();
+    }
+
     const element = document.querySelector(href);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
+    setTheme(theme === "light" ? "dark" : "light");
   };
 
   return (
@@ -53,8 +53,8 @@ export function Navbar() {
       animate={{ y: 0 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-background/80 backdrop-blur-md border-b border-border'
-          : 'bg-transparent'
+          ? "bg-background/80 backdrop-blur-md border-b border-border"
+          : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -66,7 +66,7 @@ export function Navbar() {
             transition={{ delay: 0.2 }}
             className="flex-shrink-0"
           >
-            <a href="#home" className="text-2xl font-bold text-primary">
+            <a href="/" className="text-2xl font-bold text-primary">
               Khalodi957
             </a>
           </motion.div>
@@ -101,7 +101,7 @@ export function Navbar() {
               onClick={toggleTheme}
               className="hidden sm:inline-flex"
             >
-              {theme === 'light' ? (
+              {theme === "light" ? (
                 <Moon className="h-4 w-4" />
               ) : (
                 <Sun className="h-4 w-4" />
@@ -115,7 +115,11 @@ export function Navbar() {
               onClick={toggleMenu}
               className="md:hidden"
             >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </Button>
           </div>
         </div>
@@ -126,7 +130,7 @@ export function Navbar() {
         {isMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden bg-background border-t border-border"
           >
@@ -147,7 +151,7 @@ export function Navbar() {
                   {item.name}
                 </motion.a>
               ))}
-              
+
               {/* Mobile Theme Toggle */}
               <div className="px-3 py-2">
                 <Button
@@ -155,7 +159,7 @@ export function Navbar() {
                   onClick={toggleTheme}
                   className="w-full justify-start"
                 >
-                  {theme === 'light' ? (
+                  {theme === "light" ? (
                     <>
                       <Moon className="h-4 w-4 mr-2" />
                       Dark Mode

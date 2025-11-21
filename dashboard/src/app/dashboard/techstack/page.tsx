@@ -201,8 +201,11 @@ export default function TechStackPage() {
                       )}
                     </td>
                     <td className="py-3 px-4 flex gap-2">
-                      {techStack.category.map((c: any) => (
-                        <Badge key={c._id} variant="outline">
+                      {techStack.category.map((c: any, index: number) => (
+                        <Badge
+                          key={c._id || `${techStack._id}-category-${index}`}
+                          variant="outline"
+                        >
                           {c.name}
                         </Badge>
                       ))}

@@ -1,14 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { fetchUser, fetchTechStacks } from '@/store/portfolioSlice';
-import { Card, CardContent } from '@/components/ui/card';
+import { useEffect } from "react";
+import { motion } from "framer-motion";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { fetchUser, fetchTechStacks } from "@/store/portfolioSlice";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function AboutSection() {
   const dispatch = useAppDispatch();
-  const { user, techStacks, loading } = useAppSelector((state) => state.portfolio);
+  const { user, techStacks, loading } = useAppSelector(
+    (state) => state.portfolio
+  );
 
   useEffect(() => {
     dispatch(fetchUser());
@@ -73,15 +75,20 @@ export function AboutSection() {
               <Card>
                 <CardContent className="p-8">
                   <h3 className="text-2xl font-semibold text-foreground mb-6">
-                    {user?.name || 'Your Name'}
+                    {user?.name || "Your Name"}
                   </h3>
                   <p className="text-muted-foreground leading-relaxed mb-6">
-                    {user?.about_me || user?.bio || 'I am a passionate full-stack developer with a strong foundation in modern web technologies. I love creating innovative solutions and bringing ideas to life through clean, efficient code.'}
+                    {user?.about_me ||
+                      user?.bio ||
+                      "I am a passionate full-stack developer with a strong foundation in modern web technologies. I love creating innovative solutions and bringing ideas to life through clean, efficient code."}
                   </p>
                   <p className="text-muted-foreground leading-relaxed mb-6">
-                    With experience in both frontend and backend development, I enjoy working on projects that challenge me to learn and grow. I believe in writing maintainable code and creating user experiences that are both beautiful and functional.
+                    With experience in both frontend and backend development, I
+                    enjoy working on projects that challenge me to learn and
+                    grow. I believe in writing maintainable code and creating
+                    user experiences that are both beautiful and functional.
                   </p>
-                  
+
                   {/* Personal Info */}
                   <div className="space-y-3">
                     {user?.location && (
@@ -93,7 +100,10 @@ export function AboutSection() {
                     {user?.email && (
                       <div className="flex items-center text-sm text-muted-foreground">
                         <span className="font-medium mr-2">Email:</span>
-                        <a href={`mailto:${user.email}`} className="hover:text-primary transition-colors">
+                        <a
+                          href={`mailto:${user.email}`}
+                          className="hover:text-primary transition-colors"
+                        >
                           {user.email}
                         </a>
                       </div>
@@ -101,7 +111,12 @@ export function AboutSection() {
                     {user?.website && (
                       <div className="flex items-center text-sm text-muted-foreground">
                         <span className="font-medium mr-2">Website:</span>
-                        <a href={user.website} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                        <a
+                          href={user.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-primary transition-colors"
+                        >
                           {user.website}
                         </a>
                       </div>
@@ -119,27 +134,28 @@ export function AboutSection() {
                     Core Technologies
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
-                    {Array.isArray(techStacks?.data) && techStacks.data.slice(0, 8).map((tech, index) => (
-                      <motion.div
-                        key={tech._id}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.1 }}
-                        className="flex items-center space-x-2 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                      >
-                        <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
-                          <span className="text-xs font-bold text-primary">
-                            {tech.name.charAt(0)}
+                    {Array.isArray(techStacks) &&
+                      techStacks.slice(0, 8).map((tech, index) => (
+                        <motion.div
+                          key={tech._id}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          whileInView={{ opacity: 1, scale: 1 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: index * 0.1 }}
+                          className="flex items-center space-x-2 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                        >
+                          <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
+                            <span className="text-xs font-bold text-primary">
+                              {tech.name.charAt(0)}
+                            </span>
+                          </div>
+                          <span className="text-sm font-medium text-foreground">
+                            {tech.name}
                           </span>
-                        </div>
-                        <span className="text-sm font-medium text-foreground">
-                          {tech.name}
-                        </span>
-                      </motion.div>
-                    ))}
+                        </motion.div>
+                      ))}
                   </div>
-                  
+
                   <motion.div
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}

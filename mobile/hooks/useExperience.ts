@@ -1,45 +1,77 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AlertMessage from "@/components/AlerMessageController";
-import { experienceApi } from "@/api/experience";
+import { experienceApi, ExperienceData } from "@/api/experience";
 
 export const useExperiences = () => {
-    return useQuery({
-        queryKey: ["experiences"],
-        queryFn: experienceApi.getExperiences,
-    });
+  return useQuery<ExperienceData[]>({
+    queryKey: ["experiences"],
+    queryFn: experienceApi.getExperiences,
+  });
 };
 
-export const useExperience = (id: any) => {
-    return useQuery({
-        queryKey: ["experience", id],
-        queryFn: () => experienceApi.getExperience(id),
-        enabled: !!id,
-    })
+export const useExperience = (id: string | undefined) => {
+  return useQuery<ExperienceData>({
+    queryKey: ["experience", id],
+    queryFn: () => experienceApi.getExperience(id!),
+    enabled: !!id,
+  });
 };
 
-export const useCreateEducation = () => {
-	return useMutation({
-		mutationKey: ["createExperience"],
-		mutationFn: experienceApi.addExperience,
-		onSuccess: () => AlertMessage.success("Experience created successfully!"),
-		onError: (error) => AlertMessage.error(error?.response?.data?.message || error.message || "Failed to create experience"),
-	});
+export const useCreateExperience = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["createExperience"],
+    mutationFn: (data: ExperienceData) => experienceApi.addExperience(data),
+    onSuccess: () => {
+      AlertMessage.success("Experience created successfully!");
+      queryClient.invalidateQueries({ queryKey: ["experiences"] });
+    },
+    onError: (error: any) =>
+      AlertMessage.error(
+        error?.response?.data?.message ||
+          error.message ||
+          "Failed to create experience"
+      ),
+  });
 };
 
 export const useUpdateExperience = () => {
-	return useMutation({
-		mutationKey: ["updateExperience"],
-		mutationFn: experienceApi.updateExperience,
-		onSuccess: () => AlertMessage.success("Experience updated successfully!"),
-		onError: (error) => AlertMessage.error(error?.response?.data?.message || error.message || "Failed to update experience"),
-	});
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["updateExperience"],
+    mutationFn: ({ id, data }: { id: string; data: ExperienceData }) =>
+      experienceApi.updateExperience(id, data),
+    onSuccess: () => {
+      AlertMessage.success("Experience updated successfully!");
+      queryClient.invalidateQueries({ queryKey: ["experiences"] });
+      queryClient.invalidateQueries({ queryKey: ["experience"] });
+    },
+    onError: (error: any) =>
+      AlertMessage.error(
+        error?.response?.data?.message ||
+          error.message ||
+          "Failed to update experience"
+      ),
+  });
 };
 
-export const useDeleteEducation = () => {
-	return useMutation({
-		mutationKey: ["deleteExperience"],
-		mutationFn: experienceApi.deleteExperience,
-		onSuccess: () => AlertMessage.success("Education deleted successfully!"),
-		onError: (error) => AlertMessage.error(error?.response?.data?.message || error.message || "Failed to delete education"),
-	});
+export const useDeleteExperience = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["deleteExperience"],
+    mutationFn: (id: string) => experienceApi.deleteExperience(id),
+    onSuccess: () => {
+      AlertMessage.success("Experience deleted successfully!");
+      queryClient.invalidateQueries({ queryKey: ["experiences"] });
+    },
+    onError: (error: any) =>
+      AlertMessage.error(
+        error?.response?.data?.message ||
+          error.message ||
+          "Failed to delete experience"
+      ),
+  });
 };

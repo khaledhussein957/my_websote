@@ -6,6 +6,7 @@ export interface ICategory extends Document {
   slug: string;
   description?: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const categorySchema = new Schema<ICategory>(

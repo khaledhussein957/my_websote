@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,16 +8,23 @@ import {
   Platform,
   ScrollView,
   Pressable,
+  Image,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginAccount } from "@/validators/auth.validator";
 import AlertMessageController from "@/components/AlerMessageController";
-import { authStyles } from "@/assets/styles/auth.style";
+import { createAuthStyles } from "@/assets/styles/auth.style";
 import { useLogin } from "@/hooks/useAuth";
 import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useThemeColors } from "@/constants/colors";
 
 export default function LoginScreen() {
+  const [showPassword, setShowPassword] = useState(false);
+  const authStyles = createAuthStyles();
+  const colors = useThemeColors();
+
   const {
     control,
     handleSubmit,
@@ -40,7 +47,9 @@ export default function LoginScreen() {
 
   useEffect(() => {
     if (errors.password) {
-      AlertMessageController.error(errors.password.message || "Password is required");
+      AlertMessageController.error(
+        errors.password.message || "Password is required"
+      );
     }
   }, [errors.password]);
 
@@ -50,6 +59,10 @@ export default function LoginScreen() {
 
   const onRegisterPress = () => {
     router.push("/registerScreen");
+  };
+
+  const onForgotPasswordPress = () => {
+    router.push("/forgotPasswordScreen");
   };
 
   return (
@@ -64,6 +77,13 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
+          <View style={authStyles.imageContainer}>
+            <Image
+              source={require("../../assets/images/login.png")}
+              style={authStyles.image}
+              resizeMode="contain"
+            />
+          </View>
           <Text style={authStyles.title}>Login</Text>
 
           {/* Email */}
@@ -84,7 +104,7 @@ export default function LoginScreen() {
               )}
             />
             {errors.email && (
-              <Text style={{ color: "red", marginTop: 4, fontSize: 12 }}>
+              <Text style={{ color: colors.error, marginTop: 4, fontSize: 12 }}>
                 {errors.email.message || "Email is required"}
               </Text>
             )}
@@ -100,21 +120,41 @@ export default function LoginScreen() {
                   style={authStyles.textInput}
                   value={value}
                   onChangeText={onChange}
-                  secureTextEntry
+                  secureTextEntry={!showPassword}
                   placeholder="********"
                   placeholderTextColor="#999"
                 />
               )}
             />
+
+            {/* Show / Hide Password Button */}
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={authStyles.eyeButton}
+            >
+              <Ionicons
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                size={20}
+                color={colors.textLight}
+              />
+            </TouchableOpacity>
+
             {errors.password && (
-              <Text style={{ color: "red", marginTop: 4, fontSize: 12 }}>
+              <Text style={{ color: colors.error, marginTop: 4, fontSize: 12 }}>
                 {errors.password.message || "Password is required"}
               </Text>
             )}
           </View>
 
+          <TouchableOpacity onPress={onForgotPasswordPress}>
+            <Text style={authStyles.linkText}>Forgot Password?</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
-            style={authStyles.authButton}
+            style={[
+              authStyles.authButton,
+              loginMutation.isPending && authStyles.buttonDisabled,
+            ]}
             onPress={handleSubmit(onSubmit)}
             disabled={loginMutation.isPending}
           >

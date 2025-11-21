@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,18 +7,24 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Image,
   Pressable,
+  Image,
 } from "react-native";
 import { router } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerAccount } from "@/validators/auth.validator";
 import AlertMessageController from "@/components/AlerMessageController";
-import { authStyles } from "@/assets/styles/auth.style";
+import { createAuthStyles } from "@/assets/styles/auth.style";
 import { useRegister } from "@/hooks/useAuth";
+import { Ionicons } from "@expo/vector-icons";
+import { useThemeColors } from "@/constants/colors";
 
 export default function RegisterScreen() {
+  const [showPassword, setShowPassword] = useState(false);
+  const authStyles = createAuthStyles();
+  const colors = useThemeColors();
+
   const {
     control,
     handleSubmit,
@@ -33,20 +39,19 @@ export default function RegisterScreen() {
     },
   });
 
-  // Use your mutation hook
   const registerMutation = useRegister();
 
   useEffect(() => {
     if (errors.name) {
       AlertMessageController.error(errors.name.message || "Name is required");
     }
-  }, [errors.email]);
+  }, [errors.name]);
 
   useEffect(() => {
     if (errors.phone) {
-      AlertMessageController.error(errors.phone.message || "Email is required");
+      AlertMessageController.error(errors.phone.message || "Phone is required");
     }
-  }, [errors.email]);
+  }, [errors.phone]);
 
   useEffect(() => {
     if (errors.email) {
@@ -82,14 +87,13 @@ export default function RegisterScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* <View style={authStyles.imageContainer}>
+          <View style={authStyles.imageContainer}>
             <Image
-              source={require("../assets/register_icon.png")}
+              source={require("../../assets/images/login.png")}
               style={authStyles.image}
               resizeMode="contain"
             />
-          </View> */}
-
+          </View>
           <Text style={authStyles.title}>Create Account</Text>
 
           {/* Full Name */}
@@ -108,8 +112,8 @@ export default function RegisterScreen() {
               )}
             />
             {errors.name && (
-              <Text style={{ color: "red", marginTop: 4, fontSize: 12 }}>
-                {errors.name.message || "Email is required"}
+              <Text style={{ color: colors.error, marginTop: 4, fontSize: 12 }}>
+                {errors.name.message || "Name is required"}
               </Text>
             )}
           </View>
@@ -127,11 +131,12 @@ export default function RegisterScreen() {
                   keyboardType="email-address"
                   placeholder="Enter your email"
                   placeholderTextColor="#999"
+                  autoCapitalize="none"
                 />
               )}
             />
             {errors.email && (
-              <Text style={{ color: "red", marginTop: 4, fontSize: 12 }}>
+              <Text style={{ color: colors.error, marginTop: 4, fontSize: 12 }}>
                 {errors.email.message || "Email is required"}
               </Text>
             )}
@@ -147,15 +152,15 @@ export default function RegisterScreen() {
                   style={authStyles.textInput}
                   value={value}
                   onChangeText={onChange}
-                  keyboardType="numeric"
+                  keyboardType="phone-pad"
                   placeholder="Your phone number"
                   placeholderTextColor="#999"
                 />
               )}
             />
             {errors.phone && (
-              <Text style={{ color: "red", marginTop: 4, fontSize: 12 }}>
-                {errors.phone.message || "Email is required"}
+              <Text style={{ color: colors.error, marginTop: 4, fontSize: 12 }}>
+                {errors.phone.message || "Phone is required"}
               </Text>
             )}
           </View>
@@ -170,21 +175,37 @@ export default function RegisterScreen() {
                   style={authStyles.textInput}
                   value={value}
                   onChangeText={onChange}
-                  secureTextEntry
+                  secureTextEntry={!showPassword}
                   placeholder="********"
                   placeholderTextColor="#999"
                 />
               )}
             />
+
+            {/* Show / Hide Password Button */}
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={authStyles.eyeButton}
+            >
+              <Ionicons
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                size={20}
+                color={colors.textLight}
+              />
+            </TouchableOpacity>
+
             {errors.password && (
-              <Text style={{ color: "red", marginTop: 4, fontSize: 12 }}>
-                {errors.password.message || "Email is required"}
+              <Text style={{ color: colors.error, marginTop: 4, fontSize: 12 }}>
+                {errors.password.message || "Password is required"}
               </Text>
             )}
           </View>
 
           <TouchableOpacity
-            style={authStyles.authButton}
+            style={[
+              authStyles.authButton,
+              registerMutation.isPending && authStyles.buttonDisabled,
+            ]}
             onPress={handleSubmit(onSubmit)}
             disabled={registerMutation.isPending}
           >

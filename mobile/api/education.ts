@@ -1,6 +1,6 @@
 import axiosInstance from "@/lib/axios";
 
-interface IEducation {
+export interface IEducation {
   _id: string;
   institution: string;
   degree: string;
@@ -9,6 +9,14 @@ interface IEducation {
   gpa?: number;
   uri?: string;
   user?: any;
+}
+
+export interface PaginationResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export interface AddEducationDto {
@@ -29,29 +37,36 @@ export interface UpdateEducationDto {
   uri?: string;
 }
 
-
 export const educationApi = {
-  getEducations: async () : Promise<IEducation> => {
-    const response = await axiosInstance.get("/educations");
+  getEducations: async (
+    page: number = 1,
+    limit: number = 10
+  ): Promise<PaginationResponse<IEducation>> => {
+    const response = await axiosInstance.get(
+      `/educations?page=${page}&limit=${limit}`
+    );
     return response.data;
   },
 
-  getEducation: async (id: string) : Promise<IEducation> => {
+  getEducation: async (id: string): Promise<IEducation> => {
     const response = await axiosInstance.get(`/educations/${id}`);
     return response.data;
   },
 
-  addEducation: async (data: AddEducationDto) : Promise<IEducation> => {
+  addEducation: async (data: AddEducationDto): Promise<IEducation> => {
     const response = await axiosInstance.post("/educations", data);
     return response.data;
   },
 
-  updateEducation: async (id: string, data: UpdateEducationDto) : Promise<IEducation> => {
+  updateEducation: async (
+    id: string,
+    data: UpdateEducationDto
+  ): Promise<IEducation> => {
     const response = await axiosInstance.put(`/educations/${id}`, data);
     return response.data;
   },
 
-  deleteEducation: async (id: string) : Promise<{ message: string }> => {
+  deleteEducation: async (id: string): Promise<{ message: string }> => {
     const response = await axiosInstance.delete(`/educations/${id}`);
     return response.data;
   },
