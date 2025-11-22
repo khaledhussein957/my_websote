@@ -130,7 +130,7 @@ export function TestimonialsSection() {
                       <div className="flex-shrink-0">
                         {testimonial.avatar ? (
                           <Image
-                            src={testimonial.avatar}
+                            src={(testimonial.avatar) as string}
                             alt={testimonial.name}
                             width={48}
                             height={48}

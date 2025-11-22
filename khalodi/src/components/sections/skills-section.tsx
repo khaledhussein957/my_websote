@@ -162,7 +162,7 @@ export function SkillsSection() {
                       >
                         <div className="text-2xl mb-2">
                           <Image
-                            src={skill.icon}
+                            src={(skill.icon) as string}
                             alt={skill.name}
                             width={32}
                             height={32}

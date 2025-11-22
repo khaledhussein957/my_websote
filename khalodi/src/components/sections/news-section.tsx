@@ -86,7 +86,7 @@ export function NewsSection() {
                                         {item.image && (
                                             <div className="relative h-48 overflow-hidden bg-muted">
                                                 <Image
-                                                    src={item.image}
+                                                    src={(item.image) as string}
                                                     alt={item.title}
                                                     width={800}
                                                     height={600}
