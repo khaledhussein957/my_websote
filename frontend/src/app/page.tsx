@@ -8,6 +8,7 @@ import { SkillsSection } from "@/components/sections/skills-section";
 import { ExperienceSection } from "@/components/sections/experience-section";
 import { EducationSection } from "@/components/sections/education-section";
 import { ProjectsSection } from "@/components/sections/projects-section";
+import { NewsSection } from "@/components/sections/news-section";
 // import { TestimonialsSection } from '@/components/sections/testimonials-section';
 import { ContactSection } from "@/components/sections/contact-section";
 import { Footer } from "@/components/footer";
@@ -19,6 +20,7 @@ import {
   fetchExperiences,
   // fetchTestimonials,
   fetchTechStacks,
+  fetchNews,
 } from "@/store/portfolioSlice";
 
 export default function Home() {
@@ -32,6 +34,7 @@ export default function Home() {
     dispatch(fetchExperiences());
     // dispatch(fetchTestimonials());
     dispatch(fetchTechStacks());
+    dispatch(fetchNews());
   }, [dispatch]);
 
   return (
@@ -44,6 +47,7 @@ export default function Home() {
         <ExperienceSection />
         <EducationSection />
         <ProjectsSection />
+        <NewsSection />
         {/* <TestimonialsSection /> */}
         <ContactSection />
       </main>

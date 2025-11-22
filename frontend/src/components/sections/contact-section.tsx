@@ -13,7 +13,7 @@ import {
   Instagram,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useAppSelector } from "@/hooks/redux";
 
 export function ContactSection() {
@@ -69,6 +69,9 @@ export function ContactSection() {
                   <CardTitle className="text-2xl font-semibold">
                     Let's Connect
                   </CardTitle>
+                  <CardDescription className="text-base leading-relaxed pt-2">
+                    I'm always open to discussing new opportunities, interesting projects, or just having a chat about technology and development.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="flex items-center space-x-4">
@@ -78,9 +81,8 @@ export function ContactSection() {
                     <div>
                       <p className="font-medium text-foreground">Email</p>
                       <a
-                        href={`mailto:${
-                          user?.email || "your.email@example.com"
-                        }`}
+                        href={`mailto:${user?.email || "your.email@example.com"
+                          }`}
                         className="text-muted-foreground hover:text-primary transition-colors"
                       >
                         {user?.email || "your.email@example.com"}
@@ -120,7 +122,7 @@ export function ContactSection() {
                   {/* Social Links */}
                   <div className="pt-4">
                     <p className="font-medium text-foreground mb-4">
-                      Follow Me
+                      Follow me in social media
                     </p>
                     <div className="flex space-x-4">
                       {user?.github && (

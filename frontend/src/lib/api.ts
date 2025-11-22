@@ -280,6 +280,7 @@ export interface Testimonial {
 
 export interface TechStack {
   _id: string;
+  id?: string;
   name: string;
   category: string;
   icon?: string;
@@ -297,11 +298,13 @@ export interface Category {
 }
 
 export interface News {
-  id: string;
+  _id: string;
+  id?: string;
   title: string;
-  content: string;
+  description: string;
   image?: string;
-  publishedAt: string;
+  eventAt: string;
   createdAt: string;
   updatedAt: string;
 }
+

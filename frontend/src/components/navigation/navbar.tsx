@@ -51,11 +51,10 @@ export function Navbar() {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-background/80 backdrop-blur-md border-b border-border"
-          : "bg-transparent"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+        ? "bg-background/80 backdrop-blur-md border-b border-border"
+        : "bg-transparent"
+        }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -66,8 +65,13 @@ export function Navbar() {
             transition={{ delay: 0.2 }}
             className="flex-shrink-0"
           >
-            <a href="/" className="text-2xl font-bold text-primary">
-              Khalodi957
+            <a href="/" className="flex items-center gap-2">
+              <img
+                src="/icon2.png"
+                alt="Logo"
+                className="h-8 w-8 object-contain rounded-full"
+              />
+              <span className="text-2xl font-bold text-primary">Khalodi957</span>
             </a>
           </motion.div>
 

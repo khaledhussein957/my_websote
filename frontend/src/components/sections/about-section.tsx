@@ -3,18 +3,17 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
-import { fetchUser, fetchTechStacks } from "@/store/portfolioSlice";
+import { fetchUser } from "@/store/portfolioSlice";
 import { Card, CardContent } from "@/components/ui/card";
 
 export function AboutSection() {
   const dispatch = useAppDispatch();
-  const { user, techStacks, loading } = useAppSelector(
+  const { user, loading } = useAppSelector(
     (state) => state.portfolio
   );
 
   useEffect(() => {
     dispatch(fetchUser());
-    dispatch(fetchTechStacks());
   }, [dispatch]);
 
   const containerVariants = {
@@ -38,7 +37,7 @@ export function AboutSection() {
     },
   };
 
-  if (loading.user || loading.techStacks) {
+  if (loading.user) {
     return (
       <section id="about" className="py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -126,50 +125,58 @@ export function AboutSection() {
               </Card>
             </motion.div>
 
-            {/* Skills Preview */}
+            {/* Services */}
             <motion.div variants={itemVariants}>
               <Card>
                 <CardContent className="p-8">
                   <h3 className="text-2xl font-semibold text-foreground mb-6">
-                    Core Technologies
+                    Services I Offer
                   </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {Array.isArray(techStacks) &&
-                      techStacks.slice(0, 8).map((tech, index) => (
-                        <motion.div
-                          key={tech._id}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          whileInView={{ opacity: 1, scale: 1 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: index * 0.1 }}
-                          className="flex items-center space-x-2 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-                        >
-                          <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
-                            <span className="text-xs font-bold text-primary">
-                              {tech.name.charAt(0)}
-                            </span>
-                          </div>
-                          <span className="text-sm font-medium text-foreground">
-                            {tech.name}
-                          </span>
-                        </motion.div>
-                      ))}
+                  <div className="space-y-4">
+                    {[
+                      {
+                        icon: "🌐",
+                        title: "Web Development",
+                        description: "Modern and responsive websites tailored to your needs",
+                      },
+                      {
+                        icon: "📱",
+                        title: "Mobile App Development",
+                        description: "Native and cross-platform mobile applications",
+                      },
+                      {
+                        icon: "💻",
+                        title: "Full-Stack Development",
+                        description: "End-to-end web application development",
+                      },
+                      {
+                        icon: "🎨",
+                        title: "UI/UX Design",
+                        description: "Beautiful and intuitive user interfaces",
+                      },
+                    ].map((service, index) => (
+                      <motion.div
+                        key={service.title}
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-start space-x-4 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                      >
+                        <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <span className="text-2xl">{service.icon}</span>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-foreground mb-1">
+                            {service.title}
+                          </h4>
+                          <p className="text-sm text-muted-foreground">
+                            {service.description}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.8 }}
-                    className="mt-6 text-center"
-                  >
-                    <a
-                      href="#skills"
-                      className="text-primary hover:text-primary/80 font-medium transition-colors"
-                    >
-                      View All Skills →
-                    </a>
-                  </motion.div>
                 </CardContent>
               </Card>
             </motion.div>

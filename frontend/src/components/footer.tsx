@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Github, Linkedin, Twitter, Mail, Heart } from "lucide-react";
+import { Github, Linkedin, Instagram, Mail, Heart } from "lucide-react";
 import { format } from "date-fns";
 import { useAppSelector } from "@/hooks/redux";
 
@@ -11,7 +11,7 @@ export function Footer() {
   const socialLinks = [
     { name: "GitHub", icon: Github, href: user?.github },
     { name: "LinkedIn", icon: Linkedin, href: user?.linkedin },
-    { name: "Twitter", icon: Twitter, href: user?.twitter },
+    { name: "Instagram", icon: Instagram, href: user?.instagram },
     {
       name: "Email",
       icon: Mail,

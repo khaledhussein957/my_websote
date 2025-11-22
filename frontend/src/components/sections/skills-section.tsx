@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { fetchTechStacks } from "@/store/portfolioSlice";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function SkillsSection() {
   const dispatch = useAppDispatch();
@@ -12,9 +12,37 @@ export function SkillsSection() {
   // techStacks is already an array from the Redux store
   const techStackList = Array.isArray(techStacks) ? techStacks : [];
 
+  // State for selected category
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+
+  // First useEffect - fetch tech stacks
   useEffect(() => {
     dispatch(fetchTechStacks());
   }, [dispatch]);
+
+  // Group skills by category (using first category name or 'Other')
+  const skillsByCategory = techStackList.reduce((acc, skill) => {
+    const category =
+      Array.isArray(skill.category) && skill.category.length > 0
+        ? skill.category[0].name.trim()
+        : "Other";
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(skill);
+    return acc;
+  }, {} as { [key: string]: typeof techStackList });
+
+  // Get all categories
+  const categories = ["All", ...Object.keys(skillsByCategory)];
+
+  // Filter skills based on selected category
+  const displayedSkills =
+    selectedCategory === "All"
+      ? skillsByCategory
+      : skillsByCategory[selectedCategory]
+        ? { [selectedCategory]: skillsByCategory[selectedCategory] }
+        : {};
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -48,6 +76,7 @@ export function SkillsSection() {
     },
   };
 
+  // Loading state - now comes AFTER all hooks
   if (loading.techStacks) {
     return (
       <section id="skills" className="py-20">
@@ -64,19 +93,6 @@ export function SkillsSection() {
       </section>
     );
   }
-
-  // Group skills by category (using first category name or 'Other')
-  const skillsByCategory = techStackList.reduce((acc, skill) => {
-    const category =
-      Array.isArray(skill.category) && skill.category.length > 0
-        ? skill.category[0].name.trim()
-        : "Other";
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(skill);
-    return acc;
-  }, {} as { [key: string]: typeof techStackList });
 
   return (
     <section id="skills" className="py-20">
@@ -99,59 +115,78 @@ export function SkillsSection() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Object.entries(skillsByCategory).map(
+          {/* Category Toggle Buttons */}
+          <motion.div variants={itemVariants} className="mb-12">
+            <div className="flex flex-wrap justify-center gap-3">
+              {categories.map((category) => (
+                <motion.button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-6 py-3 rounded-full font-medium text-sm transition-all duration-300 ${selectedCategory === category
+                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {category}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Skills Grid - Key forces re-render on category change */}
+          <div key={selectedCategory} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Object.entries(displayedSkills).map(
               ([category, skills], categoryIndex) => (
                 <motion.div
-                  key={category}
+                  key={`${selectedCategory}-${category}`}
                   variants={itemVariants}
+                  initial="hidden"
+                  animate="visible"
                   className="space-y-4"
                 >
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-xl font-semibold text-center">
-                        {category}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 gap-3">
-                        {skills.map((skill, index) => (
+                  <div className="grid grid-cols-2 gap-3">
+                    {Array.isArray(skills) && skills.map((skill, index) => (
+                      <motion.div
+                        key={`${selectedCategory}-${skill._id}`}
+                        variants={skillVariants}
+                        initial="hidden"
+                        animate="visible"
+                        whileHover={{ scale: 1.05 }}
+                        className="flex flex-col items-center p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+                      >
+                        <div className="text-2xl mb-2">
+                          <img
+                            src={skill.icon}
+                            alt={skill.name}
+                            className="w-8 h-8 object-contain"
+                          />
+                        </div>
+                        <span className="text-sm font-medium text-center">
+                          {skill.name}
+                        </span>
+                        {/* Skill Level Indicator */}
+                        <div className="w-full bg-muted rounded-full h-1 mt-2">
                           <motion.div
-                            key={skill._id}
-                            variants={skillVariants}
-                            whileHover={{ scale: 1.05 }}
-                            className="flex flex-col items-center p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
-                          >
-                            <div className="text-2xl mb-2">
-                              <img
-                                src={skill.icon}
-                                alt={skill.name}
-                                className="w-8 h-8 object-contain"
-                              />
-                            </div>
-                            <span className="text-sm font-medium text-center">
-                              {skill.name}
-                            </span>
-                            {/* Skill Level Indicator */}
-                            <div className="w-full bg-muted rounded-full h-1 mt-2">
-                              <motion.div
-                                className="bg-primary h-1 rounded-full"
-                                initial={{ width: 0 }}
-                                whileInView={{
-                                  width: `${(skill.proficiency || 0) * 10}%`,
-                                }}
-                                viewport={{ once: true }}
-                                transition={{
-                                  delay: index * 0.1,
-                                  duration: 0.8,
-                                }}
-                              />
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                            className="bg-primary h-1 rounded-full"
+                            initial={{ width: 0 }}
+                            whileInView={{
+                              width: `${(skill.proficiency || 0) * 10}%`,
+                            }}
+                            viewport={{ once: true }}
+                            transition={{
+                              delay: index * 0.1,
+                              duration: 0.8,
+                            }}
+                          />
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
                 </motion.div>
               )
             )}

@@ -10,6 +10,7 @@ export interface IUser extends Document {
 
   title?: string;
   about_me?: string;
+  motto?: string;
 
   // social links
   linkedin?: string;
@@ -77,6 +78,10 @@ const UserSchema: Schema<IUser> = new Schema(
       default: "",
     },
     about_me: {
+      type: String,
+      default: "",
+    },
+    motto: {
       type: String,
       default: "",
     },

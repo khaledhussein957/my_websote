@@ -74,6 +74,7 @@ export const updateAccount = async (
       phone,
       title,
       about_me,
+      motto,
       linkedin,
       github,
       instagram,
@@ -185,6 +186,7 @@ export const updateAccount = async (
     if (phone) user.phone = phone || user.phone;
     if (title) user.title = title || user.title;
     if (about_me) user.about_me = about_me || user.about_me;
+    if (motto) user.motto = motto || user.motto;
     if (linkedin) user.linkedin = linkedin || user.linkedin;
     if (github) user.github = github || user.github;
     if (instagram) user.instagram = instagram || user.instagram;

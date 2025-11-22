@@ -10,6 +10,7 @@ export const updateAccount = Joi.object({
 
   title: Joi.string().optional(),
   about_me: Joi.string().min(25).max(400).optional(),
+  motto: Joi.string().optional(),
   location: Joi.string().optional(),
 
   linkedin: Joi.string().uri().optional(),
