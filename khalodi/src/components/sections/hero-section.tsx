@@ -160,9 +160,9 @@ export function HeroSection() {
                 transition={{ duration: 0.3 }}
               >
                 <div className="w-full h-full rounded-full bg-background overflow-hidden">
-                  {user?.image || user?.avatar ? (
+                  {user?.image || user?.image ? (
                     <Image
-                      src={user.image || user.avatar}
+                      src={(user?.image || user?.avatar) as string}
                       alt={user.name}
                       width={800}
                       height={600}
