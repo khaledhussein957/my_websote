@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { fetchTechStacks } from "@/store/portfolioSlice";
 import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
 
 export function SkillsSection() {
   const dispatch = useAppDispatch();
@@ -141,7 +142,7 @@ export function SkillsSection() {
           {/* Skills Grid - Key forces re-render on category change */}
           <div key={selectedCategory} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Object.entries(displayedSkills).map(
-              ([category, skills], categoryIndex) => (
+              ([category, skills]) => (
                 <motion.div
                   key={`${selectedCategory}-${category}`}
                   variants={itemVariants}
@@ -160,9 +161,11 @@ export function SkillsSection() {
                         className="flex flex-col items-center p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
                       >
                         <div className="text-2xl mb-2">
-                          <img
+                          <Image
                             src={skill.icon}
                             alt={skill.name}
+                            width={32}
+                            height={32}
                             className="w-8 h-8 object-contain"
                           />
                         </div>

@@ -8,7 +8,6 @@ import {
   Download,
   Github,
   Linkedin,
-  Twitter,
   Facebook,
   Instagram,
 } from "lucide-react";
@@ -56,7 +55,7 @@ export function ContactSection() {
             </h2>
             <div className="w-24 h-1 bg-primary mx-auto rounded-full mb-6"></div>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Have a project in mind or want to collaborate? I'd love to hear
+              Have a project in mind or want to collaborate? I&apos;d love to hear
               from you!
             </p>
           </motion.div>
@@ -67,10 +66,10 @@ export function ContactSection() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-2xl font-semibold">
-                    Let's Connect
+                    Let&apos;s Connect
                   </CardTitle>
                   <CardDescription className="text-base leading-relaxed pt-2">
-                    I'm always open to discussing new opportunities, interesting projects, or just having a chat about technology and development.
+                    I&apos;m always open to discussing new opportunities, interesting projects, or just having a chat about technology and development.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">

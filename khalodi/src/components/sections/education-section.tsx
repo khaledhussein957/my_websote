@@ -2,11 +2,10 @@
 
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { GraduationCap, Calendar, MapPin, Award } from 'lucide-react';
+import { GraduationCap, Calendar, Award } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { fetchEducations } from '@/store/portfolioSlice';
 import { Card, CardContent } from '@/components/ui/card';
-import { format, parseISO } from 'date-fns';
 
 export function EducationSection() {
   const dispatch = useAppDispatch();
@@ -15,8 +14,8 @@ export function EducationSection() {
   const educationList = Array.isArray(educations?.data)
     ? educations.data
     : Array.isArray(educations)
-    ? educations
-    : [];
+      ? educations
+      : [];
 
   useEffect(() => {
     dispatch(fetchEducations());

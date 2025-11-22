@@ -7,6 +7,7 @@ import { fetchNews } from "@/store/portfolioSlice";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
+import Image from "next/image";
 
 export function NewsSection() {
     const dispatch = useAppDispatch();
@@ -78,15 +79,17 @@ export function NewsSection() {
                     {/* News Grid or Empty State */}
                     {news && news.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {news.map((item, index) => (
+                            {news.map((item) => (
                                 <motion.div key={item._id} variants={itemVariants}>
                                     <Card className="overflow-hidden h-full hover:shadow-xl transition-shadow duration-300 group">
                                         {/* Image */}
                                         {item.image && (
                                             <div className="relative h-48 overflow-hidden bg-muted">
-                                                <img
+                                                <Image
                                                     src={item.image}
                                                     alt={item.title}
+                                                    width={800}
+                                                    height={600}
                                                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                                                 />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>

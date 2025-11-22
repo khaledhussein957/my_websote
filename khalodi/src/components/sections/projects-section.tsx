@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { fetchProjects } from '@/store/portfolioSlice';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 export function ProjectsSection() {
   const dispatch = useAppDispatch();
@@ -117,8 +118,8 @@ export function ProjectsSection() {
               <motion.button
                 onClick={() => setFilter('all')}
                 className={`px-6 py-3 rounded-full font-medium text-sm transition-all duration-300 ${filter === 'all'
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -128,8 +129,8 @@ export function ProjectsSection() {
               <motion.button
                 onClick={() => setFilter('featured')}
                 className={`px-6 py-3 rounded-full font-medium text-sm transition-all duration-300 ${filter === 'featured'
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -154,9 +155,11 @@ export function ProjectsSection() {
                 <Card className="h-full overflow-hidden hover:shadow-xl transition-shadow duration-300">
                   {project.image && (
                     <div className="aspect-video overflow-hidden">
-                      <img
+                      <Image
                         src={project.image}
                         alt={project.title}
+                        width={800}
+                        height={600}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>

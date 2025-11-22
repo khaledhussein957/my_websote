@@ -6,6 +6,7 @@ import { Star, Quote } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { fetchTestimonials } from '@/store/portfolioSlice';
 import { Card, CardContent } from '@/components/ui/card';
+import Image from 'next/image';
 
 export function TestimonialsSection() {
   const dispatch = useAppDispatch();
@@ -70,11 +71,10 @@ export function TestimonialsSection() {
     return Array.from({ length: 5 }, (_, index) => (
       <Star
         key={index}
-        className={`h-4 w-4 ${
-          index < rating
-            ? 'text-yellow-400 fill-current'
-            : 'text-muted-foreground'
-        }`}
+        className={`h-4 w-4 ${index < rating
+          ? 'text-yellow-400 fill-current'
+          : 'text-muted-foreground'
+          }`}
       />
     ));
   };
@@ -100,7 +100,7 @@ export function TestimonialsSection() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonialList.map((testimonial, index) => (
+            {testimonialList.map((testimonial) => (
               <motion.div
                 key={testimonial._id}
                 variants={cardVariants}
@@ -129,9 +129,11 @@ export function TestimonialsSection() {
                     <div className="flex items-center space-x-3 pt-4 border-t border-border">
                       <div className="flex-shrink-0">
                         {testimonial.avatar ? (
-                          <img
+                          <Image
                             src={testimonial.avatar}
                             alt={testimonial.name}
+                            width={48}
+                            height={48}
                             className="w-12 h-12 rounded-full object-cover"
                           />
                         ) : (

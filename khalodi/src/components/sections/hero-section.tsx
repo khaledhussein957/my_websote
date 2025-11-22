@@ -6,6 +6,7 @@ import { ChevronDown, Github, Linkedin, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { fetchUser } from "@/store/portfolioSlice";
+import Image from "next/image";
 
 export function HeroSection() {
   const dispatch = useAppDispatch();
@@ -56,7 +57,7 @@ export function HeroSection() {
               transition={{ delay: 0.2, duration: 0.8 }}
               className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6"
             >
-              Hi, I'm{" "}
+              Hi, I&apos;m{" "}
               <span className="text-primary">{user?.name || "Your Name"}</span>
             </motion.h1>
 
@@ -160,9 +161,11 @@ export function HeroSection() {
               >
                 <div className="w-full h-full rounded-full bg-background overflow-hidden">
                   {user?.image || user?.avatar ? (
-                    <img
+                    <Image
                       src={user.image || user.avatar}
                       alt={user.name}
+                      width={800}
+                      height={600}
                       className="w-full h-full object-cover"
                     />
                   ) : (

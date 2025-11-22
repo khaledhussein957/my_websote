@@ -6,7 +6,6 @@ import { Calendar, MapPin, Building2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { fetchExperiences } from '@/store/portfolioSlice';
 import { Card, CardContent } from '@/components/ui/card';
-import { format, parseISO } from 'date-fns';
 
 export function ExperienceSection() {
   const dispatch = useAppDispatch();

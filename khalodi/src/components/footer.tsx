@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Github, Linkedin, Instagram, Mail, Heart } from "lucide-react";
-import { format } from "date-fns";
+import { Github, Linkedin, Instagram, Mail } from "lucide-react";
 import { useAppSelector } from "@/hooks/redux";
 
 export function Footer() {

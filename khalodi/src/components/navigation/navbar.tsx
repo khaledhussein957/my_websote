@@ -6,6 +6,8 @@ import { Menu, X, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/providers/theme-provider";
 import { useUIStore } from "@/store/uiStore";
+import Link from "next/link";
+import Image from "next/image";
 
 const navItems = [
   { name: "About", href: "#about" },
@@ -65,14 +67,16 @@ export function Navbar() {
             transition={{ delay: 0.2 }}
             className="flex-shrink-0"
           >
-            <a href="/" className="flex items-center gap-2">
-              <img
+            <Link href="/" className="flex items-center gap-2">
+              <Image
                 src="/icon2.png"
                 alt="Logo"
+                width={32}
+                height={32}
                 className="h-8 w-8 object-contain rounded-full"
               />
               <span className="text-2xl font-bold text-primary">Khalodi957</span>
-            </a>
+            </Link>
           </motion.div>
 
           {/* Desktop Navigation */}
