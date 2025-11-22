@@ -10,12 +10,8 @@ import { Card, CardContent } from '@/components/ui/card';
 export function EducationSection() {
   const dispatch = useAppDispatch();
   const { educations, loading } = useAppSelector((state) => state.portfolio);
-  // Support both API (object with data) and demo (array) formats
-  const educationList = Array.isArray(educations?.data)
-    ? educations.data
-    : Array.isArray(educations)
-      ? educations
-      : [];
+  // Ensure educations is always an array
+  const educationList = Array.isArray(educations) ? educations : [];
 
   useEffect(() => {
     dispatch(fetchEducations());
