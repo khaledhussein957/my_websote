@@ -102,7 +102,7 @@ export function TestimonialsSection() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {testimonialList.map((testimonial) => (
               <motion.div
-                key={testimonial._id}
+                key={testimonial.id}
                 variants={cardVariants}
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
