@@ -1,12 +1,4 @@
 import axios from "axios";
-import {
-  demoUser,
-  demoProjects,
-  demoEducations,
-  demoExperiences,
-  demoTestimonials,
-  demoTechStacks,
-} from "./demo-data";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
@@ -45,14 +37,15 @@ export const apiService = {
       // Handle API response structure: { message, status, data }
       return { data: response.data.data || response.data };
     } catch (error) {
-      return handleApiError(error, [demoUser]);
+      // return the error
+      return error;
     }
   },
   getUser: async (id: string) => {
     try {
       return await api.get(`${endpoints.users}/${id}`);
     } catch (error) {
-      return handleApiError(error, demoUser);
+      return error;
     }
   },
 
@@ -63,15 +56,14 @@ export const apiService = {
       // Handle API response structure: { message, status, data }
       return { data: response.data.data || response.data };
     } catch (error) {
-      return handleApiError(error, demoProjects);
+      return error;
     }
   },
   getProject: async (id: string) => {
     try {
       return await api.get(`${endpoints.projects}/${id}`);
     } catch (error) {
-      const project = demoProjects.find((p) => p.id === id);
-      return handleApiError(error, project);
+      return error;
     }
   },
 
@@ -82,15 +74,14 @@ export const apiService = {
       // Handle API response structure: { message, status, data }
       return { data: response.data.data || response.data };
     } catch (error) {
-      return handleApiError(error, demoEducations);
+      return error;
     }
   },
   getEducation: async (id: string) => {
     try {
       return await api.get(`${endpoints.educations}/${id}`);
     } catch (error) {
-      const education = demoEducations.find((e) => e.id === id);
-      return handleApiError(error, education);
+      return error;
     }
   },
 
@@ -101,15 +92,14 @@ export const apiService = {
       // Handle API response structure: { message, status, data }
       return { data: response.data.data || response.data };
     } catch (error) {
-      return handleApiError(error, demoExperiences);
+      return error;
     }
   },
   getExperience: async (id: string) => {
     try {
       return await api.get(`${endpoints.experiences}/${id}`);
     } catch (error) {
-      const experience = demoExperiences.find((e) => e.id === id);
-      return handleApiError(error, experience);
+      return error;
     }
   },
 
@@ -120,15 +110,14 @@ export const apiService = {
       // Handle API response structure: { message, status, data }
       return { data: response.data.data || response.data };
     } catch (error) {
-      return handleApiError(error, demoTestimonials);
+      return error;
     }
   },
   getTestimonial: async (id: string) => {
     try {
       return await api.get(`${endpoints.testimonials}/${id}`);
     } catch (error) {
-      const testimonial = demoTestimonials.find((t) => t.id === id);
-      return handleApiError(error, testimonial);
+      return error;
     }
   },
 
@@ -139,15 +128,13 @@ export const apiService = {
       // Handle API response structure: { message, status, data }
       return { data: response.data.data || response.data };
     } catch (error) {
-      return handleApiError(error, demoTechStacks);
     }
   },
   getTechStack: async (id: string) => {
     try {
       return await api.get(`${endpoints.techstacks}/${id}`);
     } catch (error) {
-      const techStack = demoTechStacks.find((t) => t.id === id);
-      return handleApiError(error, techStack);
+      return error;
     }
   },
 
@@ -156,14 +143,14 @@ export const apiService = {
     try {
       return await api.get(endpoints.categories);
     } catch (error) {
-      return handleApiError(error, []);
+      return error;
     }
   },
   getCategory: async (id: string) => {
     try {
       return await api.get(`${endpoints.categories}/${id}`);
     } catch (error) {
-      return handleApiError(error, null);
+      return error;
     }
   },
 
@@ -172,14 +159,14 @@ export const apiService = {
     try {
       return await api.get(endpoints.news);
     } catch (error) {
-      return handleApiError(error, []);
+      return error;
     }
   },
   getNewsBySlug: async (slug: string) => {
     try {
       return await api.get(`${endpoints.news}/${slug}`);
     } catch (error) {
-      return handleApiError(error, null);
+      return error;
     }
   },
 };
