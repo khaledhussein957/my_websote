@@ -6,6 +6,7 @@ import { Calendar, MapPin, Building2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { fetchExperiences } from '@/store/portfolioSlice';
 import { Card, CardContent } from '@/components/ui/card';
+import { Experience } from '@/lib/api';
 
 export function ExperienceSection() {
   const dispatch = useAppDispatch();
@@ -91,7 +92,7 @@ export function ExperienceSection() {
             <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-primary/20 hidden md:block"></div>
 
             <div className="space-y-12">
-              {experienceList.map((experience: any, index: number) => (
+              {experienceList.map((experience: Experience, index: number) => (
                 <motion.div
                   key={experience._id || index}
                   variants={timelineVariants}

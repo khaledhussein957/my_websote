@@ -18,8 +18,9 @@ export const api = axios.create({
 });
 
 // Helper function to handle API errors and return demo data
-const handleApiError = (error: any, demoData: any) => {
-  console.warn("API Error, using demo data:", error.message);
+const handleApiError = <T>(error: unknown, demoData: T) => {
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  console.warn("API Error, using demo data:", errorMessage);
   return { data: demoData };
 };
 

@@ -122,7 +122,7 @@ export function TestimonialsSection() {
 
                     {/* Testimonial Content */}
                     <blockquote className="text-muted-foreground leading-relaxed mb-6 flex-1">
-                      "{testimonial.content}"
+                      &quot;{testimonial.content}&quot;
                     </blockquote>
 
                     {/* Client Info */}

@@ -8,6 +8,7 @@ import { fetchProjects } from '@/store/portfolioSlice';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import { Project } from '@/lib/api';
 
 export function ProjectsSection() {
   const dispatch = useAppDispatch();
@@ -22,10 +23,10 @@ export function ProjectsSection() {
 
   // Normalize projects data - handle API response structure
   const normalizedProjects = Array.isArray(projects)
-    ? projects.map((project: any) => {
+    ? projects.map((project: Project) => {
       let technologies: string[] = [];
       if (Array.isArray(project.techStack) && project.techStack.length > 0) {
-        technologies = project.techStack.map((t: any) => t.name?.trim() || '').filter(Boolean);
+        technologies = project.techStack.map((t: { name?: string }) => t.name?.trim() || '').filter(Boolean);
       } else if (Array.isArray(project.technologies)) {
         technologies = project.technologies;
       }
@@ -40,7 +41,7 @@ export function ProjectsSection() {
     })
     : [];
 
-  const featuredProjects = normalizedProjects.filter((project: any) => project.featured);
+  const featuredProjects = normalizedProjects.filter((project) => project.featured);
 
   // Display projects based on filter
   const displayedProjects = filter === 'featured' ? featuredProjects : normalizedProjects;
@@ -142,7 +143,7 @@ export function ProjectsSection() {
 
           {/* Projects Grid */}
           <div key={filter} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {displayedProjects.map((project: any) => (
+            {displayedProjects.map((project) => (
               <motion.div
                 key={`${filter}-${project.id}`}
                 variants={cardVariants}

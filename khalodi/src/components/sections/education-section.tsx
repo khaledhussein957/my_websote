@@ -91,7 +91,7 @@ export function EducationSection() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {educationList.map((education, index) => (
+            {educationList.map((education) => (
               <motion.div
                 key={education._id}
                 variants={cardVariants}
