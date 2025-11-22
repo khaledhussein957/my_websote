@@ -268,7 +268,7 @@ export interface Experience {
 }
 
 export interface Testimonial {
-  id: string;
+  _id: string;
   name: string;
   position: string;
   company: string;
