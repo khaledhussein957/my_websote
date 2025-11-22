@@ -37,15 +37,15 @@ export const apiService = {
       // Handle API response structure: { message, status, data }
       return { data: response.data.data || response.data };
     } catch (error) {
-      // return the error
-      return error;
+      // throw the error
+      throw error;
     }
   },
   getUser: async (id: string) => {
     try {
       return await api.get(`${endpoints.users}/${id}`);
     } catch (error) {
-      return error;
+      throw error;
     }
   },
 
@@ -56,14 +56,14 @@ export const apiService = {
       // Handle API response structure: { message, status, data }
       return { data: response.data.data || response.data };
     } catch (error) {
-      return error;
+      throw error;
     }
   },
   getProject: async (id: string) => {
     try {
       return await api.get(`${endpoints.projects}/${id}`);
     } catch (error) {
-      return error;
+      throw error;
     }
   },
 
@@ -74,14 +74,14 @@ export const apiService = {
       // Handle API response structure: { message, status, data }
       return { data: response.data.data || response.data };
     } catch (error) {
-      return error;
+      throw error;
     }
   },
   getEducation: async (id: string) => {
     try {
       return await api.get(`${endpoints.educations}/${id}`);
     } catch (error) {
-      return error;
+      throw error;
     }
   },
 
@@ -92,14 +92,14 @@ export const apiService = {
       // Handle API response structure: { message, status, data }
       return { data: response.data.data || response.data };
     } catch (error) {
-      return error;
+      throw error;
     }
   },
   getExperience: async (id: string) => {
     try {
       return await api.get(`${endpoints.experiences}/${id}`);
     } catch (error) {
-      return error;
+      throw error;
     }
   },
 
@@ -110,14 +110,14 @@ export const apiService = {
       // Handle API response structure: { message, status, data }
       return { data: response.data.data || response.data };
     } catch (error) {
-      return error;
+      throw error;
     }
   },
   getTestimonial: async (id: string) => {
     try {
       return await api.get(`${endpoints.testimonials}/${id}`);
     } catch (error) {
-      return error;
+      throw error;
     }
   },
 
@@ -128,13 +128,14 @@ export const apiService = {
       // Handle API response structure: { message, status, data }
       return { data: response.data.data || response.data };
     } catch (error) {
+      throw error;
     }
   },
   getTechStack: async (id: string) => {
     try {
       return await api.get(`${endpoints.techstacks}/${id}`);
     } catch (error) {
-      return error;
+      throw error;
     }
   },
 
@@ -143,14 +144,14 @@ export const apiService = {
     try {
       return await api.get(endpoints.categories);
     } catch (error) {
-      return error;
+      throw error;
     }
   },
   getCategory: async (id: string) => {
     try {
       return await api.get(`${endpoints.categories}/${id}`);
     } catch (error) {
-      return error;
+      throw error;
     }
   },
 
@@ -159,14 +160,14 @@ export const apiService = {
     try {
       return await api.get(endpoints.news);
     } catch (error) {
-      return error;
+      throw error;
     }
   },
   getNewsBySlug: async (slug: string) => {
     try {
       return await api.get(`${endpoints.news}/${slug}`);
     } catch (error) {
-      return error;
+      throw error;
     }
   },
 };
