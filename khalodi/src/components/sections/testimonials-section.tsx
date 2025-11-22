@@ -11,8 +11,8 @@ import Image from 'next/image';
 export function TestimonialsSection() {
   const dispatch = useAppDispatch();
   const { testimonials, loading } = useAppSelector((state) => state.portfolio);
-  // Ensure testimonials is always an array (from testimonials.data)
-  const testimonialList = Array.isArray(testimonials?.data) ? testimonials.data : [];
+  // Ensure testimonials is always an array
+  const testimonialList = Array.isArray(testimonials) ? testimonials : [];
 
   useEffect(() => {
     dispatch(fetchTestimonials());
