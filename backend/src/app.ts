@@ -37,7 +37,7 @@ const app = express();
 // Middlewares
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"], // your frontend URL
+    origin: ["http://localhost:3000", "http://localhost:3001", "https://khalodi.onrender.com"], // your frontend URL
     credentials: true,
   })
 );
